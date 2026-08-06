@@ -1,0 +1,28 @@
+# 저장소에는 항상 LF로 저장하고 체크아웃도 LF로 한다.
+# 팀원 각자의 core.autocrlf 설정과 무관하게 동작하므로,
+# 맥/윈도우 혼용 환경에서 "한 줄도 안 고쳤는데 파일 전체가 변경됨" 문제를 막는다.
+* text=auto eol=lf
+
+# 셸 스크립트에 CRLF가 섞이면 Git Bash에서 $'\r': command not found 로 실행 자체가 깨진다.
+*.sh text eol=lf
+
+# 윈도우 배치 파일은 반대로 CRLF를 유지해야 한다.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# 바이너리는 Git이 줄바꿈을 건드리지 않도록 명시한다.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.pdf binary
+*.zip binary
+*.xlsx binary
+*.parquet binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.mp4 binary

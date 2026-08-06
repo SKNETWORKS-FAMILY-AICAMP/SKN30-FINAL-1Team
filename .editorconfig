@@ -1,0 +1,20 @@
+# 에디터가 타이핑할 때의 규칙.
+# Git 단의 줄바꿈 강제는 .gitattributes 가 담당한다 (둘 다 필요).
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+[*.py]
+indent_size = 4
+
+[*.md]
+trim_trailing_whitespace = false
+
+[Makefile]
+indent_style = tab
