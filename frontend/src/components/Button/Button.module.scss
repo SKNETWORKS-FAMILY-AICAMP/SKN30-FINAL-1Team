@@ -1,0 +1,32 @@
+.root {
+  padding: $space-sm $space-md;
+  border: 1px solid transparent;
+  border-radius: $radius-sm;
+  font-size: $font-size-base;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.primary {
+  background: $color-primary;
+  color: $color-on-primary;
+
+  &:hover:not(:disabled) {
+    background: $color-primary-hover;
+  }
+}
+
+.ghost {
+  background: transparent;
+  border-color: $color-border;
+  color: $color-text;
+
+  &:hover:not(:disabled) {
+    background: $color-primary-subtle;
+  }
+}

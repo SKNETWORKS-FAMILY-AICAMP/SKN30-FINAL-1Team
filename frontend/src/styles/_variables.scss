@@ -1,0 +1,39 @@
+// 디자인 토큰. 색상·간격·breakpoint 는 여기서만 정의합니다.
+// 컴포넌트에 hex 나 px 을 직접 쓰지 마세요.
+//
+// vite.config.ts 의 additionalData 로 모든 .scss 에 자동 주입되므로
+// 컴포넌트 파일에서 @use 없이 바로 쓸 수 있습니다.
+
+// 색상
+$color-primary: #2563eb;
+$color-primary-hover: #1d4ed8;
+$color-primary-subtle: rgba($color-primary, 0.06);
+$color-on-primary: #ffffff;
+$color-text: #1f2937;
+$color-text-muted: #6b7280;
+$color-bg: #ffffff;
+$color-border: #e5e7eb;
+$color-success: #16a34a;
+$color-danger: #dc2626;
+
+// 간격
+$space-xs: 4px;
+$space-sm: 8px;
+$space-md: 16px;
+$space-lg: 24px;
+$space-xl: 40px;
+
+// 서체
+$font-size-sm: 14px;
+$font-size-base: 16px;
+$font-size-lg: 20px;
+$font-size-xl: 28px;
+
+// 기타
+$radius-sm: 4px;
+$radius-md: 8px;
+
+// breakpoint
+$bp-mobile: 480px;
+$bp-tablet: 768px;
+$bp-desktop: 1024px;

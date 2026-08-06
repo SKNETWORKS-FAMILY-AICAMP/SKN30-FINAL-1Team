@@ -1,0 +1,44 @@
+// 전역 스타일. 여기 외에는 전역 CSS 를 쓰지 않습니다.
+// 컴포넌트 스타일은 항상 *.module.scss 로 작성하세요.
+//
+// src/styles/ 안의 파일은 변수 자동 주입 대상에서 제외되므로 직접 @use 합니다.
+@use 'variables' as *;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    'Malgun Gothic',
+    sans-serif;
+  font-size: $font-size-base;
+  color: $color-text;
+  background: $color-bg;
+  line-height: 1.6;
+}
+
+a {
+  color: $color-primary;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+button {
+  font-family: inherit;
+}
