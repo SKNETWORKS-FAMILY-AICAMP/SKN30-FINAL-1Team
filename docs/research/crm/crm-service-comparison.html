@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Relate, Pipedrive, 세일즈로그, 핑거세일즈, SAP 영업 CRM 화면 중심 탭형 비교">
-  <title>영업 CRM 5종 화면 중심 비교</title>
+  <meta name="description" content="Relate, Pipedrive, 세일즈로그, 핑거세일즈, SAP 공식 근거 및 FieldMed 요구사항 기반 CRM 비교">
+  <title>FieldMed CRM 5종 공식 근거 비교</title>
   <style>
     :root{--ink:#142338;--sub:#657489;--line:#dce3eb;--paper:#fff;--soft:#f4f7fa;--navy:#09213e;--blue:#3264db;--shadow:0 16px 48px rgba(16,37,62,.1);--radius:22px}
     *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:#eef3f7;font-family:Pretendard,"Noto Sans KR","Apple SD Gothic Neo",system-ui,sans-serif;line-height:1.55}.wrap{width:min(1180px,calc(100% - 28px));margin:auto}
@@ -17,17 +17,21 @@
     .viewer{overflow:hidden;border:1px solid var(--line);border-radius:18px;background:#fff}.viewer-main{min-width:0}.viewer-stage{position:relative;display:grid;min-height:480px;place-items:center;background:#f7f9fb}.viewer-stage img{display:block;max-width:100%;max-height:66vh;object-fit:contain;cursor:zoom-in}.viewer-meta{position:absolute;left:14px;bottom:14px;padding:7px 10px;border-radius:999px;color:#fff;background:rgba(5,20,37,.78);font-size:10px;font-weight:850}.viewer-controls{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 13px;border-top:1px solid var(--line)}.viewer-controls button{padding:8px 12px;border:1px solid var(--line);border-radius:10px;color:#32445a;background:#fff;cursor:pointer}.viewer-controls button:hover{color:#fff;background:var(--navy)}.image-explain{display:block;padding:20px 22px;border-top:1px solid var(--line);background:#fff}.image-kind{align-self:flex-start;padding:6px 9px;border-radius:9px;color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,#fff);font-size:10px;font-weight:900}.image-explain h3{margin:13px 0 7px;font-size:24px;line-height:1.2;letter-spacing:-.035em}.image-explain p{margin:0;color:#526278;font-size:14px;font-weight:720}.explain-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}.explain-tags span{padding:6px 8px;border-radius:8px;color:#5d6c7e;background:var(--soft);font-size:10px;font-weight:800}.thumbs{display:flex;gap:8px;padding:10px;overflow-x:auto;border-top:1px solid var(--line);background:#f5f7f9}.thumb{flex:0 0 116px;padding:0;border:3px solid transparent;border-radius:10px;background:#fff;cursor:pointer;overflow:hidden}.thumb.active{border-color:var(--accent)}.thumb img{display:block;width:100%;height:70px;object-fit:cover}.thumb span{display:block;padding:4px;color:#69788c;font-size:9px}.gallery-note{margin:9px 0 0;color:var(--sub);font-size:11px}
     .phone-block{display:grid;grid-template-columns:240px 1fr;gap:24px;align-items:center}.phone{padding:9px;border:7px solid #162638;border-radius:34px;background:#162638;box-shadow:0 18px 48px rgba(12,34,54,.22)}.phone-screen{overflow:hidden;min-height:390px;border-radius:22px;background:#fafcfd}.phone-head{padding:18px;color:#fff;background:#276c5a}.phone-head small{opacity:.8}.phone-head b{display:block;font-size:19px}.phone-content{display:grid;gap:9px;padding:12px}.phone-row{padding:11px;border:1px solid #dce6e2;border-radius:11px;background:#fff}.phone-row b{display:flex;justify-content:space-between;font-size:12px}.phone-row span{color:#6e7e76;font-size:10px}.phone-nav{display:flex;justify-content:space-around;padding:11px;border-top:1px solid #e1e7e4;color:#64746c;font-size:9px}.official-note{margin:0 0 12px;color:#26705e;font-size:11px;font-weight:850}
     .price-note{margin-top:12px;padding:15px;border-radius:13px;color:#536378;background:#edf2f7;font-size:12px}.sources{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}.sources a{padding:7px 10px;border-radius:999px;color:#dceafb;background:var(--navy);font-size:10px;text-decoration:none}footer{padding:28px 0 42px;color:#6c7a8d;border-top:1px solid #d9e1e9;font-size:11px}
+
+    .evidence-line{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 14px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;color:#526278;background:#f8fafc;font-size:11px}.evidence-line span{margin-right:auto}.evidence-line a,.ref{color:#174fae;font-weight:850;text-decoration:underline;text-decoration-color:#b6c8e8;text-underline-offset:3px}.research-note{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;padding:14px;border:1px solid #cfd9e6;border-radius:14px;color:#3e5067;background:#f8fafc;font-size:12px}.research-note b{color:var(--navy)}.research-note span{padding:5px 8px;border-radius:8px;background:#fff}.research-table{min-width:2700px}.research-table th:first-child,.research-table td:first-child{position:sticky;left:0;z-index:2}.research-table thead th:first-child{z-index:4}.research-table tbody th:first-child{min-width:125px}.research-table td{min-width:205px}.research-table td:nth-child(2){min-width:290px}.research-table td:nth-child(8){min-width:230px}.cell-list,.check-list{display:grid;gap:5px;margin:0;padding-left:17px}.cell-list li,.check-list li{padding-left:1px}.source-stack{display:grid;gap:6px}.source-stack a{width:max-content;max-width:100%}.mark{display:inline-flex;align-items:center;padding:4px 7px;border-radius:999px;font-size:10px;font-weight:900;white-space:nowrap}.mark.official{color:#15583d;background:#dff4e8}.mark.inference{color:#6d5011;background:#fff0c7}.mark.unknown{color:#6b4450;background:#f7e4e9}.requirement-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.requirement-card{padding:17px;border:1px solid var(--line);border-radius:15px;background:#fff}.requirement-card b{display:block;margin-bottom:6px;color:var(--blue);font-size:13px}.requirement-card span{color:var(--sub);font-size:12px}.matrix-table{min-width:1120px}.status{display:inline-block;min-width:58px;padding:5px 7px;border-radius:999px;text-align:center;font-size:10px;font-weight:900}.status.yes{color:#15583d;background:#dff4e8}.status.partial{color:#6d5011;background:#fff0c7}.status.unknown{color:#6b4450;background:#f7e4e9}.conclusion-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:12px}.conclusion-box{padding:20px;border:1px solid var(--line);border-radius:16px;background:#fff}.conclusion-box h3{margin:0 0 10px;font-size:17px}.conclusion-box p{margin:0;color:#4f6075;font-size:13px}.conclusion-box .check-list{color:#4f6075;font-size:12px}.priority-label{display:inline-block;margin-bottom:8px;padding:5px 8px;border-radius:8px;color:#fff;background:var(--navy);font-size:10px;font-weight:900}.priority-label.optional{color:#34506d;background:#e7eef5}.research-foot{margin-top:12px;color:#66758a;font-size:11px}.pricing-table{min-width:1050px}.pricing-table td:nth-child(3){min-width:310px}.pricing-table td:nth-child(4){min-width:280px}.file-source{display:inline-flex;margin-top:10px;padding:8px 10px;border-radius:9px;color:#fff;background:var(--blue);font-size:11px;font-weight:850;text-decoration:none}
+
+    .deep-dive{margin:18px 0 20px;border:1px solid color-mix(in srgb,var(--accent) 24%,var(--line));border-radius:17px;background:#fbfcfe;overflow:hidden}.deep-dive>summary{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:15px 18px;color:var(--accent);background:color-mix(in srgb,var(--accent) 7%,#fff);font-size:14px;font-weight:900;cursor:pointer}.deep-dive>summary small{color:#647489;font-size:11px;font-weight:750}.deep-body{padding:18px}.deep-title{display:flex;align-items:end;justify-content:space-between;gap:10px;margin-bottom:10px}.deep-title h3,.deep-box h3{margin:2px 0 0;font-size:19px;letter-spacing:-.025em}.feature-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.feature-card{min-width:0;padding:14px;border:1px solid var(--line);border-radius:13px;background:#fff}.feature-card b{display:block;color:#20364f;font-size:13px}.feature-card p{min-height:58px;margin:7px 0 10px;color:#5d6d81;font-size:11px;line-height:1.55}.feature-card .ref{font-size:10px}.deep-columns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:11px}.deep-box{padding:17px;border:1px solid var(--line);border-radius:14px;background:#fff}.difference-box{border-color:color-mix(in srgb,var(--accent) 28%,var(--line));background:color-mix(in srgb,var(--accent) 4%,#fff)}.workflow{display:grid;gap:6px;margin-top:12px}.workflow-step{display:grid;grid-template-columns:28px 1fr;gap:8px;align-items:start}.workflow-step em{display:grid;width:28px;height:28px;place-items:center;border-radius:8px;color:#fff;background:var(--accent);font-size:9px;font-style:normal;font-weight:900}.workflow-step span{padding-top:4px;color:#4f6074;font-size:11px}.differentiator-list{display:grid;gap:7px;margin:12px 0 0;padding-left:18px;color:#4f6074;font-size:11px}.deep-note{margin:11px 0 0;padding:10px;border-radius:9px;color:#4f6074;background:#fff;font-size:10px}.common-flow{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-bottom:12px}.common-flow-step{position:relative;padding:16px 14px;border:1px solid var(--line);border-radius:15px;background:#fff}.common-flow-step:not(:last-child):after{content:"→";position:absolute;right:-9px;top:50%;z-index:2;transform:translateY(-50%);color:var(--blue);font-weight:950}.common-flow-step em{display:block;color:var(--blue);font-size:10px;font-style:normal;font-weight:900}.common-flow-step b{display:block;margin:4px 0;font-size:13px}.common-flow-step span{color:var(--sub);font-size:10px}.common-detail-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.common-detail{padding:15px;border:1px solid var(--line);border-radius:14px;background:#fff}.common-detail b{display:block;margin-bottom:5px;color:#20364f;font-size:13px}.common-detail span{color:#617084;font-size:11px}.axis-table{min-width:1100px}.agent-note{margin-top:10px;color:#657489;font-size:10px}
     .lightbox{position:fixed;inset:0;z-index:100;display:none;place-items:center;padding:24px;background:rgba(3,14,27,.92)}.lightbox.open{display:grid}.lightbox img{max-width:95vw;max-height:90vh;border-radius:10px;background:#fff}.lightbox button{position:fixed;top:17px;right:18px;width:42px;height:42px;border:1px solid rgba(255,255,255,.25);border-radius:50%;color:#fff;background:rgba(255,255,255,.1);font-size:23px;cursor:pointer}
-    @media(max-width:950px){.hero-grid,.phone-block,.viewer{grid-template-columns:1fr}.hero-count{grid-template-columns:repeat(4,1fr)}.common-grid{grid-template-columns:repeat(3,1fr)}.summary-grid{grid-template-columns:repeat(2,1fr)}.choice-grid{grid-template-columns:repeat(2,1fr)}.phone{width:230px;margin:auto}.viewer-main{border-right:0}.image-explain{border-top:1px solid var(--line)}}
-    @media(max-width:620px){.hero{padding:48px 0 40px}.hero-count,.common-grid,.summary-grid,.choice-grid{grid-template-columns:1fr}.section-head{display:block}.section-head p{margin-top:8px}.service-no{display:none}.service-body{padding:15px}.viewer-stage{min-height:260px}.image-explain{padding:19px}.image-explain h3{font-size:20px}.thumb{flex-basis:90px}.thumb img{height:54px}}
+    @media(max-width:950px){.hero-grid,.phone-block,.viewer,.conclusion-grid,.deep-columns{grid-template-columns:1fr}.requirement-grid{grid-template-columns:repeat(2,1fr)}.feature-grid,.common-detail-grid{grid-template-columns:repeat(2,1fr)}.common-flow{grid-template-columns:1fr}.common-flow-step:not(:last-child):after{content:"↓";right:auto;left:50%;top:auto;bottom:-12px}.hero-count{grid-template-columns:repeat(4,1fr)}.common-grid{grid-template-columns:repeat(3,1fr)}.summary-grid{grid-template-columns:repeat(2,1fr)}.choice-grid{grid-template-columns:repeat(2,1fr)}.phone{width:230px;margin:auto}.viewer-main{border-right:0}.image-explain{border-top:1px solid var(--line)}}
+    @media(max-width:620px){.hero{padding:48px 0 40px}.hero-count,.common-grid,.summary-grid,.choice-grid,.requirement-grid,.feature-grid,.common-detail-grid{grid-template-columns:1fr}.deep-dive>summary{align-items:flex-start;flex-direction:column;gap:3px}.section-head{display:block}.section-head p{margin-top:8px}.service-no{display:none}.service-body{padding:15px}.viewer-stage{min-height:260px}.image-explain{padding:19px}.image-explain h3{font-size:20px}.thumb{flex-basis:90px}.thumb img{height:54px}}
     @media print{body{background:#fff}.tab-shell,.thumbs,.viewer-controls,.lightbox{display:none!important}.panel{display:block!important}.card,.table-shell{box-shadow:none}.viewer{grid-template-columns:1fr 280px}.viewer-stage{min-height:300px}.service{break-inside:avoid;page-break-before:always}}
   </style>
 </head>
 <body>
   <header class="hero">
     <div class="wrap hero-grid">
-      <div><p class="eyebrow">CRM REFERENCE / SCREEN-BASED</p><h1>영업 CRM<br>5종 화면 비교</h1><p>서비스별 검토 → 전체 비교 → 핵심 결론 → 가격 비교</p></div>
-      <div class="hero-count"><div><b>5</b><span>비교 서비스</span></div><div><b>74</b><span>사용 화면</span></div><div><b>8</b><span>이동 탭</span></div><div><b>1</b><span>화면별 설명</span></div></div>
+      <div><p class="eyebrow">FIELDMED CRM REFERENCE / OFFICIAL EVIDENCE</p><h1>영업 CRM<br>5종 비교</h1><p>서비스별 화면 → 공통 조사표 → FieldMed 판단 → 가격 비교</p></div>
+      <div class="hero-count"><div><b>5</b><span>비교 서비스</span></div><div><b>74</b><span>사용 화면</span></div><div><b>8</b><span>이동 탭</span></div><div><b>5</b><span>공식 심층 조사</span></div></div>
     </div>
   </header>
 
@@ -38,7 +42,7 @@
       <button class="tab" id="tab-saleslog" role="tab" aria-controls="saleslog" aria-selected="false" data-tab="saleslog">세일즈로그</button>
       <button class="tab" id="tab-finger" role="tab" aria-controls="finger" aria-selected="false" data-tab="finger">핑거세일즈</button>
       <button class="tab" id="tab-sap" role="tab" aria-controls="sap" aria-selected="false" data-tab="sap">SAP</button>
-      <button class="tab" id="tab-overview" role="tab" aria-controls="overview" aria-selected="false" data-tab="overview">전체 비교</button>
+      <button class="tab" id="tab-overview" role="tab" aria-controls="overview" aria-selected="false" data-tab="overview">공통 조사표</button>
       <button class="tab" id="tab-conclusion" role="tab" aria-controls="conclusion" aria-selected="false" data-tab="conclusion">핵심 결론</button>
       <button class="tab" id="tab-pricing" role="tab" aria-controls="pricing" aria-selected="false" data-tab="pricing">가격 비교</button>
     </nav>
@@ -46,41 +50,77 @@
 
   <main class="wrap">
     <section id="relate" class="panel active card service" role="tabpanel" aria-labelledby="tab-relate" style="--accent:#5545bd">
-      <header class="service-top"><div><h2>Relate</h2><p>풀스택 B2B 영업 CRM</p></div><span class="service-no">01</span></header>
+      <header class="service-top"><div><h2>Relate</h2><p>B2B 잠재고객·거래·후속관리 CRM</p></div><span class="service-no">01</span></header>
       <div class="service-body">
         <div class="summary-grid">
           <div class="summary"><h3>핵심 기능</h3><ul class="chips"><li>연락처·조직</li><li>활동·작업</li><li>프로세스·칸반</li><li>시퀀스</li><li>파일 연결</li><li>CSV 입출력</li><li>이메일·보고서 템플릿</li></ul></div>
           <div class="summary"><h3>문서·자동화</h3><ul class="chips"><li>PDF 등록</li><li>링크 공유</li><li>열람 추적</li><li>체류시간·관심도</li><li>Pulse 타임라인</li><li>후속 자동화</li></ul></div>
-          <div class="summary difference"><strong>차별점</strong><p>문서 관심도 기반 후속 영업</p><ul class="chips"><li>깔끔한 디자인</li><li>낮은 초기 이해도</li><li>다수 연결 요소</li></ul></div>
+          <div class="summary difference"><strong>차별점</strong><p>문서 관심도 기반 후속 영업</p><ul class="chips"><li>연락처·활동 연결</li><li>시퀀스·파일 연결</li><li>카드형 프로세스</li></ul></div>
         </div>
+        <div class="evidence-line"><span><b>화면 근거</b> 사용자 제공 20장</span><a href="https://www.relate.kr/docs/what-is-relate" target="_blank" rel="noreferrer">공식 제품 설명</a><a href="https://www.relate.kr/docs/docs/relate-docs" target="_blank" rel="noreferrer">Docs 근거</a></div>
+        <details class="deep-dive" open>
+          <summary><span>Relate 상세 조사</span><small>B2B 고객 접점·문서 행동·AI 도구의 한 타임라인 연결</small></summary>
+          <div class="deep-body">
+            <div class="deep-title"><span class="kicker">CORE FUNCTIONS</span><h3>핵심 기능</h3></div>
+            <div class="feature-grid"><article class="feature-card"><b>조직·연락처 통합 History</b><p>이메일·노트·활동·프로세스·시퀀스 진행과 응답을 연락처·조직 단위 타임라인으로 연결합니다.</p><a class="ref" href="https://www.relate.kr/docs/features/people" target="_blank" rel="noreferrer">People</a></article><article class="feature-card"><b>Prospect→Pipeline</b><p>잠재고객 검증 후 딜로 전환하고 단계·금액·담당자를 카드로 관리합니다. SDR→AE 자동 핸드오프는 베타로 안내됩니다.</p><a class="ref" href="https://www.relate.kr/docs/features/deals" target="_blank" rel="noreferrer">Deals</a></article><article class="feature-card"><b>연결형 프로세스</b><p>영업 외 채용·투자 등 조직·연락처 기반 프로세스를 만들고 상태 간 엔트리 이동과 커스텀 필드를 설정합니다.</p><a class="ref" href="https://www.relate.kr/docs/features/processes" target="_blank" rel="noreferrer">Processes</a></article><article class="feature-card"><b>이메일·시퀀스</b><p>메일 양방향 동기화, 템플릿, 간격 기반 다단계 발송, 답장 시 중단, 열람·클릭·회신·반송 결과를 제공합니다.</p><a class="ref" href="https://www.relate.kr/docs/engage/sequence-understanding" target="_blank" rel="noreferrer">Sequence</a></article><article class="feature-card"><b>미팅 예약</b><p>가능 시간과 충돌 일정을 반영한 예약 링크를 만들고 Google·Outlook·Apple Calendar 및 Meet·Zoom·Teams를 연결합니다.</p><a class="ref" href="https://www.relate.kr/docs/features/calendar" target="_blank" rel="noreferrer">Calendar</a></article><article class="feature-card"><b>Docs·Pulse</b><p>PDF 링크의 접근제어, 총·고유 방문, 평균 체류, 링크·버전별 반응을 이메일·폼·미팅 행동과 함께 Pulse에 기록합니다.</p><a class="ref" href="https://www.relate.kr/docs/docs/relate-docs" target="_blank" rel="noreferrer">Relate Docs</a></article><article class="feature-card"><b>Notetaker·MCP</b><p>온라인 회의 기록·요약을 CRM 활동에 저장하고 MCP로 연락처·딜·노트·시퀀스·리포트 작업 범위를 공개합니다.</p><a class="ref" href="https://www.relate.kr/docs/ai/relate-mcp" target="_blank" rel="noreferrer">Relate MCP</a></article><article class="feature-card"><b>CSV·API·PWA</b><p>리스트를 캠페인·시퀀스에 연결하고 CSV 반출을 지원합니다. 브라우저·데스크톱 앱과 iOS/Android 모바일 PWA를 제공합니다.</p><a class="ref" href="https://www.relate.kr/docs/setup/mobile-view" target="_blank" rel="noreferrer">모바일 PWA</a></article></div>
+            <div class="deep-columns">
+              <div class="deep-box"><span class="kicker">WORKFLOW</span><h3>대표 업무 흐름</h3><div class="workflow"><div class="workflow-step"><em>01</em><span>폼·CSV·Google Contacts·Remember에서 고객 유입</span></div><div class="workflow-step"><em>02</em><span>조직·연락처 생성과 리스트 분류</span></div><div class="workflow-step"><em>03</em><span>Prospect 검증 후 Pipeline 전환</span></div><div class="workflow-step"><em>04</em><span>이메일 Sequence·미팅 예약·PDF 공유</span></div><div class="workflow-step"><em>05</em><span>Pulse에서 열람·체류·폼·예약 반응 확인</span></div><div class="workflow-step"><em>06</em><span>온라인 회의 기록·요약과 다음 단계 갱신</span></div><div class="workflow-step"><em>07</em><span>딜·고객 관계·리포트 후속관리</span></div></div></div>
+              <div class="deep-box difference-box"><span class="kicker">DIFFERENTIATION</span><h3>다른 4개 대비 차별점</h3><ul class="differentiator-list"><li>PDF 열람 여부뿐 아니라 평균 체류·고유 방문·링크·버전별 반응을 CRM 고객 행동에 연결</li><li>이메일·문서·폼·미팅 예약 신호를 하나의 Pulse 타임라인으로 통합</li><li>영업 칸반 외에도 조직·연락처 기반 여러 프로세스와 상태 간 이동 지원</li><li>Windows·macOS·브라우저·모바일 PWA와 공식 MCP 작업 범위를 함께 제공</li><li>문서 등록 기능은 자동 문서 작성이 아니라 PDF 공유·접근제어·반응 분석</li></ul><p class="deep-note">Notetaker는 Early Access 및 온라인 회의 중심입니다. 현장 음성 업로드·녹음 동의·한국어 STT·근거 구간은 공식 자료에서 확인되지 않았습니다.</p></div>
+            </div>
+          </div>
+        </details>
         <div class="gallery" data-gallery="relate"></div><p class="gallery-note">사용자 제공 화면 20장 · 화면 선택 시 아래 설명 변경 · 좌우 방향키 이동 · 이미지 클릭 시 확대</p>
       </div>
     </section>
 
     <section id="pipedrive" class="panel card service" role="tabpanel" aria-labelledby="tab-pipedrive" style="--accent:#176b4f">
-      <header class="service-top"><div><h2>Pipedrive</h2><p>직관적 파이프라인 중심 영업 CRM</p></div><span class="service-no">02</span></header>
+      <header class="service-top"><div><h2>Pipedrive</h2><p>파이프라인·활동·자동화 중심 영업 CRM</p></div><span class="service-no">02</span></header>
       <div class="service-body">
         <div class="summary-grid">
-          <div class="summary"><h3>온보딩·고객</h3><ul class="chips"><li>설치 가이드</li><li>Google 연락처</li><li>상세 고객정보</li><li>탭형 히스토리</li><li>필터·즐겨찾기</li><li>지도 보기</li><li>데이터 가져오기</li></ul></div>
+          <div class="summary"><h3>온보딩·고객</h3><ul class="chips"><li>설치 가이드</li><li>Google 연락처</li><li>상세 고객정보</li><li>탭형 히스토리</li><li>필터·즐겨찾기</li><li>지도 보기</li><li>모바일 명함 스캔</li><li>데이터 가져오기</li></ul></div>
           <div class="summary"><h3>일정·거래·성과</h3><ul class="chips"><li>Google 캘린더</li><li>미팅 카테고리</li><li>리스트·캘린더</li><li>완료 체크</li><li>가능 시간</li><li>칸반 파이프라인</li><li>단계 커스텀</li><li>거래 예측</li><li>목표·보고서</li><li>인사이트</li></ul></div>
-          <div class="summary difference"><strong>차별점</strong><p>친절한 온보딩·시각적 영업 흐름</p><ul class="chips"><li>깔끔한 디자인</li><li>높은 직관성</li><li>트리거·조건·작업 자동화</li></ul></div>
+          <div class="summary difference"><strong>차별점</strong><p>설치 체크리스트·칸반·일정·예측 연결</p><ul class="chips"><li>설치 체크리스트</li><li>탭형 고객 이력</li><li>트리거·조건·작업 자동화</li></ul></div>
         </div>
-        <div class="gallery" data-gallery="pipedrive"></div><p class="gallery-note">사용자 제공 화면 43장 · 화면 선택 시 아래 설명 변경 · 좌우 방향키 이동 · 이미지 클릭 시 확대</p>
+        <div class="evidence-line"><span><b>화면 근거</b> 사용자 제공 43장</span><a href="https://www.pipedrive.com/ko/crm/features" target="_blank" rel="noreferrer">공식 기능</a><a href="https://www.pipedrive.com/ko/products/sales/crm" target="_blank" rel="noreferrer">공식 제품 설명</a></div>
+        <details class="deep-dive" open>
+          <summary><span>Pipedrive 상세 조사</span><small>다음 활동 중심 파이프라인·웹/모바일 현장 도구</small></summary>
+          <div class="deep-body">
+            <div class="deep-title"><span class="kicker">CORE FUNCTIONS</span><h3>핵심 기능</h3></div>
+            <div class="feature-grid"><article class="feature-card"><b>사람·조직·거래 DB</b><p>사람·조직·리드·거래·활동·제품을 기본/사용자 정의 필드와 스프레드시트 가져오기·내보내기로 관리합니다.</p><a class="ref" href="https://support.pipedrive.com/en/article/import-fields" target="_blank" rel="noreferrer">데이터 가져오기</a></article><article class="feature-card"><b>모바일 명함 스캔</b><p>명함의 전화·이메일을 인식하고 사용자가 확인한 뒤 연락처로 저장하며 명함 이미지를 연락처 타임라인에 남길 수 있습니다.</p><a class="ref" href="https://support.pipedrive.com/en/article/card-scanner-mobile" target="_blank" rel="noreferrer">명함 스캐너</a></article><article class="feature-card"><b>시각적 파이프라인</b><p>거래 금액·성공확률·예상 종료일을 기록하고 사용자 정의 단계 이동, 다중 파이프라인, 정체 표시를 지원합니다.</p><a class="ref" href="https://www.pipedrive.com/en/products/sales/customizable-crm" target="_blank" rel="noreferrer">Pipeline</a></article><article class="feature-card"><b>활동·Scheduler</b><p>통화·회의·방문·작업을 고객·거래에 연결하고 목록/캘린더 전환, 일반 가능한 시간/특정 시간 예약 링크를 제공합니다.</p><a class="ref" href="https://support.pipedrive.com/en/article/scheduler" target="_blank" rel="noreferrer">Scheduler</a></article><article class="feature-card"><b>이메일 관리</b><p>Gmail·Outlook·회사 메일을 거래에 연결하고 열람·링크 클릭 추적, 그룹 메일·템플릿·예약 발송을 지원합니다.</p><a class="ref" href="https://support.pipedrive.com/ko/article/email-sync" target="_blank" rel="noreferrer">Email sync</a></article><article class="feature-card"><b>Sequence·Pulse</b><p>최대 10단계 이메일·통화·회의·방문 후속을 구성하고 무응답·기한초과·다음 활동 없는 거래를 Pulse에 모읍니다.</p><a class="ref" href="https://support.pipedrive.com/en/article/sequences" target="_blank" rel="noreferrer">Sequences</a></article><article class="feature-card"><b>Smart Docs</b><p>거래·고객·제품 필드를 견적·제안·계약 템플릿에 대입하고 공유 링크·열람 알림·기본 전자서명을 제공합니다.</p><a class="ref" href="https://support.pipedrive.com/en/article/smart-docs" target="_blank" rel="noreferrer">Smart Docs</a></article><article class="feature-card"><b>Insights·목표·예측</b><p>거래·활동·매출 보고서, 대시보드, 목표와 예측을 만들고 CSV·XLSX·PDF·PNG로 반출할 수 있습니다.</p><a class="ref" href="https://support.pipedrive.com/en/article/insights-feature" target="_blank" rel="noreferrer">Insights</a></article><article class="feature-card"><b>모바일·지도</b><p>iOS·Android에서 고객·거래·활동, 통화기록·사진·파일·오프라인 일정을 다루고 Nearby·Google Maps로 현장 방문을 지원합니다.</p><a class="ref" href="https://support.pipedrive.com/en/category/mobile-apps" target="_blank" rel="noreferrer">Mobile</a></article><article class="feature-card"><b>권한·API·500+ 연동</b><p>권한 세트·가시성 그룹·감사로그와 Google/Microsoft/Zoom/Teams 등 Marketplace, API·Webhook을 제공합니다.</p><a class="ref" href="https://www.pipedrive.com/en/crm/integrations" target="_blank" rel="noreferrer">Integrations</a></article></div>
+            <div class="deep-columns">
+              <div class="deep-box"><span class="kicker">WORKFLOW</span><h3>대표 업무 흐름</h3><div class="workflow"><div class="workflow-step"><em>01</em><span>스프레드시트·연락처 동기화·명함 스캔</span></div><div class="workflow-step"><em>02</em><span>사람·조직 생성 후 Lead Inbox 분류</span></div><div class="workflow-step"><em>03</em><span>거래·금액·제품·확률·예상 종료일 등록</span></div><div class="workflow-step"><em>04</em><span>칸반 단계 이동과 정체·다음 활동 확인</span></div><div class="workflow-step"><em>05</em><span>통화·미팅·이메일·현장 방문 실행</span></div><div class="workflow-step"><em>06</em><span>Sequence·자동화·Pulse로 후속관리</span></div><div class="workflow-step"><em>07</em><span>Smart Docs 견적·계약·전자서명</span></div><div class="workflow-step"><em>08</em><span>성공/실패 종료 후 Insights·목표·예측</span></div></div></div>
+              <div class="deep-box difference-box"><span class="kicker">DIFFERENTIATION</span><h3>다른 4개 대비 차별점</h3><ul class="differentiator-list"><li>거래 카드에 단계뿐 아니라 마지막 활동·다음 활동·기한초과·정체를 함께 표시</li><li>명함 스캔·이미지 타임라인·Nearby·지도·현장 사진을 동일 고객 History에 연결</li><li>활동·Scheduler·이메일·Sequence·자동화·Pulse가 다음 행동을 중심으로 이어짐</li><li>500개 이상 Marketplace와 API·Webhook으로 외부 병원 마스터 연동 접점 제공</li><li>Smart Docs가 거래 데이터 대입부터 문서 열람·기본 전자서명까지 거래 화면과 연결</li><li>샘플 데이터·설정 체크리스트·공식 교육으로 첫 사용 흐름 제공</li></ul><p class="deep-note">한국어 명함 OCR 성능·원본 보존정책, 현장 녹취/STT, FieldMed 견적 계산·병원 마스터·D-2/D-1 승인 규칙은 별도 확인 또는 구현이 필요합니다.</p></div>
+            </div>
+          </div>
+        </details>
+        <div class="gallery" data-gallery="pipedrive"></div><p class="gallery-note">사용자 제공 화면 42장 · 화면 선택 시 아래 설명 변경 · 좌우 방향키 이동 · 이미지 클릭 시 확대</p>
       </div>
     </section>
 
     <section id="saleslog" class="panel card service" role="tabpanel" aria-labelledby="tab-saleslog" style="--accent:#26705e">
       <header class="service-top"><div><h2>세일즈로그</h2><p>개인 영업자용 모바일 CRM</p></div><span class="service-no">03</span></header>
       <div class="service-body">
-        <p class="official-note">※ 제공 이미지 없음 · 공식 소개 페이지 기반 화면 도식</p>
+        <p class="official-note">※ 제공 이미지 없음 · 공식 소개 페이지의 기능 항목을 기준으로 구성한 화면 도식</p><div class="evidence-line"><span><b>화면 근거</b> 공식 소개 기반 도식</span><a href="https://salo.co.kr/" target="_blank" rel="noreferrer">공식 소개·가격</a></div>
         <div class="phone-block">
           <div class="phone"><div class="phone-screen"><div class="phone-head"><small>세일즈로그</small><b>오늘 처리할 일 5건</b></div><div class="phone-content"><div class="phone-row"><b>연락 필요 <em>3</em></b><span>연락주기 초과 고객</span></div><div class="phone-row"><b>오늘 할 일 <em>2</em></b><span>마감일·우선순위 정렬</span></div><div class="phone-row"><b>이번 주 생일 <em>1</em></b><span>고객 관계 이벤트</span></div><div class="phone-row"><b>진행 정체 <em>1</em></b><span>장기 정체 거래</span></div></div><div class="phone-nav"><span>홈</span><span>고객</span><span>일정</span><span>할 일</span></div></div></div>
           <div class="summary-grid">
             <div class="summary"><h3>고객 관리</h3><ul class="chips"><li>고객 등급</li><li>연락주기 알림</li><li>초성 검색</li><li>고객 타임라인</li><li>휴대전화 연락처</li></ul></div>
             <div class="summary"><h3>활동 관리</h3><ul class="chips"><li>만남 기록</li><li>전화·메신저·이메일</li><li>메모·사진</li><li>후속 할 일</li><li>모바일 칸반</li><li>정체 경고</li></ul></div>
-            <div class="summary difference"><strong>차별점</strong><p>“오늘 연락할 고객” 중심 단순 CRM</p><ul class="chips"><li>모바일 앱 중심</li><li>개인 영업 특화</li><li>제한적 팀 협업</li></ul></div>
+            <div class="summary difference"><strong>차별점</strong><p>“오늘 연락할 고객” 중심 개인 CRM</p><ul class="chips"><li>iOS·Android 앱</li><li>개인 영업 대상</li><li>팀 기능 미확인</li></ul></div>
           </div>
         </div>
+
+        <details class="deep-dive" open>
+          <summary><span>세일즈로그 상세 조사</span><small>개인 현장 영업자의 연락 주기·오늘 업무·모바일 기록</small></summary>
+          <div class="deep-body">
+            <div class="deep-title"><span class="kicker">CORE FUNCTIONS</span><h3>핵심 기능</h3></div>
+            <div class="feature-grid"><article class="feature-card"><b>고객 등급·연락 주기</b><p>고객별 등급과 1~365일 연락 주기를 설정하고 주기 초과 시 푸시하며 알림 건너뛰기·주기 끄기를 제공합니다.</p><a class="ref" href="https://salo.co.kr/#features" target="_blank" rel="noreferrer">고객 관리</a></article><article class="feature-card"><b>검색·연락처 가져오기</b><p>초성 검색, 등급·연락 현황 필터와 휴대전화 연락처의 다중 고객 가져오기를 제공합니다.</p><a class="ref" href="https://salo.co.kr/#features" target="_blank" rel="noreferrer">검색·필터</a></article><article class="feature-card"><b>고객 타임라인</b><p>만남·통화·메모를 고객별 시간순으로 누적해 다음 연락 전 대화 맥락을 확인합니다.</p><a class="ref" href="https://salo.co.kr/" target="_blank" rel="noreferrer">고객 History</a></article><article class="feature-card"><b>현장 만남 기록</b><p>대면·전화·메신저·이메일 유형, 메모와 사진 최대 5장을 고객 타임라인에 연결합니다.</p><a class="ref" href="https://salo.co.kr/" target="_blank" rel="noreferrer">만남 기록</a></article><article class="feature-card"><b>후속 할 일</b><p>만남 기록에서 다음 할 일을 만들고 우선순위·마감일 정렬, 직접 추가, 완료 체크와 마감 알림을 제공합니다.</p><a class="ref" href="https://play.google.com/store/apps/details?hl=ko&id=com.alphacalabs.saleslog" target="_blank" rel="noreferrer">Google Play</a></article><article class="feature-card"><b>모바일 칸반</b><p>고객·거래 카드를 진행·성공·실패·기존고객 단계로 이동하고 오래 머문 단계에 정체 경고를 표시합니다.</p><a class="ref" href="https://apps.apple.com/us/app/id6759941029" target="_blank" rel="noreferrer">App Store</a></article><article class="feature-card"><b>오늘 대시보드·위젯</b><p>연락 필요 고객, 정체 거래, 오늘 할 일, 예정 만남, 생일과 파이프라인 요약을 모바일 홈과 위젯에 제공합니다.</p><a class="ref" href="https://salo.co.kr/" target="_blank" rel="noreferrer">대시보드</a></article></div>
+            <div class="deep-columns">
+              <div class="deep-box"><span class="kicker">WORKFLOW</span><h3>대표 업무 흐름</h3><div class="workflow"><div class="workflow-step"><em>01</em><span>휴대전화 연락처에서 고객 가져오기</span></div><div class="workflow-step"><em>02</em><span>등급·연락 주기 설정</span></div><div class="workflow-step"><em>03</em><span>오늘 대시보드·푸시로 연락 대상 확인</span></div><div class="workflow-step"><em>04</em><span>고객 History 확인 후 대면·전화·메신저·이메일 기록</span></div><div class="workflow-step"><em>05</em><span>메모·사진 첨부와 다음 할 일 생성</span></div><div class="workflow-step"><em>06</em><span>마감 알림·완료 체크</span></div><div class="workflow-step"><em>07</em><span>칸반 단계 이동·정체 확인</span></div></div></div>
+              <div class="deep-box difference-box"><span class="kicker">DIFFERENTIATION</span><h3>다른 4개 대비 차별점</h3><ul class="differentiator-list"><li>파이프라인보다 먼저 ‘오늘 누구에게 연락할지’를 연락 주기와 푸시로 제시</li><li>연락처·메모·사진·할 일·칸반에 기능 범위를 집중한 개인 모바일 구조</li><li>공식 앱 설명에서 의료기기 B2B와 제약 MR을 대상 사용자로 명시</li><li>사용자 좌석이 아니라 고객 50명 무료/무제한 유료로 요금 구분</li><li>팀 권한·문서·STT·외부연동 범위가 작은 대신 개인 현장 기록 단계가 짧음</li></ul><p class="deep-note">웹 관리자·팀 워크스페이스·API·CSV 반출·외부 캘린더·이메일 동기화는 공식 자료에서 확인되지 않았습니다.</p></div>
+            </div>
+          </div>
+        </details>
       </div>
     </section>
 
@@ -89,10 +129,22 @@
       <div class="service-body">
         <div class="summary-grid">
           <div class="summary"><h3>핵심 구조</h3><ul class="chips"><li>고객사·고객 DB</li><li>영업기회</li><li>영업활동</li><li>견적·계약</li><li>매출</li><li>고객지원</li></ul></div>
-          <div class="summary"><h3>등록·AI</h3><ul class="chips"><li>Excel 업로드</li><li>Remember 명함</li><li>Google 연락처</li><li>직접 입력</li><li>AI 브리핑</li><li>활동 요약</li><li>AI 코칭·리포트</li><li>모델 비공개</li></ul></div>
-          <div class="summary difference"><strong>차별점</strong><p>국내 업무 양식 + 기존 CRM 데이터 기반 AI</p><ul class="chips"><li>오래된 레이아웃</li><li>DB형 화면</li><li>높은 정보 밀도</li><li>입력 중심</li></ul></div>
+          <div class="summary"><h3>등록·AI</h3><ul class="chips"><li>Excel 업로드</li><li>Remember 명함</li><li>Google 연락처</li><li>직접 입력</li><li>AI 고객 브리핑</li><li>자연어 활동 등록</li><li>STT 미팅 요약</li><li>사용자 확인</li><li>모델 비공개</li></ul></div>
+          <div class="summary difference"><strong>차별점</strong><p>국내 업무 양식 + 기존 CRM 데이터 기반 AI</p><ul class="chips"><li>테이블형 화면</li><li>다중 입력 필드</li><li>DB 중심 구성</li><li>직접 입력 비중</li></ul></div>
         </div>
-        <div class="gallery" data-gallery="finger"></div><p class="gallery-note">사용자 제공 화면 7장 · 화면 선택 시 아래 설명 변경 · 좌우 방향키 이동 · 이미지 클릭 시 확대</p>
+        <div class="evidence-line"><span><b>화면 근거</b> 사용자 제공 7장</span><a href="https://www.crm.co.kr/home/product.do" target="_blank" rel="noreferrer">공식 기능</a><a href="https://www.crm.co.kr/home/aicrm.do" target="_blank" rel="noreferrer">AI CRM 근거</a></div>
+        <details class="deep-dive" open>
+          <summary><span>핑거세일즈 상세 조사</span><small>국내 B2B 영업 DB·AI 입력·견적/계약/매출 연결</small></summary>
+          <div class="deep-body">
+            <div class="deep-title"><span class="kicker">CORE FUNCTIONS</span><h3>핵심 기능</h3></div>
+            <div class="feature-grid"><article class="feature-card"><b>영업기회·고객 History</b><p>고객사·담당자와 통화·미팅·제안·견적 접점을 시간순으로 누적하고 단계별 영업기회를 관리합니다.</p><a class="ref" href="https://www.crm.co.kr/home/product.do" target="_blank" rel="noreferrer">CRM 기능</a></article><article class="feature-card"><b>일정·협업·고객지원</b><p>개인·팀·부서·전체 일정, 공지·회의록·댓글, 고객지원 접수→담당 배정→종결 흐름을 제공합니다.</p><a class="ref" href="https://www.crm.co.kr/home/product.do" target="_blank" rel="noreferrer">협업·일정</a></article><article class="feature-card"><b>견적·계약·매출</b><p>제품과 영업기회·활동·견적·계약·고객지원을 연결하고 제품·고객·영업사원별 매출을 조회합니다.</p><a class="ref" href="https://www.crm.co.kr/home/product.do" target="_blank" rel="noreferrer">견적·매출</a></article><article class="feature-card"><b>AI 고객 등록</b><p>명함·SNS 링크·텍스트에서 고객 후보를 만들며 사용자가 전체 결과를 확인·수정한 뒤 CRM에 반영합니다.</p><a class="ref" href="https://www.crm.co.kr/home/aicrm.do" target="_blank" rel="noreferrer">AI 고객 등록</a></article><article class="feature-card"><b>AI 브리핑·활동 등록</b><p>고객사 개요·과거 활동·접근 전략·미팅 주제를 요약하고 자연어 활동에서 고객·기회·후속조치를 추출합니다.</p><a class="ref" href="https://www.crm.co.kr/home/aicrm.do" target="_blank" rel="noreferrer">AI 브리핑</a></article><article class="feature-card"><b>STT 미팅 요약</b><p>STT·회의록에서 요구사항·반대 의견·경쟁사 언급·결정사항을 구조화합니다.</p><a class="ref" href="https://www.crm.co.kr/home/aicrm.do" target="_blank" rel="noreferrer">AI 회의록</a></article><article class="feature-card"><b>액션아이템·리스크</b><p>다음 행동·담당자·마감일과 지연 알림을 만들고 장기 미활동·수금·계약·미수금 위험을 표시합니다.</p><a class="ref" href="https://www.crm.co.kr/home/aicrm.do" target="_blank" rel="noreferrer">후속조치</a></article><article class="feature-card"><b>분석·영업 보고</b><p>영업 단계·고객 등급·활동·제품과 제품/고객/영업사원 매출을 분석하고 일부 표를 Excel로 반출합니다.</p><a class="ref" href="https://www.crm.co.kr/home/product.do" target="_blank" rel="noreferrer">분석·보고</a></article><article class="feature-card"><b>국내 연동·구축형</b><p>PC·모바일·브라우저, 카카오내비·Google 주소록·리멤버·이메일을 제공하고 ERP·회계·재고·인트라넷 맞춤 연동을 지원합니다.</p><a class="ref" href="https://www.crm.co.kr/home/product.do" target="_blank" rel="noreferrer">채널·연동</a></article></div>
+            <div class="deep-columns">
+              <div class="deep-box"><span class="kicker">WORKFLOW</span><h3>대표 업무 흐름</h3><div class="workflow"><div class="workflow-step"><em>01</em><span>명함·SNS·텍스트 입력</span></div><div class="workflow-step"><em>02</em><span>AI 고객 후보 생성 후 사용자 확인·수정</span></div><div class="workflow-step"><em>03</em><span>고객사·담당자·영업기회 연결</span></div><div class="workflow-step"><em>04</em><span>자연어 활동 또는 STT 회의록 구조화</span></div><div class="workflow-step"><em>05</em><span>요구·반대·결정과 다음 행동 추출</span></div><div class="workflow-step"><em>06</em><span>담당자·마감일·지연 알림</span></div><div class="workflow-step"><em>07</em><span>제안·견적·계약·매출 등록</span></div><div class="workflow-step"><em>08</em><span>제품·고객·영업사원별 분석·보고</span></div></div></div>
+              <div class="deep-box difference-box"><span class="kicker">DIFFERENTIATION</span><h3>다른 4개 대비 차별점</h3><ul class="differentiator-list"><li>명함·SNS·텍스트 고객 등록과 사용자 확인·수정 원칙을 한 흐름으로 공식 명시</li><li>STT 요약을 요구·반대·경쟁사·결정사항과 담당자·마감일·지연 알림까지 연결</li><li>견적·계약·매출·고객지원이 기본 CRM 데이터 구조에 포함</li><li>리멤버·카카오내비·Google 주소록 등 국내 현장 도구 연동</li><li>SaaS Professional/Enterprise 외 사내 서버 설치형과 맞춤 ERP·인트라넷 연동 제공</li><li>FieldMed 입력 흐름과 가장 많이 겹치지만 원본·동의·근거·보존·계산 규칙은 미확인</li></ul><p class="deep-note">보안 페이지는 사용자·부서별 고객 접근범위와 전송/일부 개인정보 암호화를 설명합니다. <a class="ref" href="https://www.crm.co.kr/home/security.do" target="_blank" rel="noreferrer">보안 공식 근거</a></p></div>
+            </div>
+          </div>
+        </details>
+        <div class="gallery" data-gallery="finger"></div><p class="gallery-note">사용자 제공 화면 8장 · 화면 선택 시 아래 설명 변경 · 좌우 방향키 이동 · 이미지 클릭 시 확대</p>
       </div>
     </section>
 
@@ -101,54 +153,174 @@
       <div class="service-body">
         <div class="summary-grid">
           <div class="summary"><h3>핵심 기능</h3><ul class="chips"><li>리드 요약</li><li>전환율·수주율</li><li>영업기회</li><li>작업·약속</li><li>메모·첨부</li><li>변경 이력</li></ul></div>
-          <div class="summary"><h3>기업 업무</h3><ul class="chips"><li>Case</li><li>Warranty</li><li>Registered Product</li><li>Installed Base</li><li>ERP·서비스 연계</li></ul></div>
-          <div class="summary difference"><strong>차별점</strong><p>영업·제품·보증·서비스·ERP 통합</p><ul class="chips"><li>독일 기업</li><li>영문 체험 환경</li><li>글로벌 용어</li><li>복잡한 프로세스</li><li>국내 소규모팀 부적합</li></ul></div>
+          <div class="summary"><h3>기업 업무</h3><ul class="chips"><li>Case</li><li>Warranty</li><li>Registered Product</li><li>Installed Base</li><li>동적 방문·경로</li><li>CPQ·ERP 연계</li></ul></div>
+          <div class="summary difference"><strong>차별점</strong><p>영업·제품·보증·서비스·ERP 통합</p><ul class="chips"><li>독일 기업</li><li>영문 체험 환경</li><li>글로벌 용어</li><li>다단계 기업 프로세스</li><li>구축·연동 검토 필요</li></ul></div>
         </div>
+        <div class="evidence-line"><span><b>화면 근거</b> 사용자 제공 4장</span><a href="https://www.sap.com/products/crm/sales-cloud/features.html" target="_blank" rel="noreferrer">공식 기능</a><a href="https://www.sap.com/products/crm/sales.html" target="_blank" rel="noreferrer">영업·ERP 범위</a></div>
+        <details class="deep-dive" open>
+          <summary><span>SAP Sales Cloud 상세 조사</span><small>AI guided selling·현장 방문 최적화·CPQ/S/4HANA lead-to-cash</small></summary>
+          <div class="deep-body">
+            <div class="deep-title"><span class="kicker">CORE FUNCTIONS</span><h3>핵심 기능</h3></div>
+            <div class="feature-grid"><article class="feature-card"><b>Sales AI·Joule</b><p>영업 하이라이트·인사이트·통화 스크립트·이메일 생성과 컨텍스트 기반 안내를 제공합니다.</p><a class="ref" href="https://www.sap.com/products/crm/sales-cloud/features.html" target="_blank" rel="noreferrer">Sales AI</a></article><article class="feature-card"><b>Guided Selling</b><p>실시간 데이터와 계정팀 정보를 이용해 next-best action과 영업 맥락·추천을 제공합니다.</p><a class="ref" href="https://www.sap.com/products/crm/sales-cloud/features.html" target="_blank" rel="noreferrer">Guided Selling</a></article><article class="feature-card"><b>계정 360·Digital Sales</b><p>고객·계정·상호작용을 통합하고 이메일·통화·미팅·캠페인을 하나의 prospecting workspace에서 실행합니다.</p><a class="ref" href="https://www.sap.com/products/crm/sales-cloud/pricing.html" target="_blank" rel="noreferrer">제품 범위</a></article><article class="feature-card"><b>Pipeline·Forecast</b><p>기회 흐름·누수·전환, target·best case·estimate와 실시간 기회 기반 AI 예측을 제공합니다.</p><a class="ref" href="https://www.sap.com/products/crm/sales-cloud/features.html" target="_blank" rel="noreferrer">Forecast</a></article><article class="feature-card"><b>AI 모바일 영업</b><p>Android/iOS 앱에서 자연어 탐색·정보 입력·추천 행동과 현장 계정·방문 업무를 제공합니다.</p><a class="ref" href="https://www.sap.com/products/crm/sales-cloud/features.html" target="_blank" rel="noreferrer">Mobile</a></article><article class="feature-card"><b>Dynamic Visit Planning</b><p>계정 우선순위·방문 가능시간·예정일·주기·근무시간을 반영해 일정과 경로를 최적화합니다.</p><a class="ref" href="https://help.sap.com/docs/sap-cloud-for-customer/dynamic-visit-planning-add-on-for-sap-sales-cloud/dynamic-visit-planning?version=CLOUD" target="_blank" rel="noreferrer">방문 계획</a></article><article class="feature-card"><b>Route·Plan My Day</b><p>계정 묶음·반복 방문·충돌 방지·지도 경로를 제공하고 Google/Apple Maps로 이동합니다.</p><a class="ref" href="https://help.sap.com/docs/CX_NG_SALES/1abd67e71d224ec8a8aa7dffb080106e/81c5ea512d9946ebb7179481df675dc4.html" target="_blank" rel="noreferrer">모바일 방문</a></article><article class="feature-card"><b>SAP CPQ</b><p>복합 제품 구성·가격·견적·마진·승인 예외를 다루며 CRM·전자상거래·ERP에 연결하는 별도 제품입니다.</p><a class="ref" href="https://www.sap.com/products/crm/sales/cpq.html" target="_blank" rel="noreferrer">SAP CPQ</a></article><article class="feature-card"><b>S/4HANA 연결</b><p>Business Partner·기회·견적을 동기화하고 외부 가격·ATP 검증과 판매주문 생성으로 lead-to-cash를 확장합니다.</p><a class="ref" href="https://www.sap.com/products/crm/sales.html" target="_blank" rel="noreferrer">Lead-to-cash</a></article></div>
+            <div class="deep-columns">
+              <div class="deep-box"><span class="kicker">WORKFLOW</span><h3>대표 업무 흐름</h3><div class="workflow"><div class="workflow-step"><em>01</em><span>계정·고객·상호작용 통합</span></div><div class="workflow-step"><em>02</em><span>Joule·Guided Selling으로 다음 행동 제안</span></div><div class="workflow-step"><em>03</em><span>이메일·통화·미팅과 영업기회 갱신</span></div><div class="workflow-step"><em>04</em><span>Pipeline 누수·전환·Forecast 검토</span></div><div class="workflow-step"><em>05</em><span>방문 주기·가용시간·우선순위 기반 일정·경로 생성</span></div><div class="workflow-step"><em>06</em><span>현장 방문 후 계정·기회 업데이트</span></div><div class="workflow-step"><em>07</em><span>CPQ 견적·승인→S/4HANA 가격/ATP·판매주문</span></div></div></div>
+              <div class="deep-box difference-box"><span class="kicker">DIFFERENTIATION</span><h3>다른 4개 대비 차별점</h3><ul class="differentiator-list"><li>방문주기·가능시간·우선순위·반복 경로·지도 최적화가 가장 세분화된 현장 영업 계획</li><li>Pipeline을 target·best case·estimate, 흐름·누수·전환으로 분석</li><li>CPQ·S/4HANA를 통해 복합 제품 구성·가격·승인·재고가용성·판매주문으로 확장</li><li>Joule·next-best action이 이메일·통화·예측·현장 방문 우선순위에 분산 적용</li><li>기능이 기본 CRM·Field Sales add-on·CPQ·ERP로 분리된 모듈 구조</li><li>독일계 기업이며 한국어 방문 계획 지원은 명시되지만 국내 병원/의료기기 규칙은 기본 제공 미확인</li></ul><p class="deep-note">Field Sales는 별도 add-on이고 SAP CPQ도 별도 제품입니다. 한국 병원 마스터·한국어 현장 STT·명함 OCR·FieldMed 승인/보존 규칙은 별도 설계 대상입니다.</p></div>
+            </div>
+          </div>
+        </details>
         <div class="gallery" data-gallery="sap"></div><p class="gallery-note">사용자 제공 화면 4장 · 화면 선택 시 아래 설명 변경 · 좌우 방향키 이동 · 이미지 클릭 시 확대</p>
       </div>
     </section>
 
     <section id="overview" class="panel" role="tabpanel" aria-labelledby="tab-overview">
-      <div class="section-head"><div><span class="kicker">COMMON</span><h2>공통 기능</h2></div><p>고객 정보 → 영업활동 → 거래 진행 → 후속 관리의 동일한 기본 구조</p></div>
-      <div class="common-grid"><div class="common-item"><b>고객 DB</b><span>연락처·고객사·담당자</span></div><div class="common-item"><b>활동 이력</b><span>미팅·전화·이메일·메모</span></div><div class="common-item"><b>영업 단계</b><span>리드·거래·파이프라인</span></div><div class="common-item"><b>일정 관리</b><span>캘린더·할 일·완료</span></div><div class="common-item"><b>데이터 이동</b><span>가져오기·내보내기</span></div><div class="common-item"><b>성과 관리</b><span>보고서·예측·알림·AI</span></div></div>
-      <div class="subsection"><div class="section-head"><div><span class="kicker">POSITIONING</span><h2>서비스 차이</h2></div><p>기능 수보다 핵심 사용자와 운영 범위의 차이</p></div>
-        <div class="table-shell"><table><thead><tr><th>서비스</th><th>핵심 사용자</th><th>중심 기능</th><th>사용 인상</th><th>대표 차별점</th></tr></thead><tbody>
-          <tr><th>Relate</th><td>B2B 스타트업·GTM</td><td>고객 접점·문서·시퀀스</td><td>깔끔함 / 개념 밀도</td><td>문서 반응 기반 후속 영업</td></tr>
-          <tr><th>Pipedrive</th><td>중소·중견 영업팀</td><td>파이프라인·일정·예측</td><td>친절함 / 높은 직관성</td><td>온보딩·시각적 영업 흐름</td></tr>
-          <tr><th>세일즈로그</th><td>개인·현장 영업자</td><td>연락주기·오늘 할 일</td><td>간단함 / 모바일 중심</td><td>연락 타이밍 관리</td></tr>
-          <tr><th>핑거세일즈</th><td>국내 B2B 조직</td><td>견적·계약·매출 DB</td><td>전통형 / 입력 중심</td><td>국내 업무 양식·AI 요약</td></tr>
-          <tr><th>SAP</th><td>글로벌 대기업</td><td>ERP·제품·서비스 통합</td><td>복잡함 / 엔터프라이즈</td><td>SAP 생태계 통합</td></tr>
-        </tbody></table></div>
+      <div class="section-head"><div><span class="kicker">COMMON RESEARCH FORM</span><h2>공통 조사표</h2></div><p>공식 공개 자료 우선 · 동일 기능명 적용 · 확인일 2026-08-10 · 미확인 항목 분리</p></div>
+      <div class="research-note"><span><b>공식 확인</b> 공급사 웹사이트·제품 문서</span><span><b>화면 관찰</b> 사용자 제공 스크린샷</span><span><b>FieldMed 판단</b> 요구사항 정의서와의 대응</span><span><b>미확인</b> 공개 공식 자료에서 확인하지 못한 항목</span></div>
+      <div class="subsection" style="margin-top:22px"><div class="section-head"><div><span class="kicker">SHARED SALES LOOP</span><h2>5개 서비스의 공통점</h2></div><p>기능 깊이와 대상 조직은 다르지만 고객 접점에서 다음 행동까지의 기본 구조는 동일</p></div>
+      <div class="common-flow"><div class="common-flow-step"><em>01</em><b>고객 등록</b><span>연락처·조직·계정·고객사</span></div><div class="common-flow-step"><em>02</em><b>접점 기록</b><span>미팅·전화·이메일·메모</span></div><div class="common-flow-step"><em>03</em><b>진행 상태</b><span>리드·거래·기회·칸반</span></div><div class="common-flow-step"><em>04</em><b>다음 행동</b><span>일정·할 일·알림·후속</span></div><div class="common-flow-step"><em>05</em><b>성과 확인</b><span>대시보드·매출·예측·보고</span></div></div>
+      <div class="common-detail-grid">
+        <div class="common-detail"><b>① 고객·고객사 기준정보</b><span>다섯 서비스 모두 고객 또는 계정을 영업활동의 기준 객체로 사용하고 담당자·조직과 연결합니다.</span></div>
+        <div class="common-detail"><b>② 시간순 활동 History</b><span>통화·미팅·메모 등 접점을 누적해 다음 연락 전에 고객 맥락을 다시 확인합니다.</span></div>
+        <div class="common-detail"><b>③ 단계·상태 기반 진행관리</b><span>파이프라인의 깊이는 다르지만 거래·영업기회·고객을 진행·성공·실패 등 상태로 구분합니다.</span></div>
+        <div class="common-detail"><b>④ 일정·후속 작업</b><span>다음 연락, 방문, 회의, 할 일과 마감 상태를 고객·거래에 연결합니다.</span></div>
+        <div class="common-detail"><b>⑤ 검색·분류·우선순위</b><span>필터·라벨·등급·담당자·AI 점수 등으로 처리할 고객과 거래의 순서를 정합니다.</span></div>
+        <div class="common-detail"><b>⑥ 성과 가시화</b><span>개인 대시보드부터 기업 예측까지 수준은 다르지만 진행 건수·활동·매출을 화면에서 확인합니다.</span></div>
+        <div class="common-detail"><b>⑦ 데이터 유입 경로</b><span>직접 입력, 연락처, CSV/Excel, 명함, API·ERP 등 하나 이상의 고객 데이터 등록 경로를 제공합니다.</span></div>
+        <div class="common-detail"><b>⑧ 공통 차이점</b><span>차이는 기능 존재 여부보다 자동화 깊이, 팀 권한, 문서·AI·ERP 범위와 현장 채널에서 발생합니다.</span></div>
       </div>
+      <div class="table-shell" style="margin-top:12px"><table class="axis-table"><thead><tr><th>서비스</th><th>가장 집중하는 객체</th><th>다음 행동을 만드는 방식</th><th>확장 범위</th><th>한 문장 차별점</th></tr></thead><tbody>
+        <tr><th>Relate</th><td>B2B 조직·연락처·디지털 반응</td><td>이메일·PDF·폼·예약 행동을 Pulse로 통합</td><td>Sequence·Docs·Notetaker·MCP</td><td>고객의 디지털 반응을 후속 영업 신호로 사용</td></tr>
+        <tr><th>Pipedrive</th><td>거래·다음 활동</td><td>칸반·Scheduler·Sequence·Pulse</td><td>Smart Docs·모바일·500+ 연동</td><td>거래 단계와 담당자의 다음 활동을 한 화면에 연결</td></tr>
+        <tr><th>세일즈로그</th><td>개인 고객·연락 주기</td><td>오늘 대시보드·푸시·마감 알림</td><td>모바일 만남·사진·할 일·칸반</td><td>현장 개인 영업자의 오늘 연락 대상에 집중</td></tr>
+        <tr><th>핑거세일즈</th><td>국내 B2B 영업 업무 DB</td><td>AI 입력·STT·액션아이템·지연 알림</td><td>견적·계약·매출·고객지원·ERP 연동</td><td>국내 영업 문서와 AI 입력·사용자 확인을 동일 CRM에 포함</td></tr>
+        <tr><th>SAP</th><td>기업 계정·기회·방문·ERP</td><td>Joule·Guided Selling·동적 방문 계획</td><td>Field Sales·CPQ·S/4HANA</td><td>현장 경로와 lead-to-cash를 기업 시스템으로 확장</td></tr>
+      </tbody></table></div><p class="agent-note">공통점은 각 공급사의 공식 기능을 동일 용어로 다시 분류한 결과이며, 세부 지원 범위는 공통 조사표와 미확인 목록에서 구분합니다.</p></div>
+      <div class="table-shell subsection"><table class="research-table"><thead><tr><th>서비스명</th><th>핵심 기능</th><th>주요 사용 대상</th><th>제공 채널 및 연동 범위</th><th>가격·요금제</th><th>장점</th><th>한계</th><th>공식 근거 링크</th><th>확인일</th><th>FieldMed 요구사항과의 관련성</th><th>미확인 사항</th></tr></thead><tbody>
+        <tr>
+          <th>Relate</th>
+          <td><ul class="cell-list"><li>잠재고객→거래→고객관리</li><li>거래·이메일 History</li><li>미팅 예약·가용시간</li><li>PDF 공유·방문·페이지별 체류 추적</li><li>목록 필터·CSV 내보내기</li></ul></td>
+          <td>B2B 영업팀·GTM 조직<br><small>Personal/Team 요금제 구분</small></td>
+          <td><ul class="cell-list"><li>브라우저·Windows/macOS 앱·모바일 PWA</li><li>Google·Outlook·Apple Calendar</li><li>Google Meet·Zoom·Microsoft Teams</li><li>Google Contacts·Remember·Zapier</li><li>Public API·MCP</li></ul></td>
+          <td><ul class="cell-list"><li>Personal/Team Free</li><li>Personal Pro $12/인·월(연결제), $15(월결제)</li><li>Team Business $51/인·월(연결제), $60(월결제)</li><li>Enterprise 문의</li></ul></td>
+          <td><span class="mark inference">FieldMed 판단</span><br>PDF 방문·페이지별 체류 정보와 고객·거래 History의 연결</td>
+          <td><span class="mark inference">공식 문서 기준</span><br>Notetaker는 Early Access 및 온라인 회의 중심. 현장 녹음 업로드·한국어 STT·근거 구간은 확인되지 않음.</td>
+          <td><div class="source-stack"><a class="ref" href="https://www.relate.kr/docs/what-is-relate" target="_blank" rel="noreferrer">제품 범위</a><a class="ref" href="https://www.relate.kr/docs/features/calendar" target="_blank" rel="noreferrer">미팅·캘린더</a><a class="ref" href="https://www.relate.kr/docs/features/notetaker" target="_blank" rel="noreferrer">Notetaker</a><a class="ref" href="https://www.relate.kr/docs/docs/relate-docs" target="_blank" rel="noreferrer">Docs 추적</a><a class="ref" href="https://www.relate.kr/docs/features/lists" target="_blank" rel="noreferrer">목록·CSV</a><a class="ref" href="https://www.relate.kr/pricing/" target="_blank" rel="noreferrer">가격</a></div></td>
+          <td>2026-08-10</td>
+          <td><b>부분 대응</b><br>CUS 고객 History, CAL 일정, DSH 브리핑 자료, 문서 반응 기반 후속관리 참고. MTG 현장 녹취와 DOC 견적·계약 규칙은 별도 구현 대상.</td>
+          <td>명함 OCR 원본 보존, 녹음 동의·근거 span, 국내 의료기관 마스터, FieldMed 보존기간·감사로그·데이터 위치</td>
+        </tr>
+        <tr>
+          <th>Pipedrive</th>
+          <td><ul class="cell-list"><li>연락처·조직·거래</li><li>칸반 파이프라인</li><li>활동·일정·Scheduler</li><li>이메일 동기화·Sequence·자동화</li><li>예측·목표·보고서</li><li>모바일 명함 스캔·이미지 History</li><li>데이터 가져오기</li></ul></td>
+          <td>파이프라인·활동 중심 영업팀</td>
+          <td><ul class="cell-list"><li>웹·iOS·Android</li><li>Google Workspace 이메일·캘린더·연락처</li><li>Microsoft 365·Outlook·Exchange</li><li>Google Maps</li><li>500개 이상 Marketplace 연동</li></ul></td>
+          <td><ul class="cell-list"><li>14일 체험</li><li>연결제 인당 월 Lite $14</li><li>Growth $39</li><li>Premium $59</li><li>Ultimate $79</li><li>일부 기능·애드온 별도</li></ul></td>
+          <td><span class="mark inference">FieldMed 판단</span><br>설치 체크리스트, 고객 타임라인, 칸반, 일정·예측·자동화가 한 제품 흐름으로 연결됨.</td>
+          <td><span class="mark inference">공식 문서 기준</span><br>명함 스캔은 확인되지만 한국어 인식률·이미지 보존정책은 미확인. 의료기기 견적 계산, 녹취 동의·STT 근거, 병원 마스터, 실매출 전표 검증 규칙은 확인되지 않음.</td>
+          <td><div class="source-stack"><a class="ref" href="https://www.pipedrive.com/ko/crm/features" target="_blank" rel="noreferrer">기능·연동</a><a class="ref" href="https://www.pipedrive.com/ko/products/sales/crm" target="_blank" rel="noreferrer">채널·캘린더</a><a class="ref" href="https://www.pipedrive.com/ko/pricing" target="_blank" rel="noreferrer">가격·요금제 기능</a></div></td>
+          <td>2026-08-10</td>
+          <td><b>부분 대응</b><br>CUS 고객 상세·History, CAL 일정·가용시간, 영업 파이프라인, DSH/RPT 예측·목표 UI 참고. 의료 특화 처리 규칙은 별도 구현 대상.</td>
+          <td>한국어 명함 OCR 성능·이미지 보존/삭제, 한국어 STT·증거 구간, 보고서 draft/confirmed, D-2/D-1 중복방지, Smart Docs와 Premium 계약 기능의 정확한 경계</td>
+        </tr>
+        <tr>
+          <th>세일즈로그</th>
+          <td><ul class="cell-list"><li>고객 등급·연락주기(1~365일)</li><li>고객 타임라인·만남 메모</li><li>휴대전화 연락처 일괄 등록</li><li>모바일 칸반·정체 경고</li><li>후속 할 일 자동 등록</li><li>대시보드</li></ul></td>
+          <td>보험·금융 영업, B2B 영업, 부동산 중개, 네트워크 마케팅, 프리랜서 컨설턴트</td>
+          <td><ul class="cell-list"><li>iOS·Android 앱 링크</li><li>Kakao 가입</li><li>휴대전화 연락처 가져오기</li><li>웹 업무 화면·API·캘린더 연동 미확인</li></ul></td>
+          <td><ul class="cell-list"><li>Free: 0원, 고객 50명</li><li>Premium: 월 4,900원</li><li>고객 수 무제한</li><li>앱 내 결제</li></ul></td>
+          <td><span class="mark inference">FieldMed 판단</span><br>개인 현장 영업자의 오늘 할 일·연락주기·진행 정체를 모바일 첫 화면에 배치.</td>
+          <td><span class="mark inference">공식 페이지 기준</span><br>팀 관리자·권한·보고서·견적·계약·STT·OCR·외부 시스템 연동 범위가 공개 페이지에서 확인되지 않음.</td>
+          <td><div class="source-stack"><a class="ref" href="https://salo.co.kr/" target="_blank" rel="noreferrer">기능·대상·앱·가격</a></div></td>
+          <td>2026-08-10</td>
+          <td><b>부분 대응</b><br>DSH 오늘 업무, CAL 후속관리, CUS 고객 History, 모바일 현장 UI 참고. FieldMed 팀 운영·문서·녹취·매출 범위는 부족.</td>
+          <td>팀 계정·권한, 웹 버전, CSV 내보내기, API·Webhook, 캘린더, 데이터 위치·보존·감사로그</td>
+        </tr>
+        <tr>
+          <th>핑거세일즈</th>
+          <td><ul class="cell-list"><li>고객·영업기회·활동 History</li><li>일정·영업보고</li><li>제품·견적·계약·매출·고객지원</li><li>Excel 내보내기</li><li>명함·SNS·텍스트 기반 AI 고객 등록</li><li>STT 회의 요약·후속 작업·사용자 확인</li></ul></td>
+          <td>국내 B2B 영업조직<br><small>Professional 1인 이상, Enterprise 15인 이상</small></td>
+          <td><ul class="cell-list"><li>PC·모바일·브라우저</li><li>Google 주소록·Remember</li><li>Kakao 길찾기·이메일 발송</li><li>회계·재고 ERP·인트라넷 맞춤 연동</li></ul></td>
+          <td><ul class="cell-list"><li>Professional 월 30,000원/인, 연결제 환산 24,000원</li><li>Enterprise 월 50,000원/인, 연결제 환산 40,000원</li><li>VAT 별도</li><li>AI·맞춤연동·개발비 별도 협의</li><li>On-premise 문의</li></ul></td>
+          <td><span class="mark inference">FieldMed 판단</span><br>국내 영업 DB, 명함 등록, STT 회의 요약, 사용자 확인, 견적·계약·매출을 한 업무 범위에서 제공.</td>
+          <td><span class="mark inference">공식 문서 기준</span><br>AI가 별도 협의 항목. 회의 근거 span·녹음 동의·원본 보존과 FieldMed의 정액 계산·권한 규칙은 확인되지 않음.</td>
+          <td><div class="source-stack"><a class="ref" href="https://www.crm.co.kr/home/product.do" target="_blank" rel="noreferrer">CRM 기능·연동</a><a class="ref" href="https://www.crm.co.kr/home/aicrm.do" target="_blank" rel="noreferrer">AI·STT·사용자 확인</a><a class="ref" href="https://www.crm.co.kr/pricing/pricing.do" target="_blank" rel="noreferrer">가격·계약 조건</a></div></td>
+          <td>2026-08-10</td>
+          <td><b>참고 범위 큼</b><br>CUS 명함·History, MTG STT·사용자 확정, CAL 일정, DOC 견적·계약, 매출·보고서 구조 참고. 세부 데이터·보안 규칙은 별도 확인.</td>
+          <td>AI 모델·한국어 성능·요금 포함 범위, 증거 구간, 원본 파일·동의, 역할별 원문 접근, 보존기간·감사로그·데이터 위치, LOCALDATA 연동</td>
+        </tr>
+        <tr>
+          <th>SAP Sales Cloud</th>
+          <td><ul class="cell-list"><li>AI·Joule·Next-best action</li><li>파이프라인·예측</li><li>디지털 영업 대시보드</li><li>현장 방문 계획·동적 경로</li><li>Lead-to-cash·CPQ</li><li>CRM·전자상거래·ERP 통합</li></ul></td>
+          <td>SAP ERP·대규모 영업 프로세스를 운영하는 조직</td>
+          <td><ul class="cell-list"><li>Cloud</li><li>iOS·Android 모바일 앱</li><li>SAP Build 확장</li><li>Dynamic Visit Planning</li><li>SAP CPQ·S/4HANA·Commerce</li><li>Field sales add-on</li></ul></td>
+          <td><ul class="cell-list"><li>SAP Sales Cloud $136/인·월</li><li>계약 3~36개월·자동 갱신</li><li>Service add-on $22/인·월</li><li>Field sales add-on $53/인·월</li><li>SAP CPQ Standard $98/인·월·최소 50명</li><li>30일 Basic Trial</li></ul></td>
+          <td><span class="mark inference">FieldMed 판단</span><br>현장 방문 계획·경로, 기업 고객 구조, 예측, CPQ·ERP 연계 참조.</td>
+          <td><span class="mark inference">공식 문서 기준</span><br>국내 병원 마스터·한국어 현장 녹취·FieldMed 승인 흐름은 별도 설계·연동 대상. 구독 외 구축 비용은 공개가에 포함되지 않음.</td>
+          <td><div class="source-stack"><a class="ref" href="https://www.sap.com/products/crm/sales-cloud/features.html" target="_blank" rel="noreferrer">기능·모바일·현장영업</a><a class="ref" href="https://www.sap.com/products/crm/sales.html" target="_blank" rel="noreferrer">Lead-to-cash·ERP</a><a class="ref" href="https://www.sap.com/products/crm/sales-cloud/pricing.html" target="_blank" rel="noreferrer">가격·애드온</a><a class="ref" href="https://www.sap.com/products/crm/sales-cloud/trial.html" target="_blank" rel="noreferrer">30일 체험 범위</a></div></td>
+          <td>2026-08-10</td>
+          <td><b>부분 대응</b><br>현장 방문, 계정·파이프라인·예측·CPQ·ERP 구조 참고. 국내 의료 현장 데이터·동의·보고서 규칙은 맞춤 구축 대상.</td>
+          <td>한국 계약 최종가·구축비, 국내 데이터 위치, 역할별 원문 접근, 보존·감사로그, OCR·한국어 STT, LOCALDATA 연결 방식</td>
+        </tr>
+      </tbody></table></div>
+      <p class="research-foot">장점·한계·FieldMed 관련성은 공식 자료와 FieldMed 요구사항 정의서를 대조한 판단입니다. 공식 페이지에 없는 기능은 추정하지 않고 미확인으로 분리했습니다.</p>
     </section>
 
     <section id="conclusion" class="panel" role="tabpanel" aria-labelledby="tab-conclusion">
-      <div class="section-head"><div><span class="kicker">KEY TAKEAWAY</span><h2>핵심 결론</h2></div><p>좋고 나쁨보다 조직 규모·영업 방식·기존 시스템 기준의 선택</p></div>
-      <div class="choice-grid">
-        <div class="choice"><b>문서 반응·B2B GTM</b><span>Relate · 고객의 문서 열람과 관심도를 후속 영업에 연결</span></div>
-        <div class="choice"><b>쉬운 도입·팀 영업</b><span>Pipedrive · 친절한 온보딩과 직관적인 파이프라인</span></div>
-        <div class="choice"><b>개인·현장 영업</b><span>세일즈로그 · 오늘 연락할 고객과 후속 할 일 중심</span></div>
-        <div class="choice"><b>국내 견적·계약 업무</b><span>핑거세일즈 · 국내 업무 양식과 기존 DB 중심 운영</span></div>
-        <div class="choice"><b>SAP ERP·대기업</b><span>SAP · 제품·보증·서비스·ERP까지 포함한 통합</span></div>
+      <div class="section-head"><div><span class="kicker">FIELDMED DECISION</span><h2>핵심 결론</h2></div><p>제품 설명 모음이 아니라 FieldMed 기획에 필요한 CRM 기능을 필수·선택으로 분류</p></div>
+
+      <div class="subsection" style="margin-top:0"><span class="priority-label">필수 · MVP</span><div class="requirement-grid">
+        <div class="requirement-card"><b>병원·고객·담당자 History</b><span>CUS-001~006 · 명함 OCR 원본 · 병원 매칭 사용자 승인 · 담당자 이관 이력</span></div>
+        <div class="requirement-card"><b>일정·후속 알림</b><span>CAL-001~005 · 방문·후속 권장일 · 사용자 승인 · D-2/D-1 중복 방지</span></div>
+        <div class="requirement-card"><b>미팅 입력·STT·확정</b><span>MTG-001~005 · 녹음 동의 · 한국어 STT · 근거 구간 · 사용자 검토·확정</span></div>
+        <div class="requirement-card"><b>보고서·문서 상태</b><span>RPT-001~006 · 미팅/일간/주간 초안 · 검색 · 원본/PDF · draft/confirmed</span></div>
+        <div class="requirement-card"><b>견적·계약 계산</b><span>DOC-001~004 · 품목·템플릿 · VAT/합계 결정 규칙 · 미리보기·확정</span></div>
+        <div class="requirement-card"><b>실매출·목표·Excel 검증</b><span>제품/고객/영업사원 매출 · 전표번호 유일성 · 전체 성공/전체 실패 · 달성률</span></div>
+        <div class="requirement-card"><b>팀·권한·감사·보존</b><span>USR-002/003 · team_id 격리 · 원문 접근 통제 · 감사로그 · 종류별 보존기간</span></div>
+        <div class="requirement-card"><b>공공 병원 마스터 동기화</b><span>LOCALDATA 의료기관 정보 일 1회 동기화 · 공통 병원 기준정보</span></div>
+        <div class="requirement-card"><b>PWA·업무 알림</b><span>반응형 Web/PWA · In-app/Web Push · 실패 격리 · 알림 출처·상태</span></div>
+      </div></div>
+
+      <div class="subsection"><span class="priority-label optional">선택 · Post-MVP</span><div class="requirement-grid">
+        <div class="requirement-card"><b>외부 캘린더</b><span>Google·Outlook 등 양방향 동기화</span></div><div class="requirement-card"><b>네이티브 앱·외부 협업</b><span>iOS·Android · NAVER WORKS</span></div><div class="requirement-card"><b>실제 전자서명 API</b><span>MVP 데모 서명 이후 상용 API 연결</span></div><div class="requirement-card"><b>추가 알림 채널</b><span>SMS·Kakao·네이티브 Push</span></div><div class="requirement-card"><b>문서 반응 분석</b><span>열람·페이지별 체류·다운로드 추적</span></div><div class="requirement-card"><b>외부 Marketplace</b><span>범용 앱·Webhook·자동화 연동</span></div>
+      </div><a class="file-source" href="../../planning/요구사항_정의서_260805.xlsx">FieldMed 요구사항 정의서 열기</a></div>
+
+      <div class="subsection"><div class="section-head"><div><span class="kicker">COVERAGE</span><h2>필수 기능 대응표</h2></div><p><span class="status yes">기본 확인</span> 유사 기본 기능 공식 확인 · <span class="status partial">부분</span> FieldMed 세부 규칙 미충족/미확인 · <span class="status unknown">미확인</span> 공식 근거 미확보</p></div>
+        <div class="table-shell"><table class="matrix-table"><thead><tr><th>FieldMed 필수 기능</th><th>Relate</th><th>Pipedrive</th><th>세일즈로그</th><th>핑거세일즈</th><th>SAP</th></tr></thead><tbody>
+          <tr><th>고객·고객사·활동 History</th><td><span class="status yes">기본 확인</span></td><td><span class="status yes">기본 확인</span></td><td><span class="status yes">기본 확인</span></td><td><span class="status yes">기본 확인</span></td><td><span class="status yes">기본 확인</span></td></tr>
+          <tr><th>팀 권한·담당자 이관</th><td><span class="status partial">부분</span></td><td><span class="status partial">부분</span></td><td><span class="status unknown">미확인</span></td><td><span class="status partial">부분</span></td><td><span class="status partial">부분</span></td></tr>
+          <tr><th>방문 일정·후속 알림·사용자 승인</th><td><span class="status partial">부분</span></td><td><span class="status partial">부분</span></td><td><span class="status partial">부분</span></td><td><span class="status partial">부분</span></td><td><span class="status partial">부분</span></td></tr>
+          <tr><th>명함 OCR·병원 매칭·원본 보존</th><td><span class="status unknown">미확인</span></td><td><span class="status partial">부분</span></td><td><span class="status unknown">미확인</span></td><td><span class="status partial">부분</span></td><td><span class="status unknown">미확인</span></td></tr>
+          <tr><th>현장 녹취·한국어 STT·근거·확정</th><td><span class="status partial">부분</span></td><td><span class="status unknown">미확인</span></td><td><span class="status unknown">미확인</span></td><td><span class="status partial">부분</span></td><td><span class="status unknown">미확인</span></td></tr>
+          <tr><th>보고서 초안·PDF·상태</th><td><span class="status partial">부분</span></td><td><span class="status partial">부분</span></td><td><span class="status unknown">미확인</span></td><td><span class="status partial">부분</span></td><td><span class="status partial">부분</span></td></tr>
+          <tr><th>견적·계약·VAT 결정 규칙</th><td><span class="status unknown">미확인</span></td><td><span class="status partial">부분</span></td><td><span class="status unknown">미확인</span></td><td><span class="status partial">부분</span></td><td><span class="status partial">부분</span></td></tr>
+          <tr><th>실매출·목표·Excel 전체 검증</th><td><span class="status partial">부분</span></td><td><span class="status partial">부분</span></td><td><span class="status unknown">미확인</span></td><td><span class="status partial">부분</span></td><td><span class="status partial">부분</span></td></tr>
+          <tr><th>LOCALDATA 병원 마스터 일 동기화</th><td><span class="status unknown">미확인</span></td><td><span class="status unknown">미확인</span></td><td><span class="status unknown">미확인</span></td><td><span class="status unknown">미확인</span></td><td><span class="status unknown">미확인</span></td></tr>
+          <tr><th>FieldMed 보존기간·감사·원문 접근</th><td><span class="status unknown">미확인</span></td><td><span class="status unknown">미확인</span></td><td><span class="status unknown">미확인</span></td><td><span class="status unknown">미확인</span></td><td><span class="status unknown">미확인</span></td></tr>
+        </tbody></table></div>
       </div>
-      <p class="price-note"><b>우선 검토안:</b> 일반 영업팀은 Pipedrive, B2B 문서 추적이 핵심이면 Relate. 개인 영업은 세일즈로그, 국내 견적·계약 중심 조직은 핑거세일즈, SAP 생태계의 대기업은 SAP.</p>
+
+      <div class="subsection conclusion-grid">
+        <div class="conclusion-box"><h3>핵심 판단</h3><ul class="check-list"><li><b>전 항목 충족 제품 없음:</b> 공개 공식 자료만으로 FieldMed MVP 전체 범위를 충족한다고 확인되는 서비스는 없음.</li><li><b>핑거세일즈:</b> 국내 CRM DB·명함 등록·STT 요약·사용자 확인·견적·계약·매출 구조 참고.</li><li><b>Pipedrive:</b> 온보딩·파이프라인·Scheduler·고객 타임라인·자동화·예측 UI 참고.</li><li><b>Relate:</b> 문서 반응·Sequence·미팅 예약·온라인 Notetaker 참고.</li><li><b>SAP:</b> 현장 방문·경로·기업 계정·CPQ·ERP 연계 참고.</li><li><b>세일즈로그:</b> 개인 현장 영업자의 오늘 업무·연락주기·정체 경고 UX 참고.</li></ul></div>
+        <div class="conclusion-box"><h3>FieldMed 차별화 범위</h3><ul class="check-list"><li>LOCALDATA 기반 병원 마스터와 담당자 이관</li><li>녹취 동의·근거 구간·사용자 확인 게이트</li><li>의료기기 견적·계약·실매출·목표의 분리</li><li>전표 전체 검증과 결정적 VAT/합계 계산</li><li>팀 격리·원문 접근 제한·감사·보존기간</li><li>D-2/D-1 후속 알림과 D-1 병원 브리핑</li><li>PWA·In-app·Web Push 기반 현장 업무</li></ul></div>
+      </div>
+
+      <div class="subsection conclusion-box"><h3>추가 확인 목록</h3><ul class="check-list"><li>공통: 데이터 위치·암호화·보존·삭제·감사로그·내보내기·역할별 원문 접근</li><li>공통: API·Webhook·LOCALDATA 연동, 병원·고객 중복 매칭, 담당자 이관 이력</li><li>Relate: Notetaker의 현장 음성 업로드, 한국어 지원, 원본·근거 구간, Early Access 제공 조건</li><li>Pipedrive: Premium 계약·전자서명과 Smart Docs 애드온 경계, 의료 문서 계산 규칙</li><li>세일즈로그: 팀 계정·웹·CSV·API·캘린더·보안 운영 범위</li><li>핑거세일즈: AI 요금·모델·한국어 성능·근거·동의·보존·원문 권한</li><li>SAP: 한국 계약가·구축비·현장영업 애드온 범위·국내 데이터 위치·한국어 STT/OCR</li></ul></div>
     </section>
 
     <section id="pricing" class="panel" role="tabpanel" aria-labelledby="tab-pricing">
-      <div class="section-head"><div><span class="kicker">PRICING</span><h2>가격 비교</h2></div><p>2026년 8월 공식 공개 가격 / 세금·환율·계약·애드온 별도</p></div>
-      <div class="table-shell"><table><thead><tr><th>서비스</th><th>무료·체험</th><th>대표 가격</th><th>확인 사항</th></tr></thead><tbody>
-        <tr><th>Relate</th><td>Personal Free<br>Team Free</td><td>Personal Pro $12/월·인(연결제), $15(월결제)<br>Team Business $51/월·인(연결제), $60(월결제)</td><td>Enterprise 별도 문의</td></tr>
-        <tr><th>Pipedrive</th><td>14일 체험</td><td>연결제 인당 월<br>Lite $14 · Growth $39 · Premium $59 · Ultimate $79</td><td>이메일·자동화·문서·리드 애드온</td></tr>
-        <tr><th>세일즈로그</th><td>고객 50명까지 무료</td><td>Premium 월 4,900원</td><td>고객 무제한·앱 내 결제</td></tr>
-        <tr><th>핑거세일즈</th><td>무료 체험</td><td>Professional 30,000원/월·인, 연결제 환산 24,000원<br>Enterprise 50,000원/월·인, 연결제 환산 40,000원</td><td>VAT 별도·Enterprise 15인 이상·개발비 별도</td></tr>
-        <tr><th>SAP Sales Cloud</th><td>체험·데모</td><td>글로벌 공개가 $136/월·인<br>Service $22 · Field sales $53 추가</td><td>국내 견적·구축·통합·교육 비용</td></tr>
+      <div class="section-head"><div><span class="kicker">PRICING</span><h2>가격 비교</h2></div><p>2026-08-10 공식 공개 가격 · 사용자당 월 요금 기준 · 세금·환율·계약·애드온 별도</p></div>
+      <div class="table-shell"><table class="pricing-table"><thead><tr><th>서비스</th><th>무료·체험</th><th>공식 공개 가격</th><th>비교 시 포함할 추가 비용</th><th>공식 근거</th></tr></thead><tbody>
+        <tr><th>Relate</th><td>Personal Free<br>Team Free</td><td>Personal Pro $12/인·월(연결제), $15(월결제)<br>Team Business $51/인·월(연결제), $60(월결제)<br>Enterprise 문의</td><td>Team 기능 범위·Enterprise 조건·데이터 이전·지원</td><td><a class="ref" href="https://www.relate.kr/pricing/" target="_blank" rel="noreferrer">가격</a> · <a class="ref" href="https://www.relate.kr/docs/plans" target="_blank" rel="noreferrer">요금제 범위</a></td></tr>
+        <tr><th>Pipedrive</th><td>14일 체험</td><td>연결제 인당 월<br>Lite $14 · Growth $39 · Premium $59 · Ultimate $79</td><td>LeadBooster $32.50 · Projects $16 · Campaigns $13.33 · Web Visitors $41 · Smart Docs $32.50<br><small>공식 페이지 표시 시작 가격. Premium·Ultimate 포함 여부와 적용 단위 재확인</small></td><td><a class="ref" href="https://www.pipedrive.com/ko/pricing" target="_blank" rel="noreferrer">가격·애드온</a></td></tr>
+        <tr><th>세일즈로그</th><td>Free 0원<br>고객 50명</td><td>Premium 월 4,900원<br>고객 수 무제한 · 앱 내 결제</td><td>팀 운영·웹·외부 연동이 필요하면 제공 여부와 별도 비용 확인</td><td><a class="ref" href="https://salo.co.kr/" target="_blank" rel="noreferrer">기능·가격</a></td></tr>
+        <tr><th>핑거세일즈</th><td>도입 상담·체험 신청</td><td>Professional 월 30,000원/인, 연결제 환산 24,000원<br>Enterprise 월 50,000원/인, 연결제 환산 40,000원</td><td>VAT · Enterprise 15인 이상 · AI 별도 협의 · 맞춤연동 개발비 · On-premise</td><td><a class="ref" href="https://www.crm.co.kr/pricing/pricing.do" target="_blank" rel="noreferrer">가격·조건</a></td></tr>
+        <tr><th>SAP Sales Cloud</th><td>30일 Basic Trial<br><small>공유 tenant·일부 기능·관리/통합 제외</small></td><td>SAP Sales Cloud $136/인·월<br>계약 3~36개월·자동 갱신<br>Service add-on $22 · Field sales add-on $53<br>SAP CPQ Standard $98/인·월·최소 50명</td><td>한국 견적·구축 파트너·데이터 이전·SAP 통합·교육·지원·추가 사용량</td><td><a class="ref" href="https://www.sap.com/products/crm/sales-cloud/pricing.html" target="_blank" rel="noreferrer">가격·애드온</a> · <a class="ref" href="https://www.sap.com/products/crm/sales-cloud/trial.html" target="_blank" rel="noreferrer">체험 범위</a></td></tr>
       </tbody></table></div>
-      <p class="price-note"><b>직접 비교 제한:</b> 개인 모바일 앱(세일즈로그)과 엔터프라이즈 플랫폼(SAP)의 범위 차이. 총비용 기준: 사용자 수 + 구축·이전 + AI·자동화 + 이메일·문서 + 교육·지원.</p>
+      <p class="price-note"><b>총비용 비교식:</b> 사용자 수 × 구독료 + 구축·이전 + AI·문서·리드 애드온 + 외부 연동 개발 + 교육·지원. 세일즈로그의 개인 앱 요금과 SAP의 기업 구축형 요금은 동일 범위가 아니므로 구독료만으로 순위를 매기지 않습니다.</p>
       <div class="sources"><a href="https://www.relate.kr/pricing/" target="_blank" rel="noreferrer">Relate 가격</a><a href="https://www.pipedrive.com/ko/pricing" target="_blank" rel="noreferrer">Pipedrive 가격</a><a href="https://salo.co.kr/" target="_blank" rel="noreferrer">세일즈로그 가격</a><a href="https://www.crm.co.kr/pricing/pricing.do" target="_blank" rel="noreferrer">핑거세일즈 가격</a><a href="https://www.sap.com/products/crm/sales-cloud/pricing.html" target="_blank" rel="noreferrer">SAP 가격</a></div>
     </section>
   </main>
 
-  <footer><div class="wrap">사용자 제공 화면 관찰 + 공식 공개 자료 / 가격·기능 변경 가능 / 실제 도입 전 최신 견적·보안·데이터 이전 조건 확인</div></footer>
+  <footer><div class="wrap">사용자 제공 화면 관찰 + 5개 서비스 공식 자료 분담 조사 + FieldMed 요구사항 정의서 / 확인일 2026-08-10 / 미확인 항목은 도입 전 공급사 서면 확인</div></footer>
   <div class="lightbox" role="dialog" aria-modal="true" aria-label="이미지 확대"><button aria-label="닫기">×</button><img alt="확대 화면"></div>
 
   <script>
@@ -219,10 +391,10 @@
         shot("162452","인사이트","목표·보고서·매출 지표를 대시보드로 시각화",["인사이트","목표","보고서"]),
         shot("162532","확장 기능 메뉴","자동화·시퀀스·문서·가져오기·내보내기의 통합 진입",["자동화","문서","데이터"]),
         shot("162546","자동화 템플릿 갤러리","영업 상황별 추천 워크플로를 골라 빠르게 구성",["자동화","템플릿","추천"]),
-        shot("162602","자동화 템플릿 상세","트리거·조건·실행 작업을 예시 흐름으로 확인",["트리거","조건","작업"]),
-        shot("163046","자동화 빌더","거래 추가 트리거 · 단계 조건 · 이메일·활동 작업 연결",["에이전트형 설정","알림","커스텀"])
+        shot("162602","자동화 템플릿 상세","트리거·조건·실행 작업을 예시 흐름으로 확인",["트리거","조건","작업"])
       ],
       finger:[
+        shot("163046","핑거세일즈 자동화 빌더","영업 조건·단계 변화에 따라 알림·활동·후속 작업을 연결하는 설정 화면",["자동화 설정","알림","후속 작업"]),
         shot("163131","영업 대시보드","고객·기회·활동·매출 현황을 표와 지표로 집계",["대시보드","매출","DB"]),
         shot("163146","영업기회 단계","국내 B2B 영업 단계를 표 형식으로 상세 관리",["영업기회","단계","프로세스"]),
         shot("163200","고객사 목록·상세","기업 DB와 담당자·거래 정보를 고밀도 화면에 배치",["고객사","DB","상세정보"]),
