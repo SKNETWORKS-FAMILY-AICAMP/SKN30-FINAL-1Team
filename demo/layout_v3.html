@@ -1,0 +1,2820 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <title>SalesLuv — 영업 대시보드</title>
+  <style>
+    /* ============================================================
+       1. Design tokens
+       ============================================================ */
+    :root {
+      /* primary — iOS systemBlue */
+      --blue: #007AFF;
+      --blue-press: #0062CC;
+      --blue-tint: #EAF3FF;
+      --blue-ring: rgba(0, 122, 255, .14);
+
+      /* neutrals */
+      --ink: #1C1C1E;
+      --ink-2: #3A3A3C;
+      --muted: #8E8E93;
+      --muted-2: #AEAEB2;
+      --paper: #F2F2F7;
+      --surface: #FFFFFF;
+      --surface-2: #F8F9FB;
+      --fill: rgba(120, 120, 128, .12);
+      --fill-2: rgba(120, 120, 128, .07);
+      --line: rgba(60, 60, 67, .11);
+      --line-2: rgba(60, 60, 67, .22);
+
+      /* semantic */
+      --green: #34C759;  --green-ink: #248A3D;  --green-tint: #E9F7EE;
+      --orange: #FF9500; --orange-ink: #A65300; --orange-tint: #FFF3E2;
+      --red: #FF3B30;    --red-ink: #D70015;    --red-tint: #FFECEB;
+      --purple: #AF52DE; --purple-ink: #7A3EA1; --purple-tint: #F4ECFB;
+
+      /* spacing — 4pt grid */
+      --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px;
+      --s5: 20px; --s6: 24px; --s7: 32px; --s8: 40px;
+
+      /* radius */
+      --r-xs: 8px; --r-sm: 10px; --r-md: 14px;
+      --r-lg: 18px; --r-xl: 22px; --r-pill: 999px;
+
+      /* shadow — shallow and wide */
+      --sh-1: 0 1px 2px rgba(0, 0, 0, .04);
+      --sh-2: 0 1px 2px rgba(0, 0, 0, .04), 0 8px 24px rgba(0, 40, 90, .055);
+      --sh-3: 0 18px 48px rgba(0, 40, 90, .13);
+      --sh-pop: 0 24px 64px rgba(0, 30, 70, .18);
+      --sh-blue: 0 6px 18px rgba(0, 122, 255, .22);
+
+      /* motion */
+      --ease-spring: cubic-bezier(.32, .72, 0, 1);
+      --ease-out: cubic-bezier(.2, .8, .2, 1);
+      --t-fast: 140ms; --t: 240ms; --t-slow: 420ms;
+
+      --blur: saturate(180%) blur(20px);
+
+      /* layout */
+      --sidebar-w: 248px;
+      --sidebar-mini: 68px;
+      --sidebar-gutter: 248px;
+      --topbar-h: 56px;
+      --content-max: 1280px;
+    }
+
+    /* ============================================================
+       2. Reset and base typography
+       ============================================================ */
+    * { box-sizing: border-box; }
+
+    html { color-scheme: light; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
+                   "Apple SD Gothic Neo", "Pretendard Variable", Pretendard,
+                   "Segoe UI", "Noto Sans KR", "Malgun Gothic", system-ui, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      letter-spacing: -.006em;
+      color: var(--ink);
+      background: var(--paper);
+      word-break: keep-all;   /* Korean should wrap between words, not inside them */
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    button, input, textarea, select { font: inherit; letter-spacing: inherit; color: inherit; }
+    button { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+    button:active { transform: scale(.97); transition-duration: 90ms; }
+    button:disabled { opacity: .45; cursor: default; transform: none; }
+
+    :focus-visible { outline: 3px solid var(--blue-ring); outline-offset: 2px; border-radius: var(--r-xs); }
+    ::selection { background: rgba(0, 122, 255, .18); }
+
+    h1, h2, h3, p, ul, ol { margin: 0; }
+    ul, ol { padding: 0; list-style: none; }
+    a { color: inherit; }
+    [hidden] { display: none !important; }
+
+    /* ============================================================
+       3. Utilities
+       ============================================================ */
+    .tnum { font-variant-numeric: tabular-nums; }
+    .muted { color: var(--muted); }
+    .positive { color: var(--green-ink); }
+    .warning { color: var(--orange-ink); }
+    .danger { color: var(--red-ink); }
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+    }
+
+    .eyebrow {
+      margin: 0 0 6px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ============================================================
+       4. Shared components
+       ============================================================ */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--r-lg);
+      box-shadow: var(--sh-2);
+    }
+
+    .card-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: var(--s4);
+    }
+    .card-head h2 { font-size: 17px; font-weight: 600; letter-spacing: -.014em; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--s2);
+      border: 1px solid transparent;
+      border-radius: 12px;
+      padding: 10px 15px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background var(--t-fast) var(--ease-out),
+                  border-color var(--t-fast) var(--ease-out),
+                  box-shadow var(--t-fast) var(--ease-out);
+    }
+    .btn-primary { color: #fff; background: var(--blue); box-shadow: var(--sh-blue); }
+    .btn-primary:hover { background: var(--blue-press); }
+    .btn-secondary { background: var(--fill); }
+    .btn-secondary:hover { background: var(--fill-2); }
+    .btn-outline { background: var(--surface); border-color: var(--line-2); }
+    .btn-outline:hover { border-color: var(--blue); color: var(--blue); }
+    .btn-ghost {
+      background: transparent;
+      border-color: var(--line);
+      color: var(--ink-2);
+      padding: 7px 11px;
+      font-size: 12px;
+      border-radius: var(--r-sm);
+    }
+    .btn-ghost:hover { background: var(--blue-tint); border-color: rgba(0, 122, 255, .28); color: var(--blue); }
+    .btn-danger { background: var(--red-tint); color: var(--red-ink); }
+    .btn-danger:hover { background: #FFDCDA; }
+    .btn-small { padding: 7px 11px; font-size: 12px; border-radius: var(--r-sm); }
+
+    .link-btn {
+      padding: 0; border: 0; background: none;
+      color: var(--blue); font-size: 12px; font-weight: 600; cursor: pointer;
+    }
+    .link-btn:hover { text-decoration: underline; }
+
+    .input {
+      width: 100%;
+      border: 1px solid var(--line-2);
+      border-radius: 12px;
+      background: var(--surface);
+      padding: 12px 14px;
+      transition: border-color var(--t-fast), box-shadow var(--t-fast);
+    }
+    .input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 4px var(--blue-ring); }
+    textarea.input { min-height: 128px; resize: vertical; line-height: 1.6; }
+
+    .tag-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 9px;
+      border-radius: var(--r-pill);
+      background: var(--fill);
+      color: var(--ink-2);
+      font-size: 12px;
+      font-weight: 600;
+      font-style: normal;
+    }
+    .tag-pill.good { background: var(--green-tint); color: var(--green-ink); }
+    .tag-pill.risk { background: var(--orange-tint); color: var(--orange-ink); }
+    .tag-pill.now  { background: var(--blue-tint); color: var(--blue); }
+
+    .icon-btn {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: 34px; height: 34px;
+      border: 1px solid var(--line);
+      border-radius: var(--r-sm);
+      background: var(--surface);
+      cursor: pointer;
+      transition: background var(--t-fast), border-color var(--t-fast);
+    }
+    .icon-btn:hover { background: var(--blue-tint); border-color: rgba(0, 122, 255, .28); }
+    .icon-btn .count {
+      position: absolute; top: -5px; right: -5px;
+      min-width: 17px; height: 17px; padding: 0 4px;
+      display: grid; place-items: center;
+      border: 2px solid var(--surface); border-radius: var(--r-pill);
+      background: var(--red); color: #fff;
+      font-size: 10px; font-weight: 700;
+    }
+
+    .avatar {
+      display: grid; place-items: center;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--blue-tint);
+      color: var(--blue);
+      font-size: 13px; font-weight: 700;
+    }
+
+    /* ============================================================
+       5. Login (ported from demo-jeseop.html)
+       ============================================================ */
+    .login-shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(390px, .85fr);
+      background: linear-gradient(145deg, #0A84FF 0%, #0066D6 58%, #004A9F 100%);
+      color: #fff;
+      overflow: hidden;
+    }
+    .login-story {
+      position: relative;
+      isolation: isolate;
+      min-height: 100vh;
+      padding: clamp(36px, 6vw, 84px);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .login-story::before {
+      content: ""; position: absolute; inset: 0; z-index: -2;
+      background:
+        radial-gradient(circle at 20% 22%, rgba(255, 255, 255, .22), transparent 22rem),
+        linear-gradient(rgba(255, 255, 255, .06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, .06) 1px, transparent 1px);
+      background-size: auto, 42px 42px, 42px 42px;
+    }
+    .login-story::after {
+      content: ""; position: absolute; z-index: -1;
+      width: 440px; height: 440px; right: -150px; bottom: -110px;
+      border: 1px solid rgba(255, 255, 255, .28);
+      border-radius: 50%;
+      box-shadow: 0 0 0 70px rgba(255, 255, 255, .035), 0 0 0 140px rgba(255, 255, 255, .02);
+    }
+
+    .brand-lockup { display: flex; align-items: center; gap: 12px; }
+    button.brand-lockup {
+      border: 0; background: none; padding: 0; cursor: pointer; text-align: left;
+      -webkit-appearance: none; appearance: none;
+    }
+    .brand-mark {
+      display: grid; place-items: center;
+      width: 34px; height: 34px;
+      border-radius: 11px 11px 11px 3px;
+      background: var(--blue); color: #fff;
+      font-size: 17px; font-weight: 800;
+      flex: none;
+    }
+    .login-story .brand-mark { background: #fff; color: var(--blue); }
+    .brand-name { font-size: 19px; font-weight: 800; letter-spacing: -.03em; }
+
+    .login-copy { max-width: 720px; margin: 50px 0; }
+    .login-copy .tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      margin-bottom: 24px; padding: 8px 12px;
+      border: 1px solid rgba(255, 255, 255, .28); border-radius: var(--r-pill);
+      font-size: 12px; color: rgba(255, 255, 255, .82);
+    }
+    .pulse-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #fff; box-shadow: 0 0 0 5px rgba(255, 255, 255, .14);
+    }
+    .login-copy h1 {
+      max-width: 650px;
+      font-size: clamp(42px, 6vw, 78px);
+      line-height: .98;
+      letter-spacing: -.065em;
+      font-weight: 700;
+    }
+    .login-copy h1 span { color: #D9EBFF; }
+    .login-copy p {
+      max-width: 560px; margin-top: 26px;
+      color: rgba(255, 255, 255, .72);
+      font-size: 16px; line-height: 1.75;
+    }
+    .login-proof { display: flex; gap: 28px; flex-wrap: wrap; }
+    .login-proof div { min-width: 132px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, .16); }
+    .login-proof strong { display: block; color: #D9EBFF; font-size: 18px; font-weight: 700; }
+    .login-proof small { color: rgba(255, 255, 255, .72); }
+
+    .login-panel {
+      margin: 20px;
+      padding: clamp(30px, 5vw, 66px);
+      display: flex; flex-direction: column; justify-content: center;
+      background: rgba(255, 255, 255, .96);
+      color: var(--ink);
+      border-radius: 28px;
+      box-shadow: -22px 0 80px rgba(0, 42, 100, .2);
+    }
+    .login-panel h2 { font-size: 30px; letter-spacing: -.04em; }
+    .login-panel > p { margin: 10px 0 30px; color: var(--muted); line-height: 1.6; }
+    .field { display: grid; gap: 8px; margin-bottom: 16px; }
+    .field label { font-size: 12px; font-weight: 700; color: var(--ink-2); }
+    .login-main-btn { width: 100%; padding: 14px; margin-top: 4px; }
+    .or {
+      display: flex; align-items: center; gap: 12px;
+      margin: 24px 0; color: var(--muted); font-size: 11px;
+    }
+    .or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+    .demo-roles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .demo-role {
+      padding: 14px; text-align: left; cursor: pointer;
+      background: var(--surface);
+      border: 1px solid var(--line-2);
+      border-radius: 13px;
+      transition: background var(--t-fast), border-color var(--t-fast);
+    }
+    .demo-role:hover { border-color: rgba(0, 122, 255, .36); background: #F4F8FF; }
+    .demo-role strong { display: block; margin-bottom: 4px; font-size: 13px; }
+    .demo-role span { font-size: 11px; color: var(--muted); }
+    .login-footnote { margin-top: 24px; text-align: center; font-size: 11px; color: var(--muted); }
+
+    /* ============================================================
+       6. App shell
+       ============================================================ */
+    .app { min-height: 100vh; }
+
+    .main {
+      margin-left: var(--sidebar-gutter);
+      min-height: 100vh;
+      transition: margin-left var(--t) var(--ease-spring);
+    }
+
+    .content {
+      max-width: var(--content-max);
+      margin: 0 auto;
+      padding: var(--s6) var(--s6) var(--s8);
+    }
+
+    /* ============================================================
+       7. Sidebar
+       ============================================================ */
+    .sidebar {
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 40;
+      width: var(--sidebar-w);
+      padding: var(--s5) var(--s3) var(--s4);
+      display: flex;
+      flex-direction: column;
+      gap: var(--s5);
+      overflow-x: hidden;
+      overflow-y: auto;
+      background: rgba(255, 255, 255, .86);
+      border-right: 1px solid var(--line);
+      -webkit-backdrop-filter: var(--blur);
+      backdrop-filter: var(--blur);
+      transition: width var(--t) var(--ease-spring), box-shadow var(--t) var(--ease-out);
+    }
+
+    .sidebar-brand { display: flex; align-items: center; gap: var(--s3); padding: 0 var(--s2); }
+    .sidebar-brand .brand-lockup { flex: 1; min-width: 0; }
+    .sidebar-brand .brand-name { color: var(--ink); }
+
+    .sidebar-toggle {
+      flex: none;
+      width: 28px; height: 28px;
+      display: grid; place-items: center;
+      border: 0; border-radius: var(--r-xs);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: background var(--t-fast), color var(--t-fast);
+    }
+    .sidebar-toggle:hover { background: var(--fill); color: var(--ink); }
+    .sidebar-toggle svg { transition: transform var(--t) var(--ease-spring); }
+
+    .nav { display: flex; flex-direction: column; gap: 18px; flex: 1; }
+    .nav-section { display: flex; flex-direction: column; gap: 2px; }
+    .nav-section:last-child { margin-top: auto; }   /* 설정 settles at the bottom */
+
+    /* A caption, not a control. Outdented to the rail edge so the items below
+       read as belonging to it, the way a Finder sidebar heading does. */
+    .nav-section-title {
+      padding: 4px 11px 6px;
+      color: var(--muted);
+      font-size: 11px; font-weight: 700; letter-spacing: .04em;
+    }
+
+    .nav-btn {
+      display: grid;
+      grid-template-columns: 20px 1fr;
+      align-items: center;
+      gap: var(--s3);
+      width: 100%;
+      padding: 9px 11px;
+      border: 0; border-radius: var(--r-sm);
+      background: none; cursor: pointer;
+      color: var(--ink-2);
+      font-size: 13.5px; font-weight: 500;
+      text-align: left;
+      transition: background var(--t-fast), color var(--t-fast);
+    }
+    .nav-btn:hover { background: var(--fill-2); color: var(--ink); }
+    .nav-btn.active { background: var(--blue); color: #fff; box-shadow: var(--sh-blue); }
+    .nav-icon { flex: none; }
+    .nav-short { display: none; }   /* short label, used only by the mobile tab bar */
+
+    .sidebar .nav-text, .sidebar .brand-name,
+    .sidebar .nav-section-title, .sidebar .sidebar-foot-copy {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: opacity var(--t-fast) var(--ease-out);
+    }
+
+    .sidebar-foot {
+      display: grid;
+      grid-template-columns: 32px 1fr 30px;
+      align-items: center;
+      gap: var(--s2);
+      padding: var(--s3) var(--s2) 0;
+      border-top: 1px solid var(--line);
+    }
+    .sidebar-foot-copy { min-width: 0; }
+    .sidebar-foot-copy strong { display: block; font-size: 13px; }
+    .sidebar-foot-copy span { font-size: 11px; color: var(--muted); }
+    .logout-btn {
+      width: 30px; height: 30px;
+      display: grid; place-items: center;
+      border: 0; border-radius: var(--r-xs);
+      background: transparent; color: var(--muted); cursor: pointer;
+      transition: background var(--t-fast), color var(--t-fast);
+    }
+    .logout-btn:hover { background: var(--red-tint); color: var(--red-ink); }
+
+    /* ---- collapsed (icon rail) ----
+       Scoped to the desktop range on purpose: below 821px the sidebar becomes a
+       bottom tab bar, and these `body.sidebar-mini …` selectors would otherwise
+       outrank the media-query rules that reshape it. */
+    @media (min-width: 821px) {
+    body.sidebar-mini { --sidebar-gutter: var(--sidebar-mini); }
+    body.sidebar-mini .sidebar { width: var(--sidebar-mini); }
+
+    body.sidebar-mini .sidebar .nav-text,
+    body.sidebar-mini .sidebar .brand-name,
+    body.sidebar-mini .sidebar .nav-section-title,
+    body.sidebar-mini .sidebar .sidebar-foot-copy { opacity: 0; pointer-events: none; }
+
+    /* a faded caption still holds its row and opens a hole between icon groups —
+       the hairline below already separates them, so collapse the box too */
+    body.sidebar-mini .sidebar .nav-section-title { height: 0; padding: 0; overflow: hidden; }
+
+    body.sidebar-mini .sidebar-brand { flex-direction: column; gap: var(--s2); padding: 0; }
+    body.sidebar-mini .sidebar-toggle svg { transform: rotate(180deg); }
+    body.sidebar-mini .nav-section + .nav-section {
+      border-top: 1px solid var(--line);
+      padding-top: var(--s3);
+    }
+    body.sidebar-mini .sidebar-foot { grid-template-columns: 1fr; justify-items: center; }
+    body.sidebar-mini .logout-btn { display: none; }
+
+    /* hover / focus expands as an overlay — .main never moves */
+    body.sidebar-mini .sidebar:hover,
+    body.sidebar-mini .sidebar:focus-within {
+      width: var(--sidebar-w);
+      box-shadow: var(--sh-3);
+      transition-delay: 90ms;
+    }
+    body.sidebar-mini .sidebar:hover .nav-text,
+    body.sidebar-mini .sidebar:hover .brand-name,
+    body.sidebar-mini .sidebar:hover .nav-section-title,
+    body.sidebar-mini .sidebar:hover .sidebar-foot-copy,
+    body.sidebar-mini .sidebar:focus-within .nav-text,
+    body.sidebar-mini .sidebar:focus-within .brand-name,
+    body.sidebar-mini .sidebar:focus-within .nav-section-title,
+    body.sidebar-mini .sidebar:focus-within .sidebar-foot-copy {
+      opacity: 1; pointer-events: auto; transition-delay: 130ms;
+    }
+    body.sidebar-mini .sidebar:hover .nav-section-title,
+    body.sidebar-mini .sidebar:focus-within .nav-section-title {
+      height: auto; padding: 4px 11px 6px;
+    }
+    body.sidebar-mini .sidebar:hover .sidebar-brand,
+    body.sidebar-mini .sidebar:focus-within .sidebar-brand {
+      flex-direction: row; gap: var(--s3); padding: 0 var(--s2);
+    }
+    body.sidebar-mini .sidebar:hover .sidebar-foot,
+    body.sidebar-mini .sidebar:focus-within .sidebar-foot {
+      grid-template-columns: 32px 1fr 30px; justify-items: stretch;
+    }
+    body.sidebar-mini .sidebar:hover .logout-btn,
+    body.sidebar-mini .sidebar:focus-within .logout-btn { display: grid; }
+    }
+
+    /* ============================================================
+       8. Topbar
+       ============================================================ */
+    .topbar {
+      position: sticky; top: 0; z-index: 20;
+      height: var(--topbar-h);
+      display: flex; align-items: center; gap: var(--s3);
+      padding: 0 var(--s6);
+      background: rgba(255, 255, 255, .78);
+      border-bottom: 1px solid var(--line);
+      -webkit-backdrop-filter: var(--blur);
+      backdrop-filter: var(--blur);
+    }
+    .breadcrumb { font-size: 13px; color: var(--muted); }
+    .breadcrumb strong { color: var(--ink); font-weight: 600; }
+    .topbar-spacer { flex: 1; }
+    .demo-badge {
+      padding: 4px 9px;
+      border: 1px solid var(--line-2); border-radius: var(--r-pill);
+      background: var(--surface-2); color: var(--muted);
+      font-size: 10px; font-weight: 700; letter-spacing: .06em;
+    }
+
+    .date-anchor { position: relative; }
+    .date-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 11px;
+      border: 1px solid var(--line); border-radius: var(--r-sm);
+      background: var(--surface); cursor: pointer;
+      font-size: 13px; font-weight: 600;
+      transition: background var(--t-fast), border-color var(--t-fast);
+    }
+    .date-btn:hover { background: var(--blue-tint); border-color: rgba(0, 122, 255, .28); }
+    .date-btn svg { transition: transform var(--t) var(--ease-spring); color: var(--muted); }
+    .date-btn[aria-expanded="true"] svg { transform: rotate(180deg); }
+
+    .popover {
+      position: absolute; top: calc(100% + 8px); right: 0; z-index: 50;
+      width: 288px; padding: var(--s4);
+      background: rgba(255, 255, 255, .94);
+      border: 1px solid var(--line); border-radius: var(--r-md);
+      box-shadow: var(--sh-pop);
+      -webkit-backdrop-filter: var(--blur);
+      backdrop-filter: var(--blur);
+      transform-origin: top right;
+      animation: pop-in var(--t) var(--ease-spring);
+    }
+    @keyframes pop-in {
+      from { opacity: 0; transform: translateY(-6px) scale(.96); }
+      to   { opacity: 1; transform: none; }
+    }
+    .pop-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--s3); }
+    .pop-head strong { font-size: 14px; font-weight: 600; }
+    .pop-nav { display: flex; gap: var(--s1); }
+    .pop-nav button {
+      width: 26px; height: 26px; display: grid; place-items: center;
+      border: 0; border-radius: var(--r-xs); background: transparent;
+      color: var(--muted); cursor: pointer;
+    }
+    .pop-nav button:hover { background: var(--fill); color: var(--ink); }
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+    .cal-wd { padding: 4px 0; text-align: center; font-size: 11px; font-weight: 600; color: var(--muted); }
+    .cal-wd.sun { color: var(--red-ink); }
+    .cal-wd.sat { color: var(--blue); }
+    .cal-cell {
+      aspect-ratio: 1;
+      display: grid; place-items: center;
+      border: 0; border-radius: var(--r-xs);
+      background: transparent; cursor: pointer;
+      font-size: 13px;
+      transition: background var(--t-fast);
+    }
+    .cal-cell:hover { background: var(--fill); }
+    .cal-cell.is-outside { color: var(--muted-2); }
+    .cal-cell.is-today { box-shadow: inset 0 0 0 1.5px var(--blue); color: var(--blue); font-weight: 700; }
+    .cal-cell.is-picked { background: var(--blue); color: #fff; font-weight: 700; box-shadow: none; }
+    .pop-foot { display: flex; justify-content: flex-end; margin-top: var(--s3); }
+
+    /* ============================================================
+       9. Notice ticker
+       ============================================================ */
+    .notice {
+      position: relative;
+      display: flex; align-items: center; gap: var(--s3);
+      height: 44px; margin-bottom: var(--s4); padding: 0 var(--s4);
+      background: var(--surface);
+      border: 1px solid var(--line); border-radius: var(--r-md);
+      box-shadow: var(--sh-1);
+    }
+    .notice-badge {
+      flex: none; padding: 3px 9px;
+      border-radius: var(--r-pill);
+      background: var(--blue-tint); color: var(--blue);
+      font-size: 11px; font-weight: 700;
+    }
+    .notice-viewport { flex: 1; height: 21px; overflow: hidden; }
+    .notice-track {
+      transform: translateY(calc(var(--i, 0) * -21px));
+      transition: transform var(--t-slow) var(--ease-spring);
+    }
+    .notice-track li {
+      height: 21px; line-height: 21px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      font-size: 13px;
+    }
+    .notice-track li em { font-style: normal; color: var(--muted); }
+    .notice-count { flex: none; font-size: 12px; color: var(--muted); }
+    .notice-caret { flex: none; color: var(--muted); transition: transform var(--t) var(--ease-spring); }
+    .notice:hover .notice-caret, .notice:focus-within .notice-caret { transform: rotate(180deg); }
+
+    .notice-panel {
+      position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 25;
+      padding: var(--s2);
+      background: rgba(255, 255, 255, .94);
+      border: 1px solid var(--line); border-radius: var(--r-md);
+      box-shadow: var(--sh-pop);
+      -webkit-backdrop-filter: var(--blur);
+      backdrop-filter: var(--blur);
+      opacity: 0; transform: translateY(-6px) scale(.99); pointer-events: none;
+      transition: opacity var(--t) var(--ease-out), transform var(--t) var(--ease-spring);
+    }
+    .notice:hover .notice-panel, .notice:focus-within .notice-panel {
+      opacity: 1; transform: none; pointer-events: auto;
+    }
+    .notice-panel li { padding: 10px var(--s3); border-radius: var(--r-sm); }
+    .notice-panel li + li { border-top: 1px solid var(--line); }
+    .notice-panel p { font-size: 13px; }
+    .notice-panel small { display: block; margin-top: 3px; font-size: 11px; color: var(--muted); }
+
+    /* ============================================================
+       10. Summary band — KPI ×4 + monthly goal
+       ============================================================ */
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr)) 300px;
+      gap: var(--s3);
+      margin-bottom: var(--s4);
+    }
+    .kpi { display: block; width: 100%; padding: var(--s4); text-align: left; font: inherit; color: inherit; }
+    .kpi-top { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); }
+    .kpi-top span { font-size: 12px; color: var(--muted); }
+    .kpi strong { display: block; margin: 6px 0 2px; font-size: 26px; font-weight: 700; letter-spacing: -.022em; }
+    .kpi small { font-size: 11px; color: var(--muted); }
+
+    /* Every counter on this page leads somewhere, so every counter is a button.
+       The cue says where: a chevron opens a panel, an arrow scrolls the page. */
+    .kpi, .po-stat {
+      cursor: pointer;
+      transition: border-color var(--t-fast), box-shadow var(--t-fast) var(--ease-out),
+                  background var(--t-fast), transform var(--t-fast) var(--ease-spring);
+    }
+    .kpi:hover { border-color: rgba(0, 122, 255, .34); box-shadow: var(--sh-2), 0 0 0 3px var(--blue-ring); }
+    .kpi:active, .po-stat:active { transform: scale(.99); }
+    .tile-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); }
+    .tile-cue { flex: none; color: var(--muted-2); transition: transform var(--t-fast) var(--ease-spring), color var(--t-fast); }
+    .kpi:hover .tile-cue, .po-stat:hover .tile-cue { color: var(--blue); transform: translateX(2px); }
+    .kpi.is-jump:hover .tile-cue { transform: translateY(2px); }
+    .delta {
+      flex: none; padding: 2px 7px; border-radius: var(--r-pill);
+      background: var(--green-tint); color: var(--green-ink);
+      font-size: 11px; font-weight: 700; font-style: normal;
+    }
+    .delta.is-warn { background: var(--orange-tint); color: var(--orange-ink); }
+    .delta.is-danger { background: var(--red-tint); color: var(--red-ink); }
+
+    .goal { padding: var(--s4); }
+    .goal-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s2); }
+    .goal-head span { font-size: 12px; color: var(--muted); }
+    .goal-head strong { font-size: 20px; font-weight: 700; letter-spacing: -.02em; }
+    .goal-value { margin-top: 2px; font-size: 13px; color: var(--ink-2); }
+    .goal-value em { font-style: normal; color: var(--muted); }
+    .goal-track {
+      height: 6px; margin-top: var(--s2);
+      border-radius: var(--r-pill); background: var(--fill); overflow: hidden;
+    }
+    .goal-track i {
+      display: block; height: 100%; width: var(--p, 0%);
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--blue), #4DA3FF);
+      transition: width var(--t-slow) var(--ease-spring);
+    }
+    .goal-track.is-ahead i { background: linear-gradient(90deg, var(--green-ink), var(--green)); }
+    .goal-track.is-behind i { background: linear-gradient(90deg, var(--orange-ink), var(--orange)); }
+    .goal-foot {
+      display: flex; justify-content: space-between; gap: var(--s2);
+      margin-top: 6px; font-size: 11px; color: var(--muted);
+    }
+
+    /* ============================================================
+       11. Week calendar
+       ============================================================ */
+    .weekcal { padding: var(--s5) var(--s5) var(--s6); margin-bottom: var(--s4); }
+    .wc-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s4); flex-wrap: wrap; }
+    .wc-range { font-size: 17px; font-weight: 600; letter-spacing: -.014em; }
+    .wc-tools { display: flex; align-items: center; gap: var(--s2); }
+    .wc-legend { display: flex; align-items: center; gap: var(--s3); font-size: 11px; color: var(--muted); }
+    .wc-legend span { display: inline-flex; align-items: center; gap: 5px; }
+
+    .wc-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: var(--s2);
+      margin-top: var(--s4);
+    }
+    .wc-day {
+      position: relative;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      padding: var(--s3) var(--s1) var(--s3);
+      border: 1px solid transparent; border-radius: var(--r-md);
+      background: var(--surface-2);
+      cursor: pointer;
+      transition: background var(--t-fast), box-shadow var(--t-fast);
+    }
+    .wc-day:hover { background: var(--fill-2); }
+    .wc-wd { font-size: 12px; color: var(--muted); white-space: nowrap; }
+    .wc-today-tag { font-style: normal; }
+    .wc-day.is-sun .wc-wd { color: var(--red-ink); }
+    .wc-day.is-sat .wc-wd { color: var(--blue); }
+    .wc-num { font-size: 17px; font-weight: 600; }
+    /* absolute so a month-boundary label never stretches every cell in the row */
+    .wc-month {
+      position: absolute; top: 5px; right: 7px;
+      font-size: 10px; font-weight: 600; color: var(--blue);
+    }
+
+    .wc-dots { display: flex; align-items: center; gap: 3px; height: 8px; }
+    .dot-m { width: 5px; height: 5px; border-radius: 50%; background: var(--blue); }
+    .dot-d { width: 5px; height: 5px; background: var(--orange); transform: rotate(45deg); }
+
+    .wc-day.is-today { box-shadow: inset 0 0 0 1.5px var(--blue); }
+    .wc-day.is-today .wc-num { color: var(--blue); }
+    .wc-day.is-selected {
+      background: var(--blue); color: #fff;
+      box-shadow: var(--sh-blue);
+    }
+    .wc-day.is-selected .wc-wd,
+    .wc-day.is-selected .wc-num,
+    .wc-day.is-selected .wc-month { color: #fff; }
+    .wc-day.is-selected .dot-m { background: #fff; }
+    .wc-day.is-selected .dot-d { background: #FFD79A; }
+    /* the notch that opens the selected day into the agenda below */
+    .wc-day.is-selected::after {
+      content: "";
+      position: absolute; left: 50%; bottom: -19px;
+      transform: translateX(-50%);
+      border: 7px solid transparent;
+      border-top-color: var(--blue);
+    }
+
+    /* ============================================================
+       12. Agenda timeline
+       ============================================================ */
+    /* the 오늘 방문 회사 counter scrolls here instead of opening a panel —
+       the answer is already on the page, so a flash is enough to point at it */
+    .agenda {
+      padding: var(--s5); margin-bottom: var(--s4);
+      scroll-margin-top: calc(var(--topbar-h) + var(--s4));
+      transition: box-shadow var(--t-slow) var(--ease-out);
+    }
+    .agenda.is-flash { box-shadow: var(--sh-2), 0 0 0 3px var(--blue-ring); border-color: rgba(0, 122, 255, .34); }
+    .agenda-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s4); flex-wrap: wrap; }
+    .agenda-head h2 { display: flex; align-items: center; gap: var(--s2); font-size: 17px; font-weight: 600; letter-spacing: -.014em; }
+
+    .agenda-list { margin-top: var(--s4); }
+    .agenda-item {
+      --rail-x: 31px;              /* centre of the check column, where the timeline rail sits */
+      --divider-x: 60px;           /* left edge of the time column, mirrored on the right */
+      position: relative;
+      display: grid;
+      grid-template-columns: 28px 52px minmax(0, 1fr) 30px;
+      gap: var(--s3);
+      margin: 0 calc(var(--s5) * -1);
+      padding: var(--s4) var(--s5);
+      cursor: pointer;
+      transition: background var(--t-fast);
+    }
+    .agenda-item:hover { background: var(--fill-2); }
+    /* the divider is inset to the content block instead of bleeding to the card
+       edge — it separates rows without cutting across the check and rail column */
+    .agenda-item + .agenda-item::after {
+      content: "";
+      position: absolute; left: var(--divider-x); right: var(--divider-x); top: 0;
+      height: 1px; background: var(--line);
+    }
+    /* timeline rail */
+    .agenda-item::before {
+      content: "";
+      position: absolute; left: var(--rail-x); top: 46px; bottom: 0;
+      width: 1px; background: var(--line);
+    }
+    .agenda-item:last-child::before { display: none; }
+
+    .agenda-check {
+      width: 22px; height: 22px; margin-top: 1px;
+      display: grid; place-items: center;
+      border: 1.5px solid var(--line-2); border-radius: 50%;
+      background: var(--surface); color: transparent;
+      cursor: pointer;
+      transition: background var(--t-fast), border-color var(--t-fast), color var(--t-fast);
+    }
+    .agenda-check:hover { border-color: var(--blue); }
+    .agenda-check[aria-pressed="true"] { background: var(--blue); border-color: var(--blue); color: #fff; }
+
+    .agenda-more {
+      width: 28px; height: 28px; margin-top: -2px;
+      display: grid; place-items: center;
+      border: 0; border-radius: var(--r-xs);
+      background: transparent; color: var(--muted);
+      cursor: pointer; opacity: 0;
+      transition: opacity var(--t-fast), background var(--t-fast), color var(--t-fast);
+    }
+    .agenda-item:hover .agenda-more,
+    .agenda-item:focus-within .agenda-more { opacity: 1; }
+    .agenda-more:hover { background: var(--fill); color: var(--ink); }
+
+    .agenda-rail { text-align: right; }
+    .agenda-time { font-size: 13px; font-weight: 600; }
+
+    .agenda-body { min-width: 0; }
+    .agenda-meta-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
+
+    /* the organisation is the thing you scan for, so it leads —
+       department and contact ride alongside it instead of taking their own line */
+    .agenda-org {
+      display: flex; align-items: baseline; gap: var(--s2); flex-wrap: wrap;
+      font-size: 17px; font-weight: 700; letter-spacing: -.016em;
+    }
+    .agenda-open {
+      padding: 0; border: 0; background: none; cursor: pointer;
+      font: inherit; letter-spacing: inherit; color: inherit; text-align: left;
+    }
+    .agenda-open:hover { text-decoration: underline; text-underline-offset: 3px; }
+    .kind-pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 9px; border-radius: var(--r-pill);
+      font-size: 11px; font-weight: 700;
+      background: var(--fill); color: var(--ink-2);
+    }
+    .kind-pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .kind-blue   { background: var(--blue-tint);   color: var(--blue); }
+    .kind-purple { background: var(--purple-tint); color: var(--purple-ink); }
+    .kind-green  { background: var(--green-tint);  color: var(--green-ink); }
+    .kind-orange { background: var(--orange-tint); color: var(--orange-ink); }
+
+    .agenda-title { margin-top: 3px; font-size: 14px; font-weight: 600; letter-spacing: -.008em; }
+    .agenda-who { font-size: 12px; font-weight: 400; letter-spacing: normal; color: var(--muted); }
+    .agenda-brief {
+      margin-top: var(--s2);
+      font-size: 13px; line-height: 1.62; color: var(--ink-2);
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+
+    /* .agenda-who is inside .agenda-org, so dimming it again would double up */
+    .agenda-item.is-done .agenda-org,
+    .agenda-item.is-done .agenda-title,
+    .agenda-item.is-done .agenda-brief,
+    .agenda-item.is-done .agenda-rail { opacity: .6; }
+
+    .agenda-empty { padding: var(--s8) var(--s4); text-align: center; }
+    .agenda-empty svg { color: var(--muted-2); }
+    .agenda-empty p { margin: var(--s3) 0 var(--s4); color: var(--muted); }
+
+    /* ============================================================
+       13. Purchase orders
+       ============================================================ */
+    .po { padding: var(--s5); }
+    /* These five overlap (an order can be 진행중 and 납기 지연 at once), so they are
+       tiles rather than a stepper — a connector line would imply a sequence. */
+    .po-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+      gap: var(--s3);
+      margin-top: var(--s5);
+    }
+    .po-stat {
+      display: block; width: 100%;
+      padding: var(--s4);
+      border: 1px solid var(--line); border-radius: var(--r-md);
+      background: var(--surface-2);
+      text-align: left; font: inherit; color: inherit;
+    }
+    .po-stat .po-label { font-size: 12px; color: var(--muted); }
+    .po-stat strong { display: block; margin: 6px 0 2px; font-size: 24px; font-weight: 700; letter-spacing: -.02em; }
+    .po-stat small { font-size: 11px; color: var(--muted); }
+    .po-stat:hover { border-color: rgba(0, 122, 255, .34); background: var(--blue-tint); }
+    .po-stat.is-zero strong { color: var(--muted-2); }
+    .po-stat.is-alert {
+      background: var(--orange-tint);
+      border-color: rgba(255, 149, 0, .32);
+    }
+    .po-stat.is-alert .po-label, .po-stat.is-alert small { color: var(--orange-ink); }
+    .po-stat.is-alert strong { color: var(--orange-ink); }
+    .po-stat.is-alert:hover { background: #FFE9CC; border-color: rgba(255, 149, 0, .5); }
+    .po-stat.is-alert:hover .tile-cue { color: var(--orange-ink); }
+
+    .po-alert {
+      display: flex; align-items: flex-start; gap: var(--s2);
+      width: 100%; margin-top: var(--s5); padding: var(--s3);
+      border: 0; border-radius: var(--r-sm);
+      background: var(--orange-tint); color: var(--orange-ink);
+      font-size: 13px; text-align: left; cursor: pointer;
+    }
+    .po-alert:hover { background: #FFE9CC; }
+    .po-alert svg { flex: none; margin-top: 1px; }
+    .po-alert strong { font-weight: 700; }
+    .po-clear {
+      display: flex; align-items: center; gap: var(--s2);
+      margin-top: var(--s5); padding: var(--s3);
+      border-radius: var(--r-sm); background: var(--green-tint); color: var(--green-ink);
+      font-size: 13px;
+    }
+
+    /* ============================================================
+       14. Drawer, dialog, toast
+       ============================================================ */
+    /* Every record view is a right-hand drawer: it keeps the list in view and
+       has room for a history timeline. Modals are kept for confirmations only. */
+    .drawer {
+      position: fixed; inset: 0 0 0 auto; z-index: 70;
+      width: min(420px, 92vw);
+      display: flex; flex-direction: column;
+      background: var(--surface);
+      border-left: 1px solid var(--line);
+      box-shadow: var(--sh-pop);
+      overflow: hidden;
+      animation: slide-in var(--t) var(--ease-spring);
+    }
+    .drawer.is-wide { width: min(760px, 96vw); }
+    @keyframes slide-in { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+    .drawer-head {
+      flex: none;
+      display: flex; align-items: flex-start; justify-content: space-between; gap: var(--s3);
+      padding: var(--s5) var(--s5) var(--s4);
+      border-bottom: 1px solid var(--line);
+    }
+    .drawer-head h2 { font-size: 21px; font-weight: 700; letter-spacing: -.02em; }
+    .drawer-head .drawer-sub { margin-top: 3px; font-size: 14px; font-weight: 600; color: var(--ink-2); }
+    .drawer-head .drawer-meta { margin-top: 6px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .drawer-tools { display: flex; align-items: center; gap: var(--s1); flex: none; }
+
+    .drawer-body { flex: 1; overflow-y: auto; padding: var(--s5); }
+    #poBackBtn { margin-right: auto; }
+    .drawer-foot {
+      flex: none;
+      display: flex; justify-content: flex-end; gap: var(--s2);
+      padding: var(--s4) var(--s5);
+      border-top: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .record-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s6); }
+    .record-col { display: grid; gap: var(--s5); align-content: start; }
+    .record-block h3 { margin-bottom: var(--s3); font-size: 13px; font-weight: 700; }
+    .record-note { font-size: 13px; line-height: 1.7; color: var(--ink-2); }
+    .record-link {
+      display: flex; align-items: center; justify-content: space-between; gap: var(--s3);
+      width: 100%; padding: var(--s3);
+      border: 1px solid var(--line); border-radius: var(--r-sm);
+      background: var(--surface-2); cursor: pointer; text-align: left; font-size: 13px;
+    }
+    .record-link:hover { border-color: rgba(0, 122, 255, .3); background: var(--blue-tint); }
+
+    .scrim { position: fixed; inset: 0; z-index: 60; background: rgba(0, 20, 50, .28); }
+
+    /* ⋯ overflow menu */
+    .menu {
+      position: fixed; z-index: 80;
+      min-width: 168px; padding: var(--s1);
+      background: rgba(255, 255, 255, .96);
+      border: 1px solid var(--line); border-radius: var(--r-md);
+      box-shadow: var(--sh-pop);
+      -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
+      animation: pop-in var(--t) var(--ease-spring);
+    }
+    .menu button {
+      display: flex; align-items: center; gap: var(--s2);
+      width: 100%; padding: 9px var(--s3);
+      border: 0; border-radius: var(--r-xs);
+      background: none; cursor: pointer; text-align: left; font-size: 13px;
+    }
+    .menu button:hover { background: var(--fill); }
+    .menu button.is-danger { color: var(--red-ink); }
+    .menu button.is-danger:hover { background: var(--red-tint); }
+    .menu hr { height: 1px; margin: var(--s1) 0; border: 0; background: var(--line); }
+
+    dialog {
+      width: min(560px, 92vw);
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: var(--r-xl);
+      background: var(--surface);
+      color: var(--ink);
+      box-shadow: var(--sh-pop);
+    }
+    dialog::backdrop { background: rgba(0, 20, 50, .3); backdrop-filter: blur(3px); }
+    .dialog-head { padding: var(--s5) var(--s5) var(--s3); }
+    .dialog-head h2 { font-size: 19px; font-weight: 700; letter-spacing: -.02em; }
+    .dialog-head p { margin-top: 4px; font-size: 13px; color: var(--muted); }
+    .dialog-foot {
+      display: flex; justify-content: flex-end; gap: var(--s2);
+      padding: var(--s4) var(--s5);
+      border-top: 1px solid var(--line);
+    }
+
+    /* Shared list drawer — one surface behind every counter on the dashboard */
+    .list-filters {
+      flex: none; display: flex; gap: 6px; flex-wrap: wrap;
+      padding: var(--s3) var(--s5);
+      border-bottom: 1px solid var(--line); background: var(--surface-2);
+    }
+    .list-filter {
+      padding: 5px 11px;
+      border: 1px solid var(--line); border-radius: var(--r-pill);
+      background: var(--surface); color: var(--ink-2);
+      font-size: 12px; font-weight: 600; cursor: pointer;
+      transition: background var(--t-fast), border-color var(--t-fast), color var(--t-fast);
+    }
+    .list-filter:hover { border-color: rgba(0, 122, 255, .34); color: var(--blue); }
+    .list-filter[aria-pressed="true"] { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .list-filter span { opacity: .7; }
+    .list-filter[aria-pressed="true"] span { opacity: .8; }
+
+    .list-count { margin-bottom: var(--s2); font-size: 12px; color: var(--muted); }
+    .list-row {
+      display: grid; grid-template-columns: minmax(0, 1fr) auto;
+      gap: var(--s4); align-items: start;
+      width: 100%; margin: 0 calc(var(--s5) * -1); padding: var(--s4) var(--s5);
+      border: 0; background: none; text-align: left; font: inherit; color: inherit;
+    }
+    .list-row + .list-row { position: relative; }
+    .list-row + .list-row::after {
+      content: ""; position: absolute; left: var(--s5); right: var(--s5); top: 0;
+      height: 1px; background: var(--line);
+    }
+    button.list-row { cursor: pointer; transition: background var(--t-fast); }
+    button.list-row:hover { background: var(--fill-2); }
+    .list-row h3 { font-size: 15px; font-weight: 700; letter-spacing: -.01em; }
+    .list-row h3 span { margin-left: 6px; font-size: 12px; font-weight: 400; color: var(--muted); }
+    .list-row p { margin-top: 4px; font-size: 13px; line-height: 1.6; color: var(--ink-2); }
+    .list-row .list-tags { margin-top: 7px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .list-side { display: grid; gap: 3px; justify-items: end; text-align: right; font-size: 11px; color: var(--muted); }
+    .list-side strong { font-size: 13px; font-weight: 700; color: var(--ink); }
+    .list-side strong.is-late { color: var(--orange-ink); }
+    .list-empty { padding: var(--s8) 0; text-align: center; font-size: 13px; color: var(--muted); }
+
+    /* 자리표시 페이지: 카드 하나만 두고 세로 가운데로 모은다 */
+    .wip {
+      display: grid;
+      justify-items: center;
+      gap: var(--s2);
+      padding: var(--s8) var(--s6);
+      text-align: center;
+      color: var(--muted-2);
+    }
+    .wip h2 { color: var(--ink); }
+    .wip-copy { margin: 0 0 var(--s4); font-size: 14px; color: var(--muted); }
+
+    .detail-row { display: grid; grid-template-columns: 84px 1fr; gap: var(--s3); font-size: 13px; }
+    .detail-row dt { color: var(--muted); }
+    .detail-row dd { margin: 0; }
+
+    .history-item { padding-left: var(--s4); border-left: 2px solid var(--line); }
+    .history-item + .history-item { margin-top: var(--s4); }
+    .history-item time { font-size: 11px; font-weight: 700; color: var(--blue); }
+    .history-item p { margin-top: 3px; font-size: 13px; color: var(--ink-2); line-height: 1.6; }
+
+    .toast {
+      position: fixed; left: 50%; bottom: 28px; z-index: 90;
+      padding: 12px 18px; border-radius: var(--r-pill);
+      background: rgba(0, 40, 90, .92); color: #fff;
+      font-size: 13px; font-weight: 600;
+      box-shadow: var(--sh-pop);
+      -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
+      transform: translate(-50%, 16px); opacity: 0; pointer-events: none;
+      transition: transform var(--t) var(--ease-spring), opacity var(--t) var(--ease-out);
+    }
+    .toast.show { transform: translate(-50%, 0); opacity: 1; }
+
+    /* ============================================================
+       15. Responsive
+       ============================================================ */
+    @media (max-width: 1279px) {
+      .summary { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .goal { grid-column: 1 / -1; }
+    }
+
+    /* below 1280 the rail is forced, but only while the sidebar is still a rail */
+    @media (min-width: 821px) and (max-width: 1279px) {
+      body { --sidebar-gutter: var(--sidebar-mini); }
+      .sidebar { width: var(--sidebar-mini); }
+      .sidebar .nav-text, .sidebar .brand-name,
+      .sidebar .nav-section-title, .sidebar .sidebar-foot-copy { opacity: 0; pointer-events: none; }
+      .sidebar .nav-section-title { height: 0; padding: 0; overflow: hidden; }
+      .sidebar-brand { flex-direction: column; gap: var(--s2); padding: 0; }
+      .sidebar-toggle { display: none; }
+      .sidebar-foot { grid-template-columns: 1fr; justify-items: center; }
+      .logout-btn { display: none; }
+      .sidebar:hover, .sidebar:focus-within { width: var(--sidebar-w); box-shadow: var(--sh-3); transition-delay: 90ms; }
+      .sidebar:hover .nav-text, .sidebar:hover .brand-name,
+      .sidebar:hover .nav-section-title, .sidebar:hover .sidebar-foot-copy,
+      .sidebar:focus-within .nav-text, .sidebar:focus-within .brand-name,
+      .sidebar:focus-within .nav-section-title, .sidebar:focus-within .sidebar-foot-copy {
+        opacity: 1; pointer-events: auto; transition-delay: 130ms;
+      }
+      .sidebar:hover .nav-section-title, .sidebar:focus-within .nav-section-title {
+        height: auto; padding: 4px 11px 6px;
+      }
+      .sidebar:hover .sidebar-brand, .sidebar:focus-within .sidebar-brand {
+        flex-direction: row; gap: var(--s3); padding: 0 var(--s2);
+      }
+      .sidebar:hover .sidebar-foot, .sidebar:focus-within .sidebar-foot {
+        grid-template-columns: 32px 1fr 30px; justify-items: stretch;
+      }
+      .sidebar:hover .logout-btn, .sidebar:focus-within .logout-btn { display: grid; }
+    }
+
+    @media (max-width: 1023px) {
+      .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .record-grid { grid-template-columns: 1fr; gap: var(--s5); }
+      .login-shell { grid-template-columns: 1fr; }
+      .login-story { min-height: auto; }
+    }
+
+    @media (max-width: 820px) {
+      body { --sidebar-gutter: 0; padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
+      .sidebar {
+        inset: auto 0 0 0;
+        width: auto; height: calc(60px + env(safe-area-inset-bottom));
+        padding: var(--s2) var(--s3) calc(var(--s2) + env(safe-area-inset-bottom));
+        flex-direction: row; gap: 0;
+        border-right: 0; border-top: 1px solid var(--line);
+        overflow: visible;
+      }
+      .sidebar:hover, .sidebar:focus-within { width: auto; box-shadow: none; }
+      .sidebar-brand, .sidebar-foot, .nav-section-title { display: none; }
+      .nav { flex-direction: row; gap: 0; align-items: stretch; }
+      .nav-section { display: contents; }
+      .nav-btn { display: none; }
+      .nav-btn.mobile-tab {
+        display: grid; flex: 1;
+        grid-template-columns: 1fr; justify-items: center; gap: 3px;
+        padding: 6px 2px; font-size: 9px; font-weight: 600;
+      }
+      .nav-btn.active { background: transparent; color: var(--blue); box-shadow: none; }
+      .nav-text { display: none; }
+      .nav-short { display: block; opacity: 1; }
+      .wc-today-tag { display: none; }
+      .topbar { height: 52px; padding: 0 var(--s4); }
+      .breadcrumb, .demo-badge { display: none; }
+      .content { padding: var(--s4) var(--s4) var(--s6); }
+      .weekcal, .agenda, .po { padding: var(--s4); }
+      .wc-day { padding: var(--s2) 2px; }
+      .wc-num { font-size: 15px; }
+      .agenda-item {
+        --rail-x: 27px;
+        --divider-x: 48px;
+        grid-template-columns: 24px 46px minmax(0, 1fr) 28px; gap: var(--s2);
+        margin: 0 calc(var(--s4) * -1); padding: var(--s4);
+      }
+      .agenda-more { opacity: 1; }   /* no hover on touch */
+      .drawer-head, .drawer-body { padding: var(--s4); }
+      .drawer-foot { padding: var(--s3) var(--s4); }
+      .login-panel { margin: 0; border-radius: 24px 24px 0 0; }
+    }
+
+    @media (max-width: 520px) {
+      .demo-roles { grid-template-columns: 1fr; }
+      .agenda-item { grid-template-columns: 24px minmax(0, 1fr) 28px; }
+      .agenda-item::before { display: none; }
+      .agenda-rail { grid-column: 2; text-align: left; }
+      .agenda-body { grid-column: 2 / -1; }
+      .agenda-org { font-size: 16px; }
+    }
+
+    /* ============================================================
+       16. Accessibility preferences
+       ============================================================ */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        transition-duration: 1ms !important;
+        animation-duration: 1ms !important;
+        transition-delay: 0ms !important;
+      }
+      button:active { transform: none; }
+    }
+
+    @media (prefers-reduced-transparency: reduce) {
+      .sidebar, .topbar, .popover, .notice-panel {
+        background: var(--surface);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+      }
+      .login-panel { background: var(--surface); }
+      .toast { background: #003A82; -webkit-backdrop-filter: none; backdrop-filter: none; }
+    }
+
+    @media (prefers-contrast: more) {
+      :root { --line: rgba(60, 60, 67, .34); --line-2: #6E6E73; --muted: #55555A; }
+      :focus-visible { outline-width: 4px; }
+    }
+  </style>
+</head>
+<body>
+<script>
+  /* Restore the collapsed sidebar before first paint so it never jumps. */
+  try {
+    if (localStorage.getItem("salesluv.sidebar.collapsed") === "1")
+      document.body.classList.add("sidebar-mini");
+  } catch (e) {}
+</script>
+
+<!-- ============================================================
+     Login
+     ============================================================ -->
+<section class="login-shell" id="loginView">
+  <div class="login-story">
+    <div class="brand-lockup"><span class="brand-mark">S</span><span class="brand-name">SalesLuv</span></div>
+    <div class="login-copy">
+      <span class="tag"><i class="pulse-dot"></i> Sales History Workspace</span>
+      <h1>흩어진 영업기록을<br><span>한 곳에 모아</span> 보여 줍니다.</h1>
+      <p>회사·고객·일정·미팅 기록을 한 흐름으로 연결해 방문 준비와 보고서 작성을 돕습니다.</p>
+    </div>
+    <div class="login-proof">
+      <div><strong>01</strong><small>방문 전 브리핑</small></div>
+      <div><strong>02</strong><small>영업활동 분석</small></div>
+      <div><strong>03</strong><small>보고서 자동화</small></div>
+    </div>
+  </div>
+  <div class="login-panel">
+    <p class="eyebrow">Welcome back</p>
+    <h2>현장으로 돌아가기</h2>
+    <p>SalesLuv 데모 계정으로 주요 영업 흐름을 확인하세요.</p>
+    <form id="loginForm">
+      <div class="field"><label for="email">이메일</label><input class="input" id="email" type="email" value="manager@salesluv.demo" required></div>
+      <div class="field"><label for="password">비밀번호</label><input class="input" id="password" type="password" value="salesluv" required></div>
+      <button class="btn btn-primary login-main-btn" type="submit">팀장 데모로 로그인 <span>→</span></button>
+    </form>
+    <div class="or">역할별 화면 바로 보기</div>
+    <div class="demo-roles">
+      <button class="demo-role" type="button" data-demo-role="member"><strong>영업 담당자</strong><span>내 고객·일정·문서만 조회</span></button>
+      <button class="demo-role" type="button" data-demo-role="manager"><strong>영업 팀장</strong><span>팀 전체 현황과 매출 조회</span></button>
+    </div>
+    <p class="login-footnote">시연용 합성 데이터입니다. 실제 개인정보는 포함되어 있지 않습니다.</p>
+  </div>
+</section>
+
+<!-- ============================================================
+     App
+     ============================================================ -->
+<div class="app" id="app" hidden>
+  <aside class="sidebar" id="appSidebar" aria-label="주 메뉴">
+    <div class="sidebar-brand">
+      <button class="brand-lockup" type="button" data-route="dashboard" aria-label="영업 대시보드로 이동">
+        <span class="brand-mark">S</span><span class="brand-name">SalesLuv</span>
+      </button>
+      <button class="sidebar-toggle" id="sidebarToggle" type="button"
+              aria-controls="appSidebar" aria-expanded="true" aria-label="사이드바 접기">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 6l-6 6 6 6"/></svg>
+      </button>
+    </div>
+
+    <nav class="nav">
+      <!-- 대시보드 and 설정 carry no caption: a heading over one item costs a
+           row and says nothing. The manager block sits second because a team
+           lead opens 팀 대시보드 more often than anything below it. -->
+      <div class="nav-section" role="group" aria-label="대시보드">
+        <button class="nav-btn mobile-tab active" type="button" data-route="dashboard" title="대시보드">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13h5v7H4zM10 4h5v16h-5zM16 9h4v11h-4z"/></svg>
+          <span class="nav-text">대시보드</span><span class="nav-short">대시보드</span>
+        </button>
+      </div>
+
+      <div class="nav-section manager-only" role="group" aria-labelledby="navManager">
+        <p class="nav-section-title" id="navManager">팀장</p>
+        <button class="nav-btn" type="button" data-route="manager" title="팀 대시보드">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 15l3.5-4 3 2.5L20 7"/></svg>
+          <span class="nav-text">팀 대시보드</span>
+        </button>
+        <button class="nav-btn" type="button" data-route="team" title="팀 관리">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3.5 20v-1.5A4.5 4.5 0 0 1 8 14h2a4.5 4.5 0 0 1 4.5 4.5V20"/><path d="M17 11a2.5 2.5 0 1 0 0-5M18 14a4 4 0 0 1 3 3.9V20"/></svg>
+          <span class="nav-text">팀 관리</span>
+        </button>
+      </div>
+
+      <div class="nav-section" role="group" aria-labelledby="navAccount">
+        <p class="nav-section-title" id="navAccount">고객</p>
+        <button class="nav-btn mobile-tab" type="button" data-route="customers" title="고객·회사">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v15M15 21V10h3a2 2 0 0 1 2 2v9M3 21h18M8 8h3M8 12h3M8 16h3"/></svg>
+          <span class="nav-text">고객·회사</span><span class="nav-short">고객</span>
+        </button>
+      </div>
+
+      <div class="nav-section" role="group" aria-labelledby="navSales">
+        <p class="nav-section-title" id="navSales">영업</p>
+        <button class="nav-btn mobile-tab" type="button" data-route="deals" title="파이프라인">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 7-7"/><path d="M14 8h6v6"/></svg>
+          <span class="nav-text">파이프라인</span><span class="nav-short">영업</span>
+        </button>
+        <button class="nav-btn mobile-tab" type="button" data-route="calendar" title="캘린더">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+          <span class="nav-text">캘린더</span><span class="nav-short">캘린더</span>
+        </button>
+        <button class="nav-btn" type="button" data-route="daily" title="업무 보고">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h4"/></svg>
+          <span class="nav-text">업무 보고</span>
+        </button>
+      </div>
+
+      <div class="nav-section" role="group" aria-labelledby="navDeals">
+        <p class="nav-section-title" id="navDeals">계약·발주</p>
+        <button class="nav-btn" type="button" data-route="contracts" title="계약 현황">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>
+          <span class="nav-text">계약 현황</span>
+        </button>
+        <button class="nav-btn" type="button" data-route="orders" title="발주 관리">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16V8l-9-5-9 5v8l9 5z"/><path d="M3.3 7.5L12 12.5l8.7-5M12 12.5V22"/></svg>
+          <span class="nav-text">발주 관리</span>
+        </button>
+      </div>
+
+      <div class="nav-section" role="group" aria-label="자료실">
+        <button class="nav-btn" type="button" data-route="documents" title="자료실">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+          <span class="nav-text">자료실</span>
+        </button>
+      </div>
+
+      <div class="nav-section" role="group" aria-label="설정">
+        <button class="nav-btn mobile-tab" type="button" data-route="info" title="설정">
+          <svg class="nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h2M10 12h10M4 18h10M18 18h2"/><circle cx="16" cy="6" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="16" cy="18" r="2"/></svg>
+          <span class="nav-text">설정</span><span class="nav-short">설정</span>
+        </button>
+      </div>
+    </nav>
+
+    <div class="sidebar-foot">
+      <span class="avatar" id="profileInitial">김</span>
+      <span class="sidebar-foot-copy">
+        <strong id="profileName">김서현</strong>
+        <span id="profileRole">영업팀장</span>
+      </span>
+      <button class="logout-btn" id="logoutButton" type="button" aria-label="로그아웃">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <p class="breadcrumb">SalesLuv / <strong id="breadcrumbPage">대시보드</strong></p>
+      <div class="topbar-spacer"></div>
+      <span class="demo-badge">SYNTHETIC DEMO</span>
+
+      <div class="date-anchor">
+        <button class="date-btn tnum" id="dateButton" type="button"
+                aria-haspopup="dialog" aria-expanded="false" aria-controls="datePopover">
+          <span id="dateButtonLabel">—</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="popover" id="datePopover" role="dialog" aria-label="날짜 선택" hidden>
+          <div class="pop-head">
+            <strong id="popMonthLabel">—</strong>
+            <span class="pop-nav">
+              <button type="button" id="popPrev" aria-label="이전 달">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 6l-6 6 6 6"/></svg>
+              </button>
+              <button type="button" id="popNext" aria-label="다음 달">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 6l6 6-6 6"/></svg>
+              </button>
+            </span>
+          </div>
+          <div class="cal-grid tnum" id="popGrid"></div>
+          <div class="pop-foot"><button class="link-btn" type="button" id="popToday">오늘로 이동</button></div>
+        </div>
+      </div>
+
+      <button class="icon-btn" id="notificationButton" type="button" aria-label="알림 3건">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+        <span class="count">3</span>
+      </button>
+
+      <span class="avatar" id="topbarAvatar">김</span>
+    </header>
+
+    <div class="content">
+      <section class="page" data-page="dashboard">
+
+        <!-- Team notices -->
+        <section class="notice" id="noticeBar" tabindex="0" aria-label="팀 공지사항">
+          <span class="notice-badge">공지</span>
+          <div class="notice-viewport" aria-live="polite">
+            <ul class="notice-track" id="noticeTrack"></ul>
+          </div>
+          <span class="notice-count tnum" id="noticeCount">—</span>
+          <svg class="notice-caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          <div class="notice-panel" id="noticePanel"><ul id="noticeList"></ul></div>
+        </section>
+
+        <!-- The topbar breadcrumb already names the page; this only anchors the
+             document outline for screen readers. -->
+        <h1 class="sr-only">영업 대시보드</h1>
+
+        <!-- Summary band -->
+        <div class="summary">
+          <button class="card kpi is-jump" type="button" id="kpiVisits" data-kpi="visits">
+            <span class="kpi-top"><span>오늘 방문 회사</span><i class="delta">+1</i></span>
+            <strong class="tnum" id="kpiVisitsNum">—</strong>
+            <span class="tile-foot">
+              <small id="kpiVisitsSub">—</small>
+              <svg class="tile-cue" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
+            </span>
+          </button>
+          <button class="card kpi" type="button" data-kpi="followup">
+            <span class="kpi-top"><span>미완료 후속업무</span><i class="delta is-warn" id="kpiFollowDelta">—</i></span>
+            <strong class="tnum" id="kpiFollowNum">—</strong>
+            <span class="tile-foot">
+              <small id="kpiFollowSub">—</small>
+              <svg class="tile-cue" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+            </span>
+          </button>
+          <button class="card kpi" type="button" data-kpi="cs">
+            <span class="kpi-top"><span>C/S 대응요청</span><i class="delta is-danger" id="kpiCsDelta">—</i></span>
+            <strong class="tnum" id="kpiCsNum">—</strong>
+            <span class="tile-foot">
+              <small id="kpiCsSub">—</small>
+              <svg class="tile-cue" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+            </span>
+          </button>
+          <button class="card kpi" type="button" data-kpi="renewal">
+            <span class="kpi-top"><span>계약갱신 예정</span><i class="delta is-warn">30일 이내</i></span>
+            <strong class="tnum" id="kpiRenewNum">—</strong>
+            <span class="tile-foot">
+              <small id="kpiRenewSub">—</small>
+              <svg class="tile-cue" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+            </span>
+          </button>
+          <article class="card goal" aria-label="8월 매출 목표">
+            <div class="goal-head"><span>8월 매출 목표</span><strong class="tnum">63.3%</strong></div>
+            <p class="goal-value tnum">₩189.9M <em>/ ₩300M</em></p>
+            <div class="goal-track" id="goalTrack"><i style="--p:63.3%"></i></div>
+            <div class="goal-foot">
+              <span id="goalScope">영업 1팀</span>
+              <span class="tnum" id="goalDeadline">마감 D-21</span>
+            </div>
+          </article>
+        </div>
+
+        <!-- Week calendar -->
+        <article class="card weekcal">
+          <div class="wc-head">
+            <div>
+              <p class="eyebrow">Weekly plan</p>
+              <p class="wc-range tnum" id="wcRange">—</p>
+            </div>
+            <div class="wc-tools">
+              <span class="wc-legend">
+                <span><i class="dot-m"></i> 일정</span>
+                <span><i class="dot-d"></i> 납기</span>
+              </span>
+              <button class="icon-btn" id="wcPrev" type="button" aria-label="이전 주">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 6l-6 6 6 6"/></svg>
+              </button>
+              <button class="btn btn-ghost" id="wcToday" type="button">오늘</button>
+              <button class="icon-btn" id="wcNext" type="button" aria-label="다음 주">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 6l6 6-6 6"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="wc-grid" id="wcGrid" role="tablist" aria-label="주간 일정"></div>
+        </article>
+
+        <!-- Agenda for the selected day -->
+        <article class="card agenda">
+          <div class="agenda-head">
+            <h2 id="agendaHeading">—</h2>
+            <button class="btn btn-outline btn-small" type="button" id="addScheduleBtn">＋ 일정 등록</button>
+          </div>
+          <div class="agenda-list" id="dayAgenda"></div>
+        </article>
+
+        <!-- Purchase orders -->
+        <article class="card po">
+          <div class="card-head">
+            <div>
+              <p class="eyebrow">Purchase order</p>
+              <h2>발주 진행 현황</h2>
+            </div>
+            <button class="link-btn" type="button" data-route="orders">발주관리 전체 →</button>
+          </div>
+          <div class="po-strip" id="poStrip"></div>
+          <div id="poAlertSlot"></div>
+        </article>
+
+      </section>
+
+      <!-- 아직 구현하지 않은 화면들이 공유하는 자리표시 페이지 -->
+      <section class="page" data-page="wip" hidden>
+        <div class="card wip">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h5M9 17h3"/></svg>
+          <p class="eyebrow">Work in progress</p>
+          <h2 id="wipTitle">작성 중</h2>
+          <p class="wip-copy">이 화면은 작성 중입니다.</p>
+          <button class="btn btn-outline" type="button" data-route="dashboard">대시보드로 돌아가기</button>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<!-- ============================================================
+     Overlays
+     ============================================================ -->
+<div class="scrim" id="scrim" hidden></div>
+
+<aside class="drawer" id="notificationDrawer" role="dialog" aria-label="알림" hidden>
+  <div class="drawer-head">
+    <div><h2>알림</h2></div>
+    <div class="drawer-tools">
+      <button class="icon-btn" type="button" data-close-drawer="notificationDrawer" aria-label="닫기">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="drawer-body" id="notificationList"></div>
+</aside>
+
+<!-- One record drawer holds everything about a meeting: details, briefing,
+     customer history, linked order, and the daily report form. -->
+<aside class="drawer is-wide" id="recordDrawer" role="dialog" aria-label="일정 상세" hidden>
+  <div class="drawer-head">
+    <div>
+      <h2 id="recordOrg">—</h2>
+      <p class="drawer-sub" id="recordTitle">—</p>
+      <div class="drawer-meta" id="recordMeta"></div>
+    </div>
+    <div class="drawer-tools">
+      <button class="icon-btn" type="button" id="recordMore" aria-label="일정 메뉴" aria-haspopup="menu" aria-expanded="false">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>
+      </button>
+      <button class="icon-btn" type="button" data-close-drawer="recordDrawer" aria-label="닫기">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="drawer-body" id="recordBody"></div>
+  <div class="drawer-foot" id="recordFoot"></div>
+</aside>
+
+<!-- One drawer serves every counter: KPI lists and filtered purchase orders. -->
+<aside class="drawer is-wide" id="listDrawer" role="dialog" aria-labelledby="listTitle" hidden>
+  <div class="drawer-head">
+    <div>
+      <h2 id="listTitle">—</h2>
+      <p class="drawer-sub" id="listSub">—</p>
+    </div>
+    <div class="drawer-tools">
+      <button class="icon-btn" type="button" data-close-drawer="listDrawer" aria-label="닫기">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="list-filters" id="listFilters" hidden></div>
+  <div class="drawer-body" id="listBody"></div>
+</aside>
+
+<aside class="drawer" id="poDrawer" role="dialog" aria-label="발주 상세" hidden>
+  <div class="drawer-head">
+    <div>
+      <h2 id="poDrawerOrg">—</h2>
+      <p class="drawer-sub" id="poDrawerNo">—</p>
+      <div class="drawer-meta" id="poDrawerMeta"></div>
+    </div>
+    <div class="drawer-tools">
+      <button class="icon-btn" type="button" data-close-drawer="poDrawer" aria-label="닫기">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="drawer-body"><dl class="detail-row" id="poDrawerRows"></dl></div>
+  <div class="drawer-foot" id="poDrawerFoot">
+    <button class="btn btn-outline" type="button" id="poBackBtn" hidden>← 목록으로</button>
+    <button class="btn btn-primary" type="button" data-route="orders">발주관리에서 보기</button>
+  </div>
+</aside>
+
+<!-- The one remaining modal: a short, irreversible confirmation. -->
+<dialog id="confirmDialog">
+  <div class="dialog-head">
+    <h2>일정을 삭제할까요?</h2>
+    <p id="confirmSub">—</p>
+  </div>
+  <div class="dialog-foot">
+    <button class="btn btn-outline" type="button" data-close-dialog>취소</button>
+    <button class="btn btn-danger" type="button" id="confirmDelete">삭제</button>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ==========================================================
+     Utilities
+     ========================================================== */
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+
+  const WD = ["일", "월", "화", "수", "목", "금", "토"];
+
+  const startOfDay = d => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; };
+  const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+
+  // Local-time formatter. toISOString() shifts to UTC and loses a day in KST.
+  const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const parseISO = s => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d); };
+
+  const fmtDot = d => `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")} (${WD[d.getDay()]})`;
+  const fmtDay = d => `${d.getMonth() + 1}월 ${d.getDate()}일 (${WD[d.getDay()]})`;
+  const won = n => `₩${(n / 1000000).toFixed(1)}M`;
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  const TODAY = startOfDay(new Date());
+
+  /* ==========================================================
+     Shell: toast, dialog, drawer, routing
+     ========================================================== */
+  let toastTimer = null;
+  function toast(message) {
+    const el = $("#toast");
+    el.textContent = message;
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove("show"), 2600);
+  }
+
+  function openDialog(id) { const d = $("#" + id); if (d && !d.open) d.showModal(); }
+  function closeDialog(dialog) { if (dialog && dialog.open) dialog.close(); }
+
+  function openDrawer(id) { $("#" + id).hidden = false; $("#scrim").hidden = false; }
+  function closeDrawer(id) {
+    $("#" + id).hidden = true;
+    $("#scrim").hidden = true;
+    if (id === "recordDrawer") openRecordId = null;
+  }
+  function closeAllDrawers() {
+    $$(".drawer").forEach(d => { d.hidden = true; });
+    $("#scrim").hidden = true;
+    openRecordId = null;
+  }
+
+  function route(name) {
+    $$(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.route === name));
+
+    const isDashboard = name === "dashboard";
+    const label = $(`.nav-btn[data-route="${name}"] .nav-text`);
+    const title = label ? label.textContent : "준비 중인 화면";
+
+    // 화면 전환은 항상 초기 상태에서 시작한다: 열린 오버레이를 닫고 위로 올린다.
+    closeAllDrawers();
+    closeMenu();
+    closeDatePopover();
+    $$(".page").forEach(p => { p.hidden = p.dataset.page !== (isDashboard ? "dashboard" : "wip"); });
+    $("#breadcrumbPage").textContent = title;
+    if (!isDashboard) $("#wipTitle").textContent = title;
+    window.scrollTo({ top: 0 });
+  }
+
+  /* ==========================================================
+     Login and roles (ported behaviour)
+     ========================================================== */
+  let currentRole = "manager";
+
+  function showApp(role = "manager") {
+    currentRole = role;
+    $("#loginView").hidden = true;
+    $("#app").hidden = false;
+    updateRole(role);
+    route("dashboard");
+  }
+
+  function updateRole(role) {
+    currentRole = role;
+    const isManager = role === "manager";
+    $$(".manager-only").forEach(el => { el.hidden = !isManager; });
+    const name = isManager ? "김서현" : "김지훈";
+    $("#profileName").textContent = name;
+    $("#profileRole").textContent = isManager ? "영업팀장" : "영업 담당자";
+    $("#profileInitial").textContent = name.charAt(0);
+    $("#topbarAvatar").textContent = name.charAt(0);
+    $("#goalScope").textContent = isManager ? "영업 1팀 전체" : name;
+  }
+
+  function logout() {
+    $("#app").hidden = true;
+    $("#loginView").hidden = false;
+    closeAllDrawers();
+    toast("안전하게 로그아웃했습니다.");
+  }
+
+  /* ==========================================================
+     Sidebar
+     ========================================================== */
+  const SIDEBAR_KEY = "salesluv.sidebar.collapsed";
+
+  function setSidebarCollapsed(collapsed, persist = true) {
+    document.body.classList.toggle("sidebar-mini", collapsed);
+    const btn = $("#sidebarToggle");
+    btn.setAttribute("aria-expanded", String(!collapsed));
+    btn.setAttribute("aria-label", collapsed ? "사이드바 펼치기" : "사이드바 접기");
+    if (persist) { try { localStorage.setItem(SIDEBAR_KEY, collapsed ? "1" : "0"); } catch (e) {} }
+  }
+
+  function toggleSidebar(event) {
+    const collapsed = !document.body.classList.contains("sidebar-mini");
+    setSidebarCollapsed(collapsed);
+    // A pointer click leaves focus on the button, and :focus-within would hold the
+    // rail open. Keyboard activation (detail 0) keeps focus so the labels stay readable.
+    if (collapsed && event && event.detail > 0) event.currentTarget.blur();
+  }
+
+  function initSidebar() {
+    setSidebarCollapsed(document.body.classList.contains("sidebar-mini"), false);
+    $("#sidebarToggle").addEventListener("click", toggleSidebar);
+  }
+
+  /* ==========================================================
+     Data — notices
+     ========================================================== */
+  const notices = [
+    { tag: "필독", author: "김서현 팀장", time: "08:40",
+      text: "이번 주 모든 병원 미팅에서 예산 집행 시기와 실제 승인 담당자를 우선 확인해 주세요." },
+    { tag: "공지", author: "영업기획팀", time: "어제",
+      text: "CardioView X7 8월 프로모션 단가표가 갱신되었습니다. 견적 작성 전 최신본을 확인하세요." },
+    { tag: "일정", author: "교육팀", time: "3일 전",
+      text: "SonoFlex Pro 신규 사용자 교육 슬롯이 다음 주 3일간으로 확정되었습니다." }
+  ];
+
+  /* ==========================================================
+     Data — agenda (offsets from today so the demo never goes stale)
+     ========================================================== */
+  const KIND = {
+    visit:    { label: "방문", cls: "kind-blue" },
+    demo:     { label: "데모", cls: "kind-purple" },
+    edu:      { label: "교육", cls: "kind-green" },
+    call:     { label: "전화", cls: "" },
+    delivery: { label: "납품", cls: "kind-orange" },
+    booth:    { label: "학회", cls: "kind-purple" },
+    internal: { label: "내부", cls: "" }
+  };
+
+  const agendaSeed = [
+    { id: "a1", off: 0, time: "09:30", dur: "40분", kind: "visit",
+      hospital: "한빛대학교병원", dept: "순환기내과", contact: "박서준 교수",
+      product: "CardioView X7", stage: "계약 협의", place: "본관 3층 회의실",
+      title: "CardioView X7 도입 후속 미팅",
+      brief: "지난 방문에서 제기된 3년 유지보수 비용 이슈에 대응합니다. TCO 비교표와 경쟁사 대비 납기 자료를 지참하고, 4분기 예산 집행 가능 여부와 최종 승인권자를 확인하는 것이 이번 미팅의 목표입니다.",
+      history: [
+        { when: "7일 전", what: "제품 테스트 진행. 화면 가독성은 긍정적이었고 유지보수 비용 설명을 요청받았습니다." },
+        { when: "3주 전", what: "순환기내과 과장 면담. 노후 장비 교체 시점을 4분기로 검토 중이라 확인했습니다." }
+      ],
+      tags: ["우선순위 높음", "견적 검토중"], done: true },
+
+    { id: "a2", off: 0, time: "11:00", dur: "30분", kind: "call",
+      hospital: "새봄정형외과", dept: "원무팀", contact: "오정민 병원장",
+      product: "SonoFlex Pro", stage: "후속 필요", place: "전화",
+      title: "견적 회신 지연 건 후속 통화",
+      brief: "견적 전달 후 14일째 회신이 없습니다. 예산 보류 사유를 확인하고 데모 재일정을 제안합니다. 리스 옵션 안내 자료를 미리 준비하세요.",
+      history: [
+        { when: "14일 전", what: "SonoFlex Pro 견적서를 발송했습니다. 회신 없음." },
+        { when: "5주 전", what: "원장 면담에서 초음파 장비 교체 의향을 확인했습니다." }
+      ],
+      tags: ["후속 지연"], done: false },
+
+    { id: "a3", off: 0, time: "14:00", dur: "60분", kind: "demo",
+      hospital: "서림메디컬센터", dept: "영상의학과", contact: "윤가영 간호팀장",
+      product: "OrthoScan Mini", stage: "제품 데모", place: "교육실",
+      title: "프로브 3종 비교 시연",
+      brief: "실사용 간호 인력 5명이 참관합니다. 소독 프로토콜과 프로브 교체 주기 질문이 예상됩니다. 데모 장비 반출 확인이 오전 중에 끝나야 합니다.",
+      history: [
+        { when: "10일 전", what: "OrthoScan Mini 3대가 입고 완료되어 초기 셋업을 마쳤습니다." },
+        { when: "6주 전", what: "영상의학과 도입 검토 회의에 참석했습니다." }
+      ],
+      tags: ["장비 반출"], done: false },
+
+    { id: "a4", off: 0, time: "16:30", dur: "30분", kind: "internal",
+      hospital: "영업 1팀", dept: "내부 회의", contact: "김서현 팀장",
+      product: "—", stage: "주간 점검", place: "본사 회의실 B",
+      title: "주간 파이프라인 점검",
+      brief: "8월 확정 매출 진척과 리스크 딜 2건을 공유합니다. 일일보고서 미작성 3건을 마감합니다.",
+      history: [{ when: "지난 주", what: "리스크 딜로 새봄정형외과와 정우병원을 지정했습니다." }],
+      tags: [], done: false },
+
+    { id: "a5", off: -2, time: "10:00", dur: "종일", kind: "booth",
+      hospital: "대한심장학회 추계학술대회", dept: "전시 부스", contact: "부스 3-A",
+      product: "CardioView X7", stage: "리드 수집", place: "코엑스 C홀",
+      title: "학술대회 부스 운영 1일차",
+      brief: "CardioView X7 실물 전시와 상담을 진행합니다. 리드 카드는 당일 저녁에 CRM으로 옮깁니다.",
+      history: [{ when: "2주 전", what: "부스 위치와 전시 장비 반출 일정을 확정했습니다." }],
+      tags: ["리드 수집"], done: true },
+
+    { id: "a6", off: -2, time: "16:00", dur: "50분", kind: "visit",
+      hospital: "정우병원", dept: "구매팀", contact: "최수아 책임",
+      product: "OrthoScan Mini", stage: "초기 접촉", place: "학회장 미팅룸",
+      title: "학회 현장 구매 담당자 면담",
+      brief: "학회 참석 중인 구매 담당자와 짧게 면담합니다. 기존 시스템 연동 범위와 도입 승인 절차를 확인합니다.",
+      history: [{ when: "1개월 전", what: "첫 콜드 콜에서 하반기 검토 의향을 확인했습니다." }],
+      tags: [], done: true },
+
+    { id: "a7", off: 1, time: "09:00", dur: "90분", kind: "delivery",
+      hospital: "새봄정형외과", dept: "원무팀", contact: "오정민 병원장",
+      product: "SonoFlex Pro", stage: "납품 입회", place: "1층 처치실",
+      title: "SonoFlex Pro 납품 입회",
+      brief: "발주 FM-PO-2026-0021 건의 예상 입고일입니다. 설치 공간은 사전 확인을 마쳤습니다. 입회 후 초기 셋업과 사용 교육 일정을 함께 잡으세요.",
+      history: [{ when: "9일 전", what: "본사 생산팀으로 발주를 등록했습니다." }],
+      tags: ["입회 필요"], done: false },
+
+    { id: "a8", off: 2, time: "13:30", dur: "60분", kind: "edu",
+      hospital: "서림메디컬센터", dept: "영상의학과", contact: "윤가영 간호팀장",
+      product: "OrthoScan Mini", stage: "사용 교육", place: "교육실",
+      title: "OrthoScan Mini 사용 교육 1회차",
+      brief: "데모에서 나온 소독 프로토콜 질문을 교육 자료에 반영해 진행합니다. 참석자 명단은 전날까지 확정합니다.",
+      history: [{ when: "2일 후 예정", what: "데모 결과에 따라 교육 범위를 조정합니다." }],
+      tags: [], done: false },
+
+    { id: "a9", off: 6, time: "11:00", dur: "45분", kind: "visit",
+      hospital: "한빛대학교병원", dept: "구매팀", contact: "이도현 과장",
+      product: "CardioView X7", stage: "계약 협의", place: "본관 2층",
+      title: "CardioView X7 계약 조건 협의",
+      brief: "발주 FM-PO-2026-0020의 분할 납품 2차 일정과 계약 조건을 함께 정리합니다.",
+      history: [{ when: "13일 전", what: "1차 분할 납품분을 발주했습니다." }],
+      tags: [], done: false },
+
+    { id: "a10", off: -6, time: "14:00", dur: "40분", kind: "visit",
+      hospital: "한빛대학교병원", dept: "순환기내과", contact: "박서준 교수",
+      product: "CardioView X7", stage: "제품 테스트", place: "본관 3층",
+      title: "CardioView X7 제품 테스트",
+      brief: "실사용 테스트를 진행했습니다. 화면 가독성은 긍정적이었고 유지보수 비용 설명 요청을 받았습니다.",
+      history: [{ when: "당일", what: "테스트 결과를 정리해 브리핑에 반영했습니다." }],
+      tags: [], done: true },
+
+    { id: "a11", off: 8, time: "10:30", dur: "40분", kind: "visit",
+      hospital: "정우병원", dept: "구매팀", contact: "최수아 책임",
+      product: "OrthoScan Mini", stage: "제품 데모", place: "회의실",
+      title: "OrthoScan Mini 본원 데모",
+      brief: "학회 면담 후속으로 본원에서 데모를 진행합니다. 보안 요구사항과 데이터 접근 권한을 확인하세요.",
+      history: [{ when: "학회 당일", what: "구매 담당자와 첫 면담을 진행했습니다." }],
+      tags: [], done: false }
+  ];
+
+  const agendaByDate = {};
+  agendaSeed.forEach(s => {
+    const key = iso(addDays(TODAY, s.off));
+    (agendaByDate[key] = agendaByDate[key] || []).push(Object.assign({}, s, { date: key }));
+  });
+  Object.keys(agendaByDate).forEach(k => agendaByDate[k].sort((a, b) => a.time.localeCompare(b.time)));
+  const agendaById = {};
+  Object.keys(agendaByDate).forEach(k => agendaByDate[k].forEach(it => { agendaById[it.id] = it; }));
+
+  /* ==========================================================
+     Data — purchase orders (from layout_v2, moved to offsets)
+     ========================================================== */
+  const purchaseOrders = [
+    { no: "FM-PO-2026-0021", contract: "FM-CT-2026-0038", hospital: "새봄정형외과",
+      supplier: "본사 생산팀", orderedOff: -9, dueOff: 2, expectOff: 1, status: "출고",
+      memo: "설치 공간 사전 확인 완료", items: [{ product: "SonoFlex Pro", qty: 1, price: 28400000 }] },
+    { no: "FM-PO-2026-0020", contract: "FM-CT-2026-0035", hospital: "한빛대학교병원",
+      supplier: "본사 생산팀", orderedOff: -13, dueOff: 6, expectOff: 6, status: "생산중",
+      memo: "분할 납품 1차", items: [{ product: "CardioView X7", qty: 2, price: 24000000 }] },
+    { no: "FM-PO-2026-0019", contract: "FM-CT-2026-0031", hospital: "서림메디컬센터",
+      supplier: "외부 벤더 (메디파츠)", orderedOff: -21, dueOff: -7, expectOff: -8, status: "입고완료",
+      memo: "", items: [{ product: "OrthoScan Mini", qty: 3, price: 8600000 }] },
+    { no: "FM-PO-2026-0022", contract: "", hospital: "한빛대학교병원",
+      supplier: "외부 벤더 (한성의료기)", orderedOff: -6, dueOff: 2, expectOff: 4, status: "승인대기",
+      memo: "소모품 선발주", items: [{ product: "전극 패드 (소모품)", qty: 40, price: 32000 }] },
+    { no: "FM-PO-2026-0023", contract: "FM-CT-2026-0040", hospital: "정우병원",
+      supplier: "본사 생산팀", orderedOff: -3, dueOff: 9, expectOff: 8, status: "출고의뢰서 작성완료",
+      memo: "설치 공간 실측 대기", items: [{ product: "OrthoScan Mini", qty: 2, price: 8600000 }] }
+  ];
+
+  const poIsLate = o => o.expectOff > o.dueOff;
+  const poDday = o => o.expectOff;   // offsets are already relative to today
+  const poTotal = o => o.items.reduce((sum, it) => sum + it.qty * it.price, 0);
+  const poItemLabel = o => o.items.map(it => `${it.product} ${it.qty}개`).join(", ");
+
+  const orders = purchaseOrders.map(o => Object.assign({}, o, {
+    ordered: iso(addDays(TODAY, o.orderedOff)),
+    due: iso(addDays(TODAY, o.dueOff)),
+    expect: iso(addDays(TODAY, o.expectOff))
+  }));
+
+  /* ==========================================================
+     Data — what sits behind the KPI counters
+     Same fictional hospitals, contacts and products as the agenda and orders.
+     ========================================================== */
+  const followUps = [
+    { task: "리스 옵션 안내 자료 발송", org: "새봄정형외과", who: "원무팀 · 오정민 병원장",
+      note: "견적 회신이 14일째 없습니다. 리스 조건표를 먼저 보내고 통화로 확인하세요.", dueOff: -4 },
+    { task: "3년 유지보수 TCO 비교표 회신", org: "한빛대학교병원", who: "순환기내과 · 박서준 교수",
+      note: "테스트 후 요청받은 자료입니다. 경쟁사 대비 납기 항목까지 채워야 합니다.", dueOff: -1 },
+    { task: "분할 납품 2차 일정 확정", org: "한빛대학교병원", who: "구매팀 · 이도현 과장",
+      note: "FM-PO-2026-0020의 잔여 1대 일정입니다. 생산팀 회신을 받은 뒤 통보하세요.", dueOff: 1 },
+    { task: "교육 참석자 명단 취합", org: "서림메디컬센터", who: "영상의학과 · 윤가영 간호팀장",
+      note: "사용 교육 1회차 전날까지 확정해야 교재 부수를 맞출 수 있습니다.", dueOff: 1 },
+    { task: "보안 요구사항 문서 요청", org: "정우병원", who: "구매팀 · 최수아 책임",
+      note: "본원 데모 전에 데이터 접근 권한 범위를 문서로 받아야 합니다.", dueOff: 3 },
+    { task: "SonoFlex Pro 설치 일정 회신", org: "새봄정형외과", who: "원무팀 · 오정민 병원장",
+      note: "입회 후 초기 셋업과 사용 교육 일정을 묶어서 제안하세요.", dueOff: 4 },
+    { task: "소모품 단가표 갱신본 전달", org: "서림메디컬센터", who: "구매팀 · 한지우 대리",
+      note: "하반기 단가 조정분을 반영한 표를 전달합니다.", dueOff: 9 }
+  ];
+
+  const csRequests = [
+    { issue: "부팅 시 화면 깜빡임", org: "한빛대학교병원", who: "순환기내과 · 박서준 교수",
+      product: "CardioView X7", state: "미응답", urgent: true, agoOff: 0, ago: "6시간 전 접수",
+      note: "진료 중 재현되어 사용을 중단한 상태입니다. 기술지원팀 배정이 필요합니다." },
+    { issue: "프로브 케이블 접촉 불량", org: "서림메디컬센터", who: "영상의학과 · 윤가영 간호팀장",
+      product: "OrthoScan Mini", state: "미응답", urgent: false, agoOff: -1, ago: "1일 전 접수",
+      note: "프로브 3종 중 1종에서만 발생합니다. 교체용 케이블 재고를 확인하세요." },
+    { issue: "젤 워머 온도 편차", org: "새봄정형외과", who: "원무팀 · 오정민 병원장",
+      product: "SonoFlex Pro", state: "처리중", urgent: false, agoOff: -2, ago: "2일 전 접수",
+      note: "기술지원팀이 원격 점검 중입니다. 결과 회신 예정입니다." },
+    { issue: "패드 접착력 저하 문의", org: "한빛대학교병원", who: "구매팀 · 이도현 과장",
+      product: "전극 패드 (소모품)", state: "처리중", urgent: false, agoOff: -3, ago: "3일 전 접수",
+      note: "보관 온도 가이드를 안내했고 교체분 발송 여부를 검토 중입니다." }
+  ];
+
+  const renewals = [
+    { org: "새봄정형외과", who: "원무팀 · 오정민 병원장", contract: "FM-CT-2025-0112",
+      kind: "유지보수 계약", amount: 12400000, expireOff: 18,
+      note: "SonoFlex Pro 도입 건과 함께 조건을 재협의하면 묶어서 갱신할 수 있습니다." },
+    { org: "서림메디컬센터", who: "구매팀 · 한지우 대리", contract: "FM-CT-2025-0129",
+      kind: "소모품 공급 계약", amount: 7800000, expireOff: 27,
+      note: "하반기 단가 조정분 반영이 선행되어야 합니다." }
+  ];
+
+  /* The five purchase-order counters are overlapping filters over one list,
+     which is why they share a single drawer with a switchable filter. */
+  const PO_FILTERS = [
+    { key: "pending", label: "승인 대기", note: () => "팀장 승인 필요",
+      test: o => o.status === "승인대기" },
+    { key: "request", label: "출고의뢰서 처리", note: () => "출고 준비 단계",
+      test: o => o.status === "출고의뢰서 작성완료" },
+    { key: "inflight", label: "생산·출고 진행중", note: () => "승인부터 출고까지",
+      test: o => ["승인", "출고의뢰서 작성완료", "생산중", "출고"].indexOf(o.status) !== -1 },
+    { key: "thisweek", label: "이번 주 입고 예정",
+      note: () => `${fmtDay(TODAY).slice(0, -4)} – ${fmtDay(addDays(TODAY, 7)).slice(0, -4)}`,
+      test: o => o.status !== "입고완료" && poDday(o) >= 0 && poDday(o) <= 7 },
+    { key: "late", label: "납기 지연", note: () => "예상 입고일이 납기 초과", alert: true,
+      test: poIsLate }
+  ];
+  const activeOrders = () => orders.filter(o => o.status !== "취소");
+  const poFilter = key => PO_FILTERS.filter(f => f.key === key)[0] || PO_FILTERS[0];
+
+  /* ==========================================================
+     Notices
+     ========================================================== */
+  let noticeIndex = 0;
+  let noticeTimer = null;
+  const NOTICE_MS = 4000;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  function renderNoticeList() {
+    $("#noticeTrack").innerHTML = notices
+      .map(n => `<li><strong>${esc(n.text)}</strong> <em>· ${esc(n.author)}</em></li>`).join("");
+    $("#noticeList").innerHTML = notices
+      .map(n => `<li><p><strong>[${esc(n.tag)}]</strong> ${esc(n.text)}</p><small>${esc(n.author)} · ${esc(n.time)}</small></li>`).join("");
+  }
+
+  function setNotice(i, animate = true) {
+    const track = $("#noticeTrack");
+    const n = notices.length;
+    const wrap = i === 0 && noticeIndex === n - 1;
+    if (!animate || wrap) {
+      track.style.transition = "none";
+      track.style.setProperty("--i", i);
+      void track.offsetHeight;          // force reflow so the jump is not animated
+      track.style.transition = "";
+    } else {
+      track.style.setProperty("--i", i);
+    }
+    noticeIndex = i;
+    $("#noticeCount").textContent = `${i + 1} / ${n}`;
+  }
+
+  function stopNoticeRoll() { clearInterval(noticeTimer); noticeTimer = null; }
+
+  function startNoticeRoll() {
+    stopNoticeRoll();
+    if (notices.length < 2 || reduceMotion.matches) return;
+    noticeTimer = setInterval(() => setNotice((noticeIndex + 1) % notices.length), NOTICE_MS);
+  }
+
+  function initNotices() {
+    renderNoticeList();
+    setNotice(0, false);
+    startNoticeRoll();
+    const bar = $("#noticeBar");
+    bar.addEventListener("mouseenter", stopNoticeRoll);
+    bar.addEventListener("mouseleave", startNoticeRoll);
+    bar.addEventListener("focusin", stopNoticeRoll);
+    bar.addEventListener("focusout", startNoticeRoll);
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) stopNoticeRoll(); else startNoticeRoll();
+    });
+  }
+
+  /* ==========================================================
+     Week calendar
+     ========================================================== */
+  let weekOffset = 0;
+  let selectedISO = iso(TODAY);
+
+  const rangeStart = off => addDays(TODAY, -2 + off * 7);
+  const rangeDays = off => Array.from({ length: 7 }, (_, i) => addDays(rangeStart(off), i));
+
+  function dotsFor(key) {
+    return {
+      meetings: (agendaByDate[key] || []).length,
+      deliveries: orders.filter(o => o.expect === key).length
+    };
+  }
+
+  function renderWeek() {
+    const days = rangeDays(weekOffset);
+    const first = days[0];
+    const last = days[6];
+    $("#wcRange").textContent = first.getMonth() === last.getMonth()
+      ? `${first.getMonth() + 1}월 ${first.getDate()}일 – ${last.getDate()}일`
+      : `${first.getMonth() + 1}월 ${first.getDate()}일 – ${last.getMonth() + 1}월 ${last.getDate()}일`;
+
+    $("#wcGrid").innerHTML = days.map((d, idx) => {
+      const key = iso(d);
+      const dow = d.getDay();
+      const { meetings, deliveries } = dotsFor(key);
+      const cls = [
+        "wc-day",
+        key === iso(TODAY) ? "is-today" : "",
+        key === selectedISO ? "is-selected" : "",
+        dow === 0 ? "is-sun" : "",
+        dow === 6 ? "is-sat" : ""
+      ].filter(Boolean).join(" ");
+      const dots =
+        '<i class="dot-m"></i>'.repeat(Math.min(meetings, 3)) +
+        '<i class="dot-d"></i>'.repeat(Math.min(deliveries, 2));
+      return `<button class="${cls}" type="button" role="tab" data-iso="${key}"
+                aria-selected="${key === selectedISO}">
+                <span class="wc-wd">${WD[dow]}${key === iso(TODAY) ? '<em class="wc-today-tag"> · 오늘</em>' : ""}</span>
+                <span class="wc-num tnum">${String(d.getDate()).padStart(2, "0")}</span>
+                ${d.getDate() === 1 ? `<span class="wc-month tnum">${d.getMonth() + 1}월</span>` : ""}
+                <span class="wc-dots">${dots}</span>
+              </button>`;
+    }).join("");
+  }
+
+  function selectDate(key) {
+    selectedISO = key;
+    renderWeek();
+    renderAgenda(key);
+  }
+
+  function shiftWeek(delta) {
+    weekOffset += delta;
+    selectedISO = iso(rangeStart(weekOffset));   // keep the selection inside the visible range
+    renderWeek();
+    renderAgenda(selectedISO);
+  }
+
+  function goToday() {
+    weekOffset = 0;
+    selectedISO = iso(TODAY);
+    renderWeek();
+    renderAgenda(selectedISO);
+  }
+
+  function initWeekCal() {
+    $("#wcPrev").addEventListener("click", () => shiftWeek(-1));
+    $("#wcNext").addEventListener("click", () => shiftWeek(1));
+    $("#wcToday").addEventListener("click", goToday);
+    $("#wcGrid").addEventListener("click", e => {
+      const cell = e.target.closest(".wc-day");
+      if (cell) selectDate(cell.dataset.iso);
+    });
+    $("#wcGrid").addEventListener("keydown", e => {
+      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+      e.preventDefault();
+      const next = addDays(parseISO(selectedISO), e.key === "ArrowRight" ? 1 : -1);
+      const days = rangeDays(weekOffset).map(iso);
+      if (days.indexOf(iso(next)) === -1) weekOffset += e.key === "ArrowRight" ? 1 : -1;
+      selectDate(iso(next));
+      const cell = $(`.wc-day[data-iso="${iso(next)}"]`);
+      if (cell) cell.focus();
+    });
+  }
+
+  /* ==========================================================
+     Agenda
+     ========================================================== */
+  const agendaFor = key => agendaByDate[key] || [];
+
+  function agendaHeading(key) {
+    const d = parseISO(key);
+    const diff = Math.round((d - TODAY) / 86400000);
+    const rel = { "-1": "어제", "0": "오늘", "1": "내일" }[String(diff)];
+    return fmtDay(d) + (rel ? ` <i class="tag-pill${diff === 0 ? " now" : ""}">${rel}</i>` : "");
+  }
+
+  function renderAgenda(key) {
+    const list = agendaFor(key);
+    $("#agendaHeading").innerHTML = agendaHeading(key);
+
+    if (!list.length) {
+      $("#dayAgenda").innerHTML = `
+        <div class="agenda-empty">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+          <p>이 날짜에는 등록된 일정이 없습니다.</p>
+          <button class="btn btn-outline btn-small" type="button" data-act="add">＋ 일정 등록</button>
+        </div>`;
+      return;
+    }
+
+    $("#dayAgenda").innerHTML = list.map(it => {
+      const kind = KIND[it.kind];
+      const tags = it.tags.map(t => `<i class="tag-pill">${esc(t)}</i>`).join("");
+      return `
+        <article class="agenda-item${it.done ? " is-done" : ""}" data-id="${it.id}">
+          <button class="agenda-check" type="button" data-act="done" data-id="${it.id}"
+                  aria-pressed="${it.done}" aria-label="${esc(it.hospital)} ${esc(it.title)} 완료 표시">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+          </button>
+          <div class="agenda-rail"><span class="agenda-time tnum">${esc(it.time)}</span></div>
+          <div class="agenda-body">
+            <div class="agenda-meta-row">
+              <span class="kind-pill ${kind.cls}">${kind.label}</span>
+              <i class="tag-pill">${esc(it.stage)}</i>
+              ${tags}
+            </div>
+            <h3 class="agenda-org">
+              <button class="agenda-open" type="button" data-act="open" data-id="${it.id}">${esc(it.hospital)}</button>
+              <span class="agenda-who">${esc(it.dept)} · ${esc(it.contact)}</span>
+            </h3>
+            <p class="agenda-title">${esc(it.title)}</p>
+            <p class="agenda-brief">${esc(it.brief)}</p>
+          </div>
+          <button class="agenda-more" type="button" data-act="more" data-id="${it.id}"
+                  aria-label="${esc(it.hospital)} 일정 메뉴" aria-haspopup="menu" aria-expanded="false">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>
+          </button>
+        </article>`;
+    }).join("");
+  }
+
+  function toggleDone(id) {
+    const item = agendaById[id];
+    if (!item) return;
+    item.done = !item.done;                 // in memory only — never persisted
+    renderAgenda(selectedISO);
+    if (openRecordId === id) renderRecord(id);
+  }
+
+  /* ---------- record drawer ---------- */
+  let openRecordId = null;
+
+  function linkedOrder(it) {
+    return orders.find(o => o.hospital === it.hospital &&
+      o.items.some(x => x.product === it.product)) || null;
+  }
+
+  function renderRecord(id) {
+    const it = agendaById[id];
+    if (!it) return;
+    const kind = KIND[it.kind];
+    const po = linkedOrder(it);
+
+    $("#recordOrg").textContent = it.hospital;
+    $("#recordTitle").textContent = it.title;
+    $("#recordMeta").innerHTML = `
+      <span class="kind-pill ${kind.cls}">${kind.label}</span>
+      <i class="tag-pill">${esc(it.stage)}</i>
+      <span class="muted">${fmtDay(parseISO(it.date))} ${esc(it.time)}</span>
+      ${it.done ? '<i class="tag-pill good">업무보고 완료</i>' : ""}`;
+
+    $("#recordBody").innerHTML = `
+      <div class="record-grid">
+        <div class="record-col">
+          <section class="record-block">
+            <h3>세부 정보</h3>
+            <dl class="detail-row">
+              ${[["부서", it.dept], ["담당자", it.contact], ["제품", it.product],
+                 ["장소", it.place], ["소요", it.dur]]
+                .map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}
+            </dl>
+          </section>
+          <section class="record-block">
+            <h3>AI 미팅 브리핑</h3>
+            <p class="record-note">${esc(it.brief)}</p>
+          </section>
+        </div>
+        <div class="record-col">
+          <section class="record-block">
+            <h3>고객 히스토리</h3>
+            ${it.history.map(h =>
+              `<div class="history-item"><time>${esc(h.when)}</time><p>${esc(h.what)}</p></div>`).join("")}
+          </section>
+          <section class="record-block">
+            <h3>연결된 발주</h3>
+            ${po
+              ? `<button class="record-link" type="button" data-act="po" data-po="${po.no}">
+                   <span><strong>${esc(po.no)}</strong><br>
+                   <span class="muted">${esc(poItemLabel(po))} · ${esc(po.status)}</span></span>
+                   <span aria-hidden="true">→</span>
+                 </button>`
+              : `<p class="record-note muted">이 제품으로 등록된 발주가 없습니다.</p>`}
+          </section>
+        </div>
+      </div>`;
+
+    $("#recordFoot").innerHTML = `
+      <button class="btn btn-outline" type="button" data-act="done" data-id="${id}">
+        ${it.done ? "완료 해제" : "완료로 표시"}
+      </button>
+      <button class="btn btn-primary" type="button" data-act="report" data-id="${id}">일일보고서 작성</button>`;
+  }
+
+  function renderReportView(id) {
+    const it = agendaById[id];
+    $("#recordBody").innerHTML = `
+      <div class="field">
+        <label for="reportBody">방문 결과</label>
+        <textarea class="input" id="reportBody"
+          placeholder="${esc(it.contact)}와(과) 나눈 내용과 결정 사항을 적어주세요."></textarea>
+      </div>
+      <div class="field">
+        <label for="reportNext">다음 액션</label>
+        <input class="input" id="reportNext" placeholder="예: 유지보수 견적 재발송 (8/13까지)">
+      </div>`;
+    $("#recordFoot").innerHTML = `
+      <button class="btn btn-outline" type="button" data-act="back" data-id="${id}">← 상세로</button>
+      <button class="btn btn-primary" type="button" data-act="save" data-id="${id}">보고서 저장</button>`;
+  }
+
+  function openRecord(id) {
+    if (!agendaById[id]) return;
+    openRecordId = id;
+    renderRecord(id);
+    openDrawer("recordDrawer");
+  }
+
+  /* ---------- ⋯ menu ---------- */
+  let menuEl = null;
+  let menuAnchor = null;
+
+  function closeMenu() {
+    if (!menuEl) return;
+    if (menuAnchor) menuAnchor.setAttribute("aria-expanded", "false");
+    menuEl.remove();
+    menuEl = null;
+    menuAnchor = null;
+  }
+
+  function openMenu(anchor, id) {
+    closeMenu();
+    menuAnchor = anchor;
+    const it = agendaById[id];
+    if (!it) return;
+    anchor.setAttribute("aria-expanded", "true");
+    menuEl = document.createElement("div");
+    menuEl.className = "menu";
+    menuEl.setAttribute("role", "menu");
+    menuEl.innerHTML = `
+      <button type="button" role="menuitem" data-menu="edit">일정 수정</button>
+      <button type="button" role="menuitem" data-menu="duplicate">일정 복제</button>
+      <hr>
+      <button type="button" role="menuitem" class="is-danger" data-menu="delete">일정 삭제</button>`;
+    document.body.appendChild(menuEl);
+
+    const r = anchor.getBoundingClientRect();
+    const w = menuEl.offsetWidth;
+    menuEl.style.top = `${Math.min(r.bottom + 6, window.innerHeight - menuEl.offsetHeight - 8)}px`;
+    menuEl.style.left = `${Math.max(8, Math.min(r.right - w, window.innerWidth - w - 8))}px`;
+
+    menuEl.addEventListener("click", e => {
+      const item = e.target.closest("[data-menu]");
+      if (!item) return;
+      const action = item.dataset.menu;
+      closeMenu();
+      if (action === "delete") {
+        pendingDeleteId = id;
+        $("#confirmSub").textContent = `${it.hospital} · ${it.time} ${it.title}`;
+        openDialog("confirmDialog");
+      } else {
+        toast(action === "edit" ? "일정 수정은 업무 캘린더에서 제공합니다."
+                                : "일정을 복제했습니다.");
+      }
+    });
+  }
+
+  /* ---------- delete ---------- */
+  let pendingDeleteId = null;
+
+  function deleteSchedule(id) {
+    const it = agendaById[id];
+    if (!it) return;
+    const list = agendaByDate[it.date];
+    list.splice(list.indexOf(it), 1);
+    delete agendaById[id];
+    if (openRecordId === id) { closeDrawer("recordDrawer"); openRecordId = null; }
+    renderWeek();                 // the day's dot count changed
+    renderAgenda(selectedISO);
+    renderSummary();              // and so did 오늘 방문 회사
+    toast("일정을 삭제했습니다.");
+  }
+
+  function initAgenda() {
+    $("#addScheduleBtn").addEventListener("click", () =>
+      toast("일정 등록은 업무 캘린더에서 제공합니다."));
+
+    $("#dayAgenda").addEventListener("click", e => {
+      const btn = e.target.closest("[data-act]");
+      if (btn) {
+        const id = btn.dataset.id;
+        switch (btn.dataset.act) {
+          case "done": toggleDone(id); break;
+          case "open": openRecord(id); break;
+          case "more": openMenu(btn, id); break;
+          case "add":  toast("일정 등록은 업무 캘린더에서 제공합니다."); break;
+        }
+        return;
+      }
+      const row = e.target.closest(".agenda-item");   // anywhere else on the row
+      if (row) openRecord(row.dataset.id);
+    });
+
+    $("#recordMore").addEventListener("click", () => {
+      if (openRecordId) openMenu($("#recordMore"), openRecordId);
+    });
+
+    $("#recordDrawer").addEventListener("click", e => {
+      const btn = e.target.closest("[data-act]");
+      if (!btn) return;
+      switch (btn.dataset.act) {
+        case "done":   toggleDone(btn.dataset.id); break;
+        case "report": renderReportView(btn.dataset.id); break;
+        case "back":   renderRecord(btn.dataset.id); break;
+        case "save":
+          renderRecord(btn.dataset.id);
+          toast("일일보고서를 저장했습니다.");
+          break;
+        case "po":
+          closeDrawer("recordDrawer");
+          openPoDetail(btn.dataset.po);
+          break;
+      }
+    });
+
+    $("#confirmDelete").addEventListener("click", () => {
+      closeDialog($("#confirmDialog"));
+      if (pendingDeleteId) deleteSchedule(pendingDeleteId);
+      pendingDeleteId = null;
+    });
+  }
+
+  /* ==========================================================
+     Purchase orders
+     ========================================================== */
+  function renderPurchaseOrders() {
+    const active = activeOrders();
+
+    $("#poStrip").innerHTML = PO_FILTERS.map(f => {
+      const n = active.filter(f.test).length;
+      const cls = ["po-stat", n === 0 ? "is-zero" : "", f.alert && n > 0 ? "is-alert" : ""]
+        .filter(Boolean).join(" ");
+      return `<button class="${cls}" type="button" data-po-filter="${f.key}"
+                      aria-label="${esc(f.label)} ${n}건 목록 열기">
+                <span class="po-label">${esc(f.label)}</span>
+                <strong class="tnum">${n}</strong>
+                <span class="tile-foot">
+                  <small>${esc(f.note())}</small>
+                  <svg class="tile-cue" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+                </span>
+              </button>`;
+    }).join("");
+
+    const late = active.filter(poIsLate);
+    if (!late.length) {
+      $("#poAlertSlot").innerHTML = `
+        <div class="po-clear">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+          납기를 넘긴 발주가 없습니다.
+        </div>`;
+      return;
+    }
+    $("#poAlertSlot").innerHTML = late.map(o => {
+      const over = o.expectOff - o.dueOff;
+      const due = parseISO(o.due);
+      const expect = parseISO(o.expect);
+      return `<button class="po-alert" type="button" data-po="${o.no}">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4M12 17v.01"/><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+          <span><strong>${esc(o.hospital)} · ${esc(poItemLabel(o))}</strong><br>
+          예상 입고 ${expect.getMonth() + 1}/${expect.getDate()} — 납기 ${due.getMonth() + 1}/${due.getDate()} 대비 ${over}일 초과</span>
+        </button>`;
+    }).join("");
+  }
+
+  function openPoDetail(no, fromFilter) {
+    const o = orders.find(x => x.no === no);
+    if (!o) return;
+    const late = poIsLate(o);
+    poReturnFilter = fromFilter || null;
+    $("#poBackBtn").hidden = !poReturnFilter;
+    $("#poDrawerOrg").textContent = o.hospital;
+    $("#poDrawerNo").textContent = o.no;
+    $("#poDrawerMeta").innerHTML = `
+      <i class="tag-pill">${esc(o.status)}</i>
+      ${late ? `<i class="tag-pill risk">납기 ${o.expectOff - o.dueOff}일 초과</i>` : ""}`;
+    $("#poDrawerRows").innerHTML = [
+      ["품목", poItemLabel(o)],
+      ["금액", won(poTotal(o))],
+      ["공급처", o.supplier],
+      ["계약", o.contract || "계약 없는 선발주"],
+      ["발주일", fmtDay(parseISO(o.ordered))],
+      ["납기", fmtDay(parseISO(o.due))],
+      ["예상 입고", fmtDay(parseISO(o.expect))],
+      ["메모", o.memo || "—"]
+    ].map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("");
+    openDrawer("poDrawer");
+  }
+
+  function initPurchaseOrders() {
+    renderPurchaseOrders();
+    $("#poAlertSlot").addEventListener("click", e => {
+      const btn = e.target.closest("[data-po]");
+      if (btn) openPoDetail(btn.dataset.po);
+    });
+    $("#poStrip").addEventListener("click", e => {
+      const btn = e.target.closest("[data-po-filter]");
+      if (btn) openPoList(btn.dataset.poFilter);
+    });
+    $("#poBackBtn").addEventListener("click", () => {
+      const key = poReturnFilter;
+      closeDrawer("poDrawer");
+      openPoList(key);
+    });
+  }
+
+  /* ==========================================================
+     Shared list drawer — the panel behind every counter
+     ========================================================== */
+  let poReturnFilter = null;
+
+  function openListDrawer(opts) {
+    $("#listTitle").textContent = opts.title;
+    $("#listSub").textContent = opts.sub;
+
+    const bar = $("#listFilters");
+    if (opts.filters) {
+      bar.hidden = false;
+      bar.innerHTML = opts.filters.map(f =>
+        `<button class="list-filter" type="button" data-list-filter="${f.key}"
+                 aria-pressed="${f.key === opts.active}">${esc(f.label)} <span class="tnum">${f.n}</span></button>`
+      ).join("");
+    } else {
+      bar.hidden = true;
+      bar.innerHTML = "";
+    }
+
+    $("#listBody").innerHTML = opts.rows.length
+      ? `<p class="list-count tnum">${opts.rows.length}건</p>${opts.rows.join("")}`
+      : `<p class="list-empty">${esc(opts.empty || "표시할 항목이 없습니다.")}</p>`;
+    $("#listBody").scrollTop = 0;
+    openDrawer("listDrawer");
+  }
+
+  const dday = off => off === 0 ? "오늘" : off > 0 ? `D-${off}` : `${-off}일 지남`;
+
+  function openFollowUps() {
+    const late = followUps.filter(f => f.dueOff < 0).length;
+    const week = followUps.filter(f => f.dueOff >= 0 && f.dueOff <= 7).length;
+    const rows = followUps.slice().sort((a, b) => a.dueOff - b.dueOff).map(f => `
+      <div class="list-row">
+        <div>
+          <h3>${esc(f.task)} <span>${esc(f.org)} · ${esc(f.who)}</span></h3>
+          <p>${esc(f.note)}</p>
+          <div class="list-tags">
+            ${f.dueOff < 0 ? '<i class="tag-pill risk">지연</i>' : ""}
+            <i class="tag-pill">마감 ${esc(fmtDay(addDays(TODAY, f.dueOff)))}</i>
+          </div>
+        </div>
+        <div class="list-side">
+          <strong class="tnum${f.dueOff < 0 ? " is-late" : ""}">${dday(f.dueOff)}</strong>
+        </div>
+      </div>`);
+    openListDrawer({
+      title: "미완료 후속업무",
+      sub: `지연 ${late}건 · 이번 주 마감 ${week}건`,
+      rows: rows
+    });
+  }
+
+  function openCsRequests() {
+    const waiting = csRequests.filter(c => c.state === "미응답").length;
+    const working = csRequests.filter(c => c.state === "처리중").length;
+    const rows = csRequests.slice().sort((a, b) => b.agoOff - a.agoOff).map(c => `
+      <div class="list-row">
+        <div>
+          <h3>${esc(c.issue)} <span>${esc(c.org)} · ${esc(c.who)}</span></h3>
+          <p>${esc(c.note)}</p>
+          <div class="list-tags">
+            ${c.urgent ? '<i class="tag-pill risk">긴급</i>' : ""}
+            <i class="tag-pill${c.state === "미응답" ? "" : " good"}">${esc(c.state)}</i>
+            <i class="tag-pill">${esc(c.product)}</i>
+          </div>
+        </div>
+        <div class="list-side">
+          <strong class="${c.state === "미응답" ? "is-late" : ""}">${esc(c.state)}</strong>
+          <span>${esc(c.ago)}</span>
+        </div>
+      </div>`);
+    openListDrawer({
+      title: "C/S 대응요청",
+      sub: `미응답 ${waiting}건 · 처리중 ${working}건`,
+      rows: rows
+    });
+  }
+
+  function openRenewals() {
+    const rows = renewals.slice().sort((a, b) => a.expireOff - b.expireOff).map(r => `
+      <div class="list-row">
+        <div>
+          <h3>${esc(r.org)} <span>${esc(r.who)}</span></h3>
+          <p>${esc(r.note)}</p>
+          <div class="list-tags">
+            <i class="tag-pill">${esc(r.kind)}</i>
+            <i class="tag-pill">${esc(r.contract)}</i>
+            <i class="tag-pill now">만료 ${esc(fmtDay(addDays(TODAY, r.expireOff)))}</i>
+          </div>
+        </div>
+        <div class="list-side">
+          <strong class="tnum">${dday(r.expireOff)}</strong>
+          <span class="tnum">${won(r.amount)}</span>
+        </div>
+      </div>`);
+    openListDrawer({
+      title: "계약갱신 예정",
+      sub: "만료 30일 이내 계약",
+      rows: rows
+    });
+  }
+
+  function openPoList(key) {
+    const f = poFilter(key);
+    const active = activeOrders();
+    const rows = active.filter(f.test)
+      .sort((a, b) => a.expectOff - b.expectOff)
+      .map(o => {
+        const over = o.expectOff - o.dueOff;
+        return `
+      <button class="list-row" type="button" data-po="${o.no}">
+        <div>
+          <h3>${esc(o.hospital)} <span>${esc(o.no)}</span></h3>
+          <p>${esc(poItemLabel(o))} · ${esc(o.supplier)}</p>
+          <div class="list-tags">
+            <i class="tag-pill">${esc(o.status)}</i>
+            ${over > 0 ? `<i class="tag-pill risk">납기 ${over}일 초과</i>` : ""}
+            <i class="tag-pill">납기 ${esc(fmtDay(parseISO(o.due)))}</i>
+          </div>
+        </div>
+        <div class="list-side">
+          <strong class="tnum${over > 0 ? " is-late" : ""}">${dday(o.expectOff)}</strong>
+          <span class="tnum">${won(poTotal(o))}</span>
+          <span>예상 입고</span>
+        </div>
+      </button>`;
+      });
+    openListDrawer({
+      title: "발주 진행 현황",
+      sub: `${f.label} · ${f.note()}`,
+      filters: PO_FILTERS.map(x => ({ key: x.key, label: x.label, n: active.filter(x.test).length })),
+      active: f.key,
+      rows: rows,
+      empty: `${f.label}에 해당하는 발주가 없습니다.`
+    });
+  }
+
+  function initListDrawer() {
+    $("#listFilters").addEventListener("click", e => {
+      const btn = e.target.closest("[data-list-filter]");
+      if (btn) openPoList(btn.dataset.listFilter);
+    });
+    $("#listBody").addEventListener("click", e => {
+      const row = e.target.closest("[data-po]");
+      if (!row) return;
+      const key = $('#listFilters [aria-pressed="true"]');
+      closeDrawer("listDrawer");
+      openPoDetail(row.dataset.po, key ? key.dataset.listFilter : null);
+    });
+  }
+
+  /* ==========================================================
+     Summary band — counters are derived so the tile and the
+     drawer behind it can never disagree
+     ========================================================== */
+  function jumpToAgenda() {
+    if (selectedISO !== iso(TODAY)) selectDate(iso(TODAY));
+    const card = $(".agenda");
+    card.scrollIntoView({ behavior: reduceMotion.matches ? "auto" : "smooth", block: "start" });
+    card.classList.add("is-flash");
+    setTimeout(() => card.classList.remove("is-flash"), 1400);
+  }
+
+  function renderSummary() {
+    const todayList = agendaByDate[iso(TODAY)] || [];
+    const external = todayList.filter(it => it.kind !== "internal");
+    const orgs = [];
+    external.forEach(it => { if (orgs.indexOf(it.hospital) === -1) orgs.push(it.hospital); });
+
+    $("#kpiVisitsNum").textContent = orgs.length;
+    $("#kpiVisitsSub").textContent = `오늘 일정 ${todayList.length}건 · 외부 ${external.length}건`;
+    $("#kpiVisits").setAttribute("aria-label", `오늘 방문 회사 ${orgs.length}곳 — 오늘 일정으로 이동`);
+
+    const lateFollow = followUps.filter(f => f.dueOff < 0).length;
+    $("#kpiFollowNum").textContent = followUps.length;
+    $("#kpiFollowDelta").textContent = `${lateFollow} 지연`;
+    $("#kpiFollowSub").textContent =
+      `이번 주 마감 ${followUps.filter(f => f.dueOff >= 0 && f.dueOff <= 7).length}건`;
+
+    const urgent = csRequests.filter(c => c.urgent).length;
+    $("#kpiCsNum").textContent = csRequests.length;
+    $("#kpiCsDelta").textContent = `긴급 ${urgent}건`;
+    $("#kpiCsSub").textContent =
+      `미응답 ${csRequests.filter(c => c.state === "미응답").length}건 · ` +
+      `처리중 ${csRequests.filter(c => c.state === "처리중").length}건`;
+
+    $("#kpiRenewNum").textContent = renewals.length;
+    $("#kpiRenewSub").textContent = renewals.length > 1
+      ? `${renewals[0].org} 외 ${renewals.length - 1}곳`
+      : (renewals[0] ? renewals[0].org : "—");
+  }
+
+  function initSummary() {
+    renderSummary();
+    $(".summary").addEventListener("click", e => {
+      const btn = e.target.closest("[data-kpi]");
+      if (!btn) return;
+      if (btn.dataset.kpi === "visits") jumpToAgenda();
+      else if (btn.dataset.kpi === "followup") openFollowUps();
+      else if (btn.dataset.kpi === "cs") openCsRequests();
+      else if (btn.dataset.kpi === "renewal") openRenewals();
+    });
+  }
+
+  /* ==========================================================
+     Topbar date popover
+     ========================================================== */
+  let popYear = TODAY.getFullYear();
+  let popMonth = TODAY.getMonth();
+  let pickedISO = iso(TODAY);
+
+  function setTopbarDate(d) {
+    pickedISO = iso(d);
+    $("#dateButtonLabel").textContent = fmtDot(d);
+  }
+
+  function renderMonth(year, month) {
+    popYear = year; popMonth = month;
+    $("#popMonthLabel").textContent = `${year}년 ${month + 1}월`;
+    const first = new Date(year, month, 1);
+    const lead = first.getDay();
+    const start = addDays(first, -lead);
+    const cells = Array.from({ length: 42 }, (_, i) => addDays(start, i));
+    const head = WD.map((w, i) =>
+      `<span class="cal-wd${i === 0 ? " sun" : i === 6 ? " sat" : ""}">${w}</span>`).join("");
+    const body = cells.map(d => {
+      const key = iso(d);
+      const cls = [
+        "cal-cell",
+        d.getMonth() !== month ? "is-outside" : "",
+        key === iso(TODAY) ? "is-today" : "",
+        key === pickedISO ? "is-picked" : ""
+      ].filter(Boolean).join(" ");
+      return `<button class="${cls}" type="button" data-iso="${key}">${d.getDate()}</button>`;
+    }).join("");
+    $("#popGrid").innerHTML = head + body;
+  }
+
+  function openDatePopover() {
+    const picked = parseISO(pickedISO);
+    renderMonth(picked.getFullYear(), picked.getMonth());
+    $("#datePopover").hidden = false;
+    $("#dateButton").setAttribute("aria-expanded", "true");
+  }
+
+  function closeDatePopover() {
+    $("#datePopover").hidden = true;
+    $("#dateButton").setAttribute("aria-expanded", "false");
+  }
+
+  function initDatePopover() {
+    setTopbarDate(TODAY);
+    $("#dateButton").addEventListener("click", () => {
+      if ($("#datePopover").hidden) openDatePopover(); else closeDatePopover();
+    });
+    $("#popPrev").addEventListener("click", () => renderMonth(popYear, popMonth - 1));
+    $("#popNext").addEventListener("click", () => renderMonth(popYear, popMonth + 1));
+    $("#popToday").addEventListener("click", () => {
+      setTopbarDate(TODAY);
+      renderMonth(TODAY.getFullYear(), TODAY.getMonth());
+    });
+    $("#popGrid").addEventListener("click", e => {
+      const cell = e.target.closest(".cal-cell");
+      if (!cell) return;
+      setTopbarDate(parseISO(cell.dataset.iso));
+      closeDatePopover();
+      // Hook: call selectDate(cell.dataset.iso) here to drive the week calendar too.
+    });
+    document.addEventListener("pointerdown", e => {
+      if (!$("#datePopover").hidden && !e.target.closest(".date-anchor")) closeDatePopover();
+    });
+  }
+
+  /* ==========================================================
+     Notifications drawer
+     ========================================================== */
+  const notifications = [
+    { title: "납기 초과 경고", body: "FM-PO-2026-0022 전극 패드 40개가 납기보다 2일 늦어집니다.", when: "10분 전" },
+    { title: "견적 회신 지연", body: "새봄정형외과 SonoFlex Pro 견적이 14일째 회신 대기 중입니다.", when: "1시간 전" },
+    { title: "교육 일정 확정", body: "서림메디컬센터 OrthoScan Mini 사용 교육이 확정되었습니다.", when: "어제" }
+  ];
+
+  function initNotifications() {
+    $("#notificationList").innerHTML = notifications
+      .map(n => `<div class="history-item"><time>${esc(n.when)}</time>
+                 <p><strong>${esc(n.title)}</strong><br>${esc(n.body)}</p></div>`).join("");
+    $("#notificationButton").addEventListener("click", () => openDrawer("notificationDrawer"));
+  }
+
+  /* ==========================================================
+     Boot
+     ========================================================== */
+  function boot() {
+    initSidebar();
+    initNotices();
+    initDatePopover();
+    initNotifications();
+    initWeekCal();
+    initAgenda();
+    initPurchaseOrders();
+    initListDrawer();
+    initSummary();
+
+    renderWeek();
+    renderAgenda(selectedISO);
+
+    // login
+    $("#loginForm").addEventListener("submit", e => { e.preventDefault(); showApp("manager"); });
+    $$("[data-demo-role]").forEach(btn =>
+      btn.addEventListener("click", () => showApp(btn.dataset.demoRole)));
+    $("#logoutButton").addEventListener("click", logout);
+
+    // routing stubs
+    document.addEventListener("click", e => {
+      const el = e.target.closest("[data-route]");
+      if (el) route(el.dataset.route);
+    });
+
+    // overlays
+    $("#scrim").addEventListener("click", closeAllDrawers);
+    $$("[data-close-drawer]").forEach(b =>
+      b.addEventListener("click", () => closeDrawer(b.dataset.closeDrawer)));
+    $$("[data-close-dialog]").forEach(b =>
+      b.addEventListener("click", () => closeDialog(b.closest("dialog"))));
+    document.addEventListener("keydown", e => {
+      if (e.key !== "Escape") return;
+      if (menuEl) { closeMenu(); return; }          // menu first, then the layer under it
+      if (!$("#datePopover").hidden) { closeDatePopover(); return; }
+      closeAllDrawers();
+    });
+    document.addEventListener("pointerdown", e => {
+      if (menuEl && !e.target.closest(".menu") && !e.target.closest('[aria-haspopup="menu"]'))
+        closeMenu();
+    });
+    window.addEventListener("resize", closeMenu);
+
+    reduceMotion.addEventListener("change", () => {
+      if (reduceMotion.matches) stopNoticeRoll(); else startNoticeRoll();
+    });
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
+  else boot();
+})();
+</script>
+</body>
+</html>
