@@ -20,6 +20,7 @@ import { addDays, iso, TODAY } from '@/utils/date'
 
 import { DROP_ATTR, OWNERS, parseSlot, TONES, type BoardContract } from './board'
 import ContractDrawer from './components/ContractDrawer'
+import FilterSelect from './components/FilterSelect'
 import ContractForm from './components/ContractForm'
 import StageColumn from './components/StageColumn'
 import useContractBoard from './useContractBoard'
@@ -28,10 +29,15 @@ import styles from './Contracts.module.scss'
 
 /** 기간 선택지. 값이 개월 수이고 0 이면 전체입니다. */
 const RANGES = [
-  { id: '3', label: '최근 3개월' },
-  { id: '6', label: '최근 6개월' },
-  { id: '12', label: '최근 1년' },
-  { id: '0', label: '전체' },
+  { value: '3', label: '최근 3개월' },
+  { value: '6', label: '최근 6개월' },
+  { value: '12', label: '최근 1년' },
+  { value: '0', label: '전체' },
+]
+
+const OWNER_OPTIONS = [
+  { value: '', label: '담당 전체' },
+  ...OWNERS.map((name) => ({ value: name, label: name })),
 ]
 
 /** 기본 기간. 확정 계약이 2년치라 전부 펼치면 확정 컬럼만 길어집니다. */
@@ -70,6 +76,7 @@ export default function Contracts() {
   const [addingTo, setAddingTo] = useState<string | null>(null)
   const [editingNo, setEditingNo] = useState<string | null>(null)
   const [deletingNo, setDeletingNo] = useState<string | null>(null)
+  const [openFilter, setOpenFilter] = useState<'owner' | 'range' | null>(null)
   // 새 컬럼을 어느 컬럼 오른쪽에 넣을지. null 이면 입력칸이 닫힌 상태이고,
   // 빈 문자열이면 보드 맨 끝입니다.
   const [newColumnAfter, setNewColumnAfter] = useState<string | null>(null)
@@ -187,32 +194,23 @@ export default function Contracts() {
           />
         </label>
 
-        <select
-          className={styles.select}
+        <FilterSelect
+          label="담당 영업"
           value={owner}
-          aria-label="담당 영업"
-          onChange={(event) => setParam('owner', event.target.value)}
-        >
-          <option value="">담당 전체</option>
-          {OWNERS.map((name) => (
-            <option key={name} value={name}>
-              {name}
-            </option>
-          ))}
-        </select>
+          options={OWNER_OPTIONS}
+          open={openFilter === 'owner'}
+          onOpenChange={(open) => setOpenFilter(open ? 'owner' : null)}
+          onChange={(value) => setParam('owner', value)}
+        />
 
-        <select
-          className={styles.select}
+        <FilterSelect
+          label="기간"
           value={range}
-          aria-label="기간"
-          onChange={(event) => setParam('range', event.target.value, DEFAULT_RANGE)}
-        >
-          {RANGES.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.label}
-            </option>
-          ))}
-        </select>
+          options={RANGES}
+          open={openFilter === 'range'}
+          onOpenChange={(open) => setOpenFilter(open ? 'range' : null)}
+          onChange={(value) => setParam('range', value, DEFAULT_RANGE)}
+        />
 
         <span className={styles.count}>{shownCount}건</span>
       </div>
@@ -229,6 +227,8 @@ export default function Contracts() {
             onOpen={setOpenNo}
             onGrab={grab}
             onNudge={nudge}
+            onEditCard={setEditingNo}
+            onDeleteCard={setDeletingNo}
             onAddCard={setAddingTo}
             onRename={renameColumn}
             onRecolor={recolorColumn}

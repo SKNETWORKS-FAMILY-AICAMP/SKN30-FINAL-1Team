@@ -19,7 +19,13 @@ export function NameCell({ customer }: { customer: Customer }) {
 
 export function EmailCell({ email }: { email: string }) {
   return (
-    <a className={styles.linkCell} href={`mailto:${email}`}>
+    // 줄을 누르면 상세가 열립니다. 메일은 할 일이 따로 있어 거기까지 올라가지
+    // 않게 막습니다. 안 막으면 메일 앱이 뜨면서 드로어까지 같이 열립니다.
+    <a
+      className={styles.linkCell}
+      href={`mailto:${email}`}
+      onClick={(event) => event.stopPropagation()}
+    >
       {email}
     </a>
   )

@@ -1,0 +1,159 @@
+// demo/layout_v3.html §14 의 .list-* 계열
+.filter {
+  padding: 5px 11px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  color: var(--ink-2);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background var(--t-fast),
+    border-color var(--t-fast),
+    color var(--t-fast);
+
+  &:hover {
+    border-color: rgba(0, 122, 255, 0.34);
+    color: var(--blue);
+  }
+
+  span {
+    opacity: 0.7;
+  }
+
+  &[aria-pressed='true'] {
+    border-color: var(--blue);
+    background: var(--blue);
+    color: #fff;
+
+    span {
+      opacity: 0.8;
+    }
+  }
+}
+
+.count {
+  margin-bottom: var(--s2);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+// 줄은 드로어 본문의 여백까지 넓혀 씁니다. 구분선은 다시 여백 안으로 들입니다.
+.row {
+  --gut: var(--s5);
+
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--s4);
+  align-items: start;
+  width: calc(100% + var(--gut) * 2);
+  margin: 0 calc(var(--gut) * -1);
+  padding: var(--s4) var(--gut);
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+
+  & + .row::after {
+    content: '';
+    position: absolute;
+    left: var(--gut);
+    right: var(--gut);
+    top: 0;
+    height: 1px;
+    background: var(--line);
+  }
+
+  @include sm {
+    --gut: var(--s4);
+  }
+}
+
+.clickable {
+  cursor: pointer;
+  transition: background var(--t-fast);
+
+  &:hover {
+    background: var(--fill-2);
+  }
+}
+
+.main {
+  min-width: 0;
+
+  h3 {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  h3 span {
+    margin-left: 6px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 400;
+  }
+
+  p {
+    margin-top: 4px;
+    color: var(--ink-2);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+}
+
+.tags {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 7px;
+}
+
+.pill {
+  @include tag-pill;
+}
+
+.good {
+  background: var(--green-tint);
+  color: var(--green-ink);
+}
+
+.risk {
+  background: var(--orange-tint);
+  color: var(--orange-ink);
+}
+
+.now {
+  background: var(--blue-tint);
+  color: var(--blue);
+}
+
+.side {
+  display: grid;
+  gap: 3px;
+  justify-items: end;
+  text-align: right;
+  color: var(--muted);
+  font-size: 11px;
+
+  strong {
+    color: var(--ink);
+    font-size: 13px;
+    font-weight: 700;
+  }
+}
+
+.late {
+  color: var(--orange-ink);
+}
+
+.empty {
+  padding: var(--s8) 0;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}

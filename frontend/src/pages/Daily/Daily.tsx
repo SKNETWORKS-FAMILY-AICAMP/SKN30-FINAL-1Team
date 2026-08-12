@@ -5,7 +5,7 @@ import { Link, useSearchParams } from 'react-router'
 
 import { ChevronLeftIcon, ChevronRightIcon } from '@/components/icons'
 import WeekStrip from '@/components/WeekStrip'
-import { dailyComposePath, dailyReportPath } from '@/constants/routes'
+import { dailyComposePath } from '@/constants/routes'
 import { APPROVERS } from '@/content/reports'
 import type { DailyReport } from '@/content/types'
 import {
@@ -39,6 +39,14 @@ const weekDays = (offset: number) => {
   return Array.from({ length: 7 }, (_, i) => addDays(first, i))
 }
 
+/**
+ * 열려 있는 요약 패널. 여는 길이 둘입니다.
+ *
+ * 달력은 그날 낸 것을 통째로 펴고, 작성 리스트는 고른 보고서 하나만 폅니다.
+ * 어느 쪽이든 그 날짜가 달력에서 선택으로 보입니다.
+ */
+type OpenPanel = { by: 'date'; dateISO: string } | { by: 'report'; report: DailyReport }
+
 /** 기간 필터의 시작일. 'all' 이면 자르지 않습니다. */
 function rangeStartISO(range: HistoryFilters['range']): string | null {
   if (range === 'week') return iso(startOfWeek(TODAY))
@@ -58,7 +66,8 @@ export default function Daily() {
   const [showMonth, setShowMonth] = useState(false)
   const [cursor, setCursor] = useState(() => startOfMonth(TODAY))
   // drawer 가 열려 있는 동안에만 값이 있습니다.
-  const [openISO, setOpenISO] = useState('')
+  const [open, setOpen] = useState<OpenPanel | null>(null)
+  const openISO = open === null ? '' : open.by === 'date' ? open.dateISO : open.report.date
 
   const [query, setQuery] = useState('')
   const [filters, setFilters] = useState<HistoryFilters>(NO_FILTERS)
@@ -206,14 +215,14 @@ export default function Daily() {
             cursor={cursor}
             byDate={inKind}
             selectedISO={openISO}
-            onSelect={setOpenISO}
+            onSelect={(dateISO) => setOpen({ by: 'date', dateISO })}
           />
         ) : (
           <div className={styles.strip}>
             <WeekStrip
               days={days}
               selectedISO={openISO}
-              onSelect={setOpenISO}
+              onSelect={(dateISO) => setOpen({ by: 'date', dateISO })}
               onOutOfRange={(next) => setWeekOffset(weekOffset + (next < iso(days[0]) ? -1 : 1))}
               renderMarks={renderMark}
               label="제출 이력 주간 달력"
@@ -264,21 +273,35 @@ export default function Daily() {
       ) : (
         <ul className={styles.rows}>
           {visible.map((report) => (
-            <li key={report.id} className={styles.row}>
+            // 줄 어디를 눌러도 요약이 섭니다. 전문으로는 그 안의 '전체 보기' 로 넘어갑니다.
+            <li
+              key={report.id}
+              className={styles.row}
+              onClick={() => setOpen({ by: 'report', report })}
+            >
               <span className={styles.type}>{report.kind}</span>
 
               <div className={styles.rowBody}>
-                <strong>{reportTitle(report)}</strong>
+                {/* 줄 전체를 누르지만 li 는 키보드로 못 잡습니다. 제목이 그
+                    손잡이이고, 하는 일은 줄을 누른 것과 같습니다. */}
+                <strong>
+                  <button
+                    type="button"
+                    className={styles.openButton}
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      setOpen({ by: 'report', report })
+                    }}
+                  >
+                    {reportTitle(report)}
+                  </button>
+                </strong>
                 <span>{report.note}</span>
               </div>
 
               <span className={styles.approver}>{report.approver}</span>
               <span className={`${styles.date} tnum`}>{fmtDotShort(parseISO(report.date))}</span>
               <ReportStatusBadge status={report.status} />
-
-              <Link className={styles.open} to={dailyReportPath(report.id)}>
-                열기
-              </Link>
             </li>
           ))}
         </ul>
@@ -288,11 +311,13 @@ export default function Daily() {
         전체 {reports.length}건 중 <b className="tnum">{visible.length}</b>건
       </p>
 
-      {openISO && (
+      {open !== null && (
         <ReportDrawer
           dateISO={openISO}
-          reports={inKind.get(openISO) ?? []}
-          onClose={() => setOpenISO('')}
+          reports={open.by === 'report' ? [open.report] : (inKind.get(openISO) ?? [])}
+          // '전체' 탭은 종류를 고르지 않았으므로 머리말 CTA 와 같이 일일로 봅니다.
+          kind={kind ?? '일일'}
+          onClose={() => setOpen(null)}
         />
       )}
     </section>

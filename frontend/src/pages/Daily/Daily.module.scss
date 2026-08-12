@@ -221,10 +221,15 @@
 
 .row {
   display: grid;
-  grid-template-columns: 40px minmax(0, 1fr) auto auto auto auto;
+  grid-template-columns: 40px minmax(0, 1fr) auto auto auto;
   align-items: center;
   gap: var(--s3);
   padding: var(--s3) var(--s4);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--fill-2);
+  }
 
   & + .row {
     border-top: 1px solid var(--line);
@@ -232,7 +237,7 @@
 
   // 좁아지면 보고 대상·날짜부터 접습니다. 제목과 상태가 남아야 합니다.
   @include md {
-    grid-template-columns: 40px minmax(0, 1fr) auto auto;
+    grid-template-columns: 40px minmax(0, 1fr) auto;
 
     .approver,
     .date {
@@ -276,17 +281,18 @@
   white-space: nowrap;
 }
 
-.open {
-  padding: 5px var(--s3);
-  border: 1px solid var(--line-2);
-  border-radius: var(--r-sm);
-  font-size: 12px;
-  font-weight: 600;
-  white-space: nowrap;
-
-  &:hover {
-    background: var(--fill-2);
-  }
+// 제목 자리의 키보드용 손잡이입니다. 누를 곳은 줄 전체이므로 제목에는 단서를
+// 붙이지 않습니다. 밑줄을 그으면 제목만 눌리는 것처럼 보입니다.
+.openButton {
+  display: block;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 
 .count {

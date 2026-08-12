@@ -6,6 +6,7 @@ import { downloadCsv, toCsv } from '@/utils/csv'
 
 import { COLUMN_BY_ID } from './columns'
 import useColumnPrefs from './useColumnPrefs'
+import CustomerDrawer from './components/CustomerDrawer'
 import CustomerFormModal from './components/CustomerFormModal'
 import CustomerTable from './components/CustomerTable'
 import ImportModal from './components/ImportModal'
@@ -34,6 +35,7 @@ export default function Customers() {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(25)
   const [modal, setModal] = useState<'create' | 'import' | null>(null)
+  const [openId, setOpenId] = useState<string | null>(null)
 
   const { prefs, toggleColumn, moveColumn, setWidth, reset } = useColumnPrefs()
 
@@ -87,6 +89,10 @@ export default function Customers() {
     () => matched.slice((safePage - 1) * pageSize, safePage * pageSize),
     [matched, safePage, pageSize],
   )
+
+  // 객체가 아니라 id 를 들고 목록에서 찾습니다. 열어 둔 고객을 지우면
+  // 여기가 비면서 드로어가 알아서 닫힙니다.
+  const openCustomer = useMemo(() => rows.find((r) => r.id === openId) ?? null, [rows, openId])
 
   const resetPage = useCallback(() => setPage(1), [])
 
@@ -205,6 +211,7 @@ export default function Customers() {
         selected={selected}
         onToggleRow={toggleRow}
         onTogglePage={togglePage}
+        onOpen={setOpenId}
         isFiltered={filterCount > 0 || query.trim() !== ''}
         hasAnyData={rows.length > 0}
         onClearFilters={clearFilters}
@@ -229,6 +236,15 @@ export default function Customers() {
         <CustomerFormModal onClose={() => setModal(null)} onSubmit={(c) => addCustomers([c])} />
       )}
       {modal === 'import' && <ImportModal onClose={() => setModal(null)} onImport={addCustomers} />}
+
+      {openCustomer && (
+        <CustomerDrawer
+          customer={openCustomer}
+          all={rows}
+          onOpen={setOpenId}
+          onClose={() => setOpenId(null)}
+        />
+      )}
     </section>
   )
 }

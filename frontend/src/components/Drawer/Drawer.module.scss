@@ -1,0 +1,129 @@
+// demo/layout_v3.html §14
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  justify-content: flex-end;
+  background: rgba(0, 0, 0, 0.34);
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  width: min(420px, 100vw);
+  max-height: 100%;
+  background: var(--surface);
+  box-shadow: var(--sh-3);
+  animation: slide-in var(--t) var(--ease-spring);
+
+  @include sm {
+    // 좁은 화면에서는 Modal 과 같이 바텀시트가 됩니다.
+    width: 100%;
+    margin-top: auto;
+    max-height: 88vh;
+    border-radius: var(--r-xl) var(--r-xl) 0 0;
+    animation-name: slide-up;
+  }
+}
+
+// layout_v3 의 .is-wide. 본문을 2열로 나눠 담는 드로어입니다.
+.wide {
+  width: min(760px, 100vw);
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s3);
+  flex: none;
+  padding: var(--s5) var(--s5) var(--s4);
+  border-bottom: 1px solid var(--line);
+
+  h2 {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.014em;
+  }
+}
+
+.heading {
+  min-width: 0;
+}
+
+.sub {
+  margin-top: 3px;
+  color: var(--ink-2);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: var(--s2);
+}
+
+.close {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--fill-2);
+    color: var(--ink);
+  }
+}
+
+.filters {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  flex: none;
+  padding: var(--s3) var(--s5);
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-2);
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--s5);
+
+  @include sm {
+    padding: var(--s4);
+  }
+}
+
+.foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--s2);
+  flex: none;
+  padding: var(--s4) var(--s5);
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+}

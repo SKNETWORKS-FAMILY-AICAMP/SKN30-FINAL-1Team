@@ -1,0 +1,292 @@
+// RecordDrawer.module.scss 와 같은 어휘입니다. 상세가 화면마다 달라 보이면 안 됩니다.
+.pill {
+  @include tag-pill;
+}
+
+.good {
+  background: var(--green-tint);
+  color: var(--green-ink);
+}
+
+.risk {
+  background: var(--orange-tint);
+  color: var(--orange-ink);
+}
+
+.now {
+  background: var(--blue-tint);
+  color: var(--blue);
+}
+
+.hold {
+  color: var(--muted);
+}
+
+.when {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+// DayAgenda 의 .kind 와 같은 배지입니다.
+.kind {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: var(--r-pill);
+  background: var(--fill);
+  color: var(--ink-2);
+  font-size: 11px;
+  font-weight: 700;
+
+  &::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentcolor;
+  }
+}
+
+.kindBlue {
+  background: var(--blue-tint);
+  color: var(--blue);
+}
+
+.kindPurple {
+  background: var(--purple-tint);
+  color: var(--purple-ink);
+}
+
+.kindGreen {
+  background: var(--green-tint);
+  color: var(--green-ink);
+}
+
+.kindOrange {
+  background: var(--orange-tint);
+  color: var(--orange-ink);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s6);
+
+  @include sm {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s5);
+  }
+}
+
+.col {
+  display: grid;
+  gap: var(--s5);
+  align-content: start;
+}
+
+.block {
+  h3 {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--s3);
+    margin-bottom: var(--s3);
+    font-size: 13px;
+    font-weight: 700;
+  }
+}
+
+// 회사 단위 섹션임을 밝히거나 합계를 다는 자리입니다.
+.blockNote {
+  flex: none;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.facts {
+  display: grid;
+  gap: var(--s3);
+
+  div {
+    display: grid;
+    grid-template-columns: 68px minmax(0, 1fr);
+    gap: var(--s3);
+    font-size: 13px;
+  }
+
+  dt {
+    color: var(--muted);
+  }
+
+  dd {
+    margin: 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-weight: 600;
+  }
+}
+
+// 연락처의 이메일·전화. 표의 .linkCell 과 같은 뜻입니다.
+.mail {
+  color: var(--blue);
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// 날짜 옆 '3일 전'
+.rel {
+  margin-left: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.overdue {
+  color: var(--orange-ink);
+}
+
+.note {
+  color: var(--ink-2);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.stack {
+  display: grid;
+  gap: var(--s3);
+}
+
+/* ---- 목록 한 줄 ---- */
+
+.entry {
+  padding: var(--s3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+}
+
+.entryHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s3);
+
+  strong {
+    min-width: 0;
+    font-size: 13px;
+    font-weight: 700;
+  }
+}
+
+.side {
+  flex: none;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.late {
+  color: var(--orange-ink);
+}
+
+.entryNote {
+  margin-top: 3px;
+  color: var(--ink-2);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: var(--s2);
+}
+
+// 눌리는 줄. .entry 와 같은 상자에 손가락과 파란 테두리만 더합니다.
+.link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  width: 100%;
+  padding: var(--s3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background var(--t-fast),
+    border-color var(--t-fast);
+
+  &:hover {
+    border-color: rgba(0, 122, 255, 0.3);
+    background: var(--blue-tint);
+  }
+
+  strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  small {
+    display: block;
+    margin-top: 2px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+}
+
+// 왼쪽 선 하나로 지난 접촉을 시간순으로 세웁니다.
+.history {
+  padding-left: var(--s4);
+  border-left: 2px solid var(--line);
+
+  & + .history {
+    margin-top: var(--s4);
+  }
+
+  time {
+    color: var(--blue);
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  p {
+    margin-top: 3px;
+    color: var(--ink-2);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+}
+
+// Button 의 primary 와 같은 모양입니다. 링크라 태그만 다릅니다.
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 15px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: var(--blue);
+  box-shadow: var(--sh-blue);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+
+  &:hover {
+    background: var(--blue-press);
+  }
+}

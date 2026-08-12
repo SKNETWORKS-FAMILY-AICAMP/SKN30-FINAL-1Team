@@ -1,0 +1,30 @@
+// demo/layout_v3.html §14 의 .detail-row
+.pill {
+  @include tag-pill;
+}
+
+.risk {
+  background: var(--orange-tint);
+  color: var(--orange-ink);
+}
+
+.rows {
+  display: grid;
+  gap: var(--s3);
+
+  div {
+    display: grid;
+    grid-template-columns: 84px minmax(0, 1fr);
+    gap: var(--s3);
+    font-size: 13px;
+  }
+
+  dt {
+    color: var(--muted);
+  }
+
+  dd {
+    margin: 0;
+    line-height: 1.6;
+  }
+}

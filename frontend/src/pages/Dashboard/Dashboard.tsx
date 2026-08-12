@@ -1,13 +1,20 @@
 import { useCallback, useRef, useState } from 'react'
 
+import { orders } from '@/content/orders'
+import type { AgendaItem, PurchaseOrder } from '@/content/types'
 import useMediaQuery from '@/hooks/useMediaQuery'
 import { addDays, iso, TODAY, TODAY_ISO } from '@/utils/date'
 
 import DayAgenda from './components/DayAgenda'
+import ListDrawer from './components/ListDrawer'
 import NoticeTicker from './components/NoticeTicker'
+import OrderDrawer from './components/OrderDrawer'
 import PurchaseOrders from './components/PurchaseOrders'
+import RecordDrawer from './components/RecordDrawer'
 import SummaryBand from './components/SummaryBand'
 import WeekCalendar from './components/WeekCalendar'
+import { kpiList, orderFilterChips, orderList, type KpiListKey } from './drawerLists'
+import type { OrderFilterKey } from './orderFilters'
 
 // 주간 캘린더는 오늘을 왼쪽에서 셋째 칸에 둡니다. 주를 옮기면 보이는 범위의
 // 첫날을 고르게 해 선택이 화면 밖으로 나가지 않게 합니다.
@@ -15,11 +22,24 @@ const rangeStart = (offset: number) => addDays(TODAY, -2 + offset * 7)
 
 const FLASH_MS = 1400
 
+/**
+ * 열려 있는 드로어. 한 번에 하나만 뜹니다.
+ *
+ * 발주 상세의 from 은 어느 목록에서 들어왔는지입니다. 값이 있으면 상세 하단에
+ * '목록으로' 가 생깁니다. 일정에서 바로 들어온 발주는 돌아갈 목록이 없습니다.
+ */
+type OpenDrawer =
+  | { type: 'record'; item: AgendaItem }
+  | { type: 'kpi'; key: KpiListKey }
+  | { type: 'orders'; key: OrderFilterKey }
+  | { type: 'order'; order: PurchaseOrder; from: OrderFilterKey | null }
+
 export default function Dashboard() {
   const [selectedISO, setSelectedISO] = useState(TODAY_ISO)
   const [weekOffset, setWeekOffset] = useState(0)
   const [doneIds, setDoneIds] = useState<ReadonlySet<string>>(new Set())
   const [flash, setFlash] = useState(false)
+  const [open, setOpen] = useState<OpenDrawer | null>(null)
 
   const agendaRef = useRef<HTMLElement>(null)
   const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
@@ -43,6 +63,19 @@ export default function Dashboard() {
     })
   }, [])
 
+  const closeDrawer = useCallback(() => setOpen(null), [])
+
+  const openOrderList = useCallback(
+    (key: OrderFilterKey) => () => setOpen({ type: 'orders', key }),
+    [],
+  )
+
+  // 발주 번호는 목록·알림·일정 어디서 오든 같은 상세로 갑니다.
+  const openOrder = useCallback((no: string, from: OrderFilterKey | null = null) => {
+    const order = orders.find((o) => o.no === no)
+    if (order) setOpen({ type: 'order', order, from })
+  }, [])
+
   // '오늘 방문 회사' 타일은 패널을 여는 대신 아젠다로 내려보냅니다.
   // 답이 이미 페이지 안에 있어 잠깐 강조하는 것으로 충분합니다.
   const jumpToToday = useCallback(() => {
@@ -62,7 +95,10 @@ export default function Dashboard() {
       <h1 className="sr-only">영업 대시보드</h1>
 
       <NoticeTicker />
-      <SummaryBand onJumpToToday={jumpToToday} />
+      <SummaryBand
+        onJumpToToday={jumpToToday}
+        onOpenList={(key) => setOpen({ type: 'kpi', key })}
+      />
 
       <WeekCalendar
         weekOffset={weekOffset}
@@ -77,10 +113,45 @@ export default function Dashboard() {
         dateISO={selectedISO}
         doneIds={doneIds}
         onToggleDone={toggleDone}
+        onOpen={(item) => setOpen({ type: 'record', item })}
         flash={flash}
       />
 
-      <PurchaseOrders />
+      <PurchaseOrders
+        onOpenList={(key) => setOpen({ type: 'orders', key })}
+        onOpenOrder={(no) => openOrder(no)}
+      />
+
+      {open?.type === 'record' && (
+        <RecordDrawer
+          item={open.item}
+          done={doneIds.has(open.item.id)}
+          onToggleDone={toggleDone}
+          onOpenOrder={(no) => openOrder(no)}
+          onClose={closeDrawer}
+        />
+      )}
+
+      {open?.type === 'kpi' && <ListDrawer list={kpiList(open.key)} onClose={closeDrawer} />}
+
+      {open?.type === 'orders' && (
+        <ListDrawer
+          list={orderList(open.key)}
+          filters={orderFilterChips()}
+          activeFilter={open.key}
+          onFilter={(key) => setOpen({ type: 'orders', key })}
+          onOpenOrder={(no) => openOrder(no, open.key)}
+          onClose={closeDrawer}
+        />
+      )}
+
+      {open?.type === 'order' && (
+        <OrderDrawer
+          order={open.order}
+          onBack={open.from ? openOrderList(open.from) : undefined}
+          onClose={closeDrawer}
+        />
+      )}
     </section>
   )
 }

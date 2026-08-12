@@ -92,3 +92,8 @@ export function orderItemLabel(o: PurchaseOrder): string {
 }
 
 export const activeOrders = (): PurchaseOrder[] => orders.filter((o) => o.status !== '취소')
+
+/** 일정에 걸린 발주. 같은 병원에 같은 제품을 넣은 건이면 그 일정의 발주로 봅니다. */
+export function findOrderFor(hospital: string, product: string): PurchaseOrder | undefined {
+  return orders.find((o) => o.hospital === hospital && o.items.some((it) => it.product === product))
+}

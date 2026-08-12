@@ -93,6 +93,12 @@ export function fmtHalf(d: Date): string {
   return `${d.getFullYear()}년 ${d.getMonth() < 6 ? '상반기' : '하반기'}`
 }
 
+/** 오늘 기준 offset 을 남은 기한으로 읽습니다. 0 → 오늘, 3 → D-3, -2 → 2일 지남 */
+export function ddayLabel(off: number): string {
+  if (off === 0) return '오늘'
+  return off > 0 ? `D-${off}` : `${-off}일 지남`
+}
+
 /** 8월 9일 – 15일. 달을 넘으면 7월 30일 – 8월 5일 처럼 양쪽에 달을 붙입니다. */
 export function weekRangeLabel(days: Date[]): string {
   const first = days[0]

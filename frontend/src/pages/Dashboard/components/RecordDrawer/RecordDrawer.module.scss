@@ -1,0 +1,190 @@
+// demo/layout_v3.html §14 의 .record-* 계열
+.pill {
+  @include tag-pill;
+}
+
+.good {
+  background: var(--green-tint);
+  color: var(--green-ink);
+}
+
+.when {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+// DayAgenda 의 .kind 와 같은 배지입니다.
+.kind {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: var(--r-pill);
+  background: var(--fill);
+  color: var(--ink-2);
+  font-size: 11px;
+  font-weight: 700;
+
+  &::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentcolor;
+  }
+}
+
+.kindBlue {
+  background: var(--blue-tint);
+  color: var(--blue);
+}
+
+.kindPurple {
+  background: var(--purple-tint);
+  color: var(--purple-ink);
+}
+
+.kindGreen {
+  background: var(--green-tint);
+  color: var(--green-ink);
+}
+
+.kindOrange {
+  background: var(--orange-tint);
+  color: var(--orange-ink);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s6);
+
+  @include sm {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s5);
+  }
+}
+
+.col {
+  display: grid;
+  gap: var(--s5);
+  align-content: start;
+}
+
+.block {
+  h3 {
+    margin-bottom: var(--s3);
+    font-size: 13px;
+    font-weight: 700;
+  }
+}
+
+.facts {
+  display: grid;
+  gap: var(--s3);
+
+  div {
+    display: grid;
+    grid-template-columns: 60px minmax(0, 1fr);
+    gap: var(--s3);
+    font-size: 13px;
+  }
+
+  dt {
+    color: var(--muted);
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 600;
+  }
+}
+
+.note {
+  color: var(--ink-2);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+// 왼쪽 선 하나로 지난 접촉을 시간순으로 세웁니다.
+.history {
+  padding-left: var(--s4);
+  border-left: 2px solid var(--line);
+
+  & + .history {
+    margin-top: var(--s4);
+  }
+
+  time {
+    color: var(--blue);
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  p {
+    margin-top: 3px;
+    color: var(--ink-2);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  width: 100%;
+  padding: var(--s3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background var(--t-fast),
+    border-color var(--t-fast);
+
+  &:hover {
+    border-color: rgba(0, 122, 255, 0.3);
+    background: var(--blue-tint);
+  }
+
+  strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  small {
+    display: block;
+    margin-top: 2px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+}
+
+// Button 의 primary 와 같은 모양입니다. 링크라 태그만 다릅니다.
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 15px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: var(--blue);
+  box-shadow: var(--sh-blue);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+
+  &:hover {
+    background: var(--blue-press);
+  }
+}

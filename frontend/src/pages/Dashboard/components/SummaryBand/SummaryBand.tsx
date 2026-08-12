@@ -4,13 +4,15 @@ import { csRequests, followUps, renewals, salesGoal } from '@/content/counters'
 import { TODAY_ISO } from '@/utils/date'
 import { won } from '@/utils/format'
 
+import type { KpiListKey } from '../../drawerLists'
+
 import styles from './SummaryBand.module.scss'
 
 /**
  * KPI 숫자는 전부 src/content 의 목록에서 파생됩니다.
  *
- * 상수로 박아 두면 타일과 그 뒤에 붙을 목록이 어긋날 수 있습니다. 다음 작업에서
- * 타일을 눌러 여는 드로어가 같은 목록을 그대로 쓰게 됩니다.
+ * 상수로 박아 두면 타일과 그 뒤의 목록이 어긋날 수 있습니다. 타일을 누르면 여는
+ * 드로어가 여기서 센 것과 같은 목록을 그대로 펼칩니다(drawerLists.ts).
  */
 function deriveCounters() {
   const todayList = agendaFor(TODAY_ISO)
@@ -49,11 +51,12 @@ interface TileProps {
   delta?: { text: string; tone?: 'warn' | 'danger' }
   value: number
   sub: string
+  onOpen: () => void
 }
 
-function Tile({ label, delta, value, sub }: TileProps) {
+function Tile({ label, delta, value, sub, onOpen }: TileProps) {
   return (
-    <article className={styles.kpi}>
+    <button type="button" className={styles.kpi} onClick={onOpen}>
       <span className={styles.top}>
         <span>{label}</span>
         {delta && (
@@ -66,18 +69,23 @@ function Tile({ label, delta, value, sub }: TileProps) {
       <span className={styles.foot}>
         <small>{sub}</small>
       </span>
-    </article>
+    </button>
   )
 }
 
-export default function SummaryBand({ onJumpToToday }: { onJumpToToday: () => void }) {
+interface Props {
+  onJumpToToday: () => void
+  onOpenList: (key: KpiListKey) => void
+}
+
+export default function SummaryBand({ onJumpToToday, onOpenList }: Props) {
   const c = deriveCounters()
   const percent = (salesGoal.achieved / salesGoal.target) * 100
 
   return (
     <div className={styles.summary}>
-      {/* 이 타일만 클릭이 살아 있습니다. 답이 이미 페이지 안에 있어 아젠다로
-          내려보내면 되고, 드로어가 필요 없습니다. */}
+      {/* 이 타일만 드로어를 열지 않습니다. 답이 이미 페이지 안에 있어
+          아젠다로 내려보내면 됩니다. */}
       <button type="button" className={`${styles.kpi} ${styles.jump}`} onClick={onJumpToToday}>
         <span className={styles.top}>
           <span>오늘 방문 회사</span>
@@ -94,18 +102,21 @@ export default function SummaryBand({ onJumpToToday }: { onJumpToToday: () => vo
         delta={{ text: `${c.followUp.late} 지연`, tone: 'warn' }}
         value={c.followUp.count}
         sub={c.followUp.sub}
+        onOpen={() => onOpenList('followUp')}
       />
       <Tile
         label="C/S 대응요청"
         delta={{ text: `긴급 ${c.cs.urgent}건`, tone: 'danger' }}
         value={c.cs.count}
         sub={c.cs.sub}
+        onOpen={() => onOpenList('cs')}
       />
       <Tile
         label="계약갱신 예정"
         delta={{ text: '30일 이내', tone: 'warn' }}
         value={c.renewal.count}
         sub={c.renewal.sub}
+        onOpen={() => onOpenList('renewal')}
       />
 
       <article className={styles.goal} aria-label={`${salesGoal.month}월 매출 목표`}>
