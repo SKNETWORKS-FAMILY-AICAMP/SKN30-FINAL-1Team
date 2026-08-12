@@ -2,13 +2,14 @@ import { useCallback, useMemo, useState, type PointerEvent as ReactPointerEvent 
 
 import { aiSuggestions } from '@/content/suggestions'
 import type { AiSuggestion, CalendarEvent } from '@/content/types'
+import usePointerDrag from '@/hooks/usePointerDrag'
 import { parseISO, startOfMonth, TODAY, TODAY_ISO } from '@/utils/date'
 
 import EventModal from './components/EventModal'
 import MonthGrid from './components/MonthGrid'
 import SuggestionPanel from './components/SuggestionPanel'
+import { CELL_ATTR, type Dragging } from './dragging'
 import useCalendarEvents from './useCalendarEvents'
-import usePointerDrag, { type Dragging } from './usePointerDrag'
 
 import styles from './Calendar.module.scss'
 
@@ -69,7 +70,8 @@ export default function Calendar() {
     [suggestions, moveEvent, accept],
   )
 
-  const { dragging, dropISO, point, start } = usePointerDrag(drop)
+  // 놓인 자리의 표식은 날짜 칸의 ISO 문자열입니다. 이 화면의 어휘로 이름만 바꿔 받습니다.
+  const { dragging, dropKey: dropISO, point, start } = usePointerDrag<Dragging>(CELL_ATTR, drop)
 
   const grabEvent = useCallback(
     (pointer: ReactPointerEvent, event: CalendarEvent) =>

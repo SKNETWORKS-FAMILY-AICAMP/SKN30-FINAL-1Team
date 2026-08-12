@@ -5,6 +5,7 @@ import SessionProvider from '@/auth/SessionProvider'
 import AppShell from '@/components/layout/AppShell'
 import { ROUTES } from '@/constants/routes'
 import Calendar from '@/pages/Calendar'
+import Contracts, { ContractDetail } from '@/pages/Contracts'
 import Customers from '@/pages/Customers'
 import Daily, { DailyCompose, DailyDetail } from '@/pages/Daily'
 import Dashboard from '@/pages/Dashboard'
@@ -37,6 +38,12 @@ export default function App() {
               </Route>
 
               <Route path={ROUTES.SALES} element={<Sales />} />
+
+              {/* 계약은 보드와 상세가 한 기능이라 경로를 묶어 둡니다. */}
+              <Route path={ROUTES.CONTRACTS}>
+                <Route index element={<Contracts />} />
+                <Route path=":contractNo" element={<ContractDetail />} />
+              </Route>
 
               {/* 나머지 메뉴는 아직 라우트가 없어 여기로 떨어집니다.
                   화면을 구현하면 위에 <Route> 한 줄을 추가하세요. */}

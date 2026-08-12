@@ -1,0 +1,120 @@
+.trigger {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--fill);
+    color: var(--ink);
+  }
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+}
+
+.label {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.input {
+  width: 100%;
+  padding: 7px var(--s3);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  font-size: 13px;
+}
+
+.tones {
+  display: flex;
+  gap: var(--s2);
+}
+
+.tone {
+  width: 22px;
+  height: 22px;
+  border: 2px solid transparent;
+  border-radius: var(--r-pill);
+  cursor: pointer;
+}
+
+.isOn {
+  border-color: var(--ink);
+}
+
+.gray {
+  background: var(--muted-2);
+}
+.blue {
+  background: var(--blue);
+}
+.purple {
+  background: var(--purple);
+}
+.orange {
+  background: var(--orange);
+}
+.green {
+  background: var(--green);
+}
+.red {
+  background: var(--red);
+}
+
+.action {
+  padding: 8px var(--s3);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--fill-2);
+  }
+}
+
+.remove {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  padding-top: var(--s3);
+  border-top: 1px solid var(--line);
+}
+
+.danger {
+  color: var(--red-ink);
+  border-color: var(--red-tint);
+  background: var(--red-tint);
+
+  &:hover {
+    background: var(--red-tint);
+    filter: brightness(0.97);
+  }
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 12px;
+}

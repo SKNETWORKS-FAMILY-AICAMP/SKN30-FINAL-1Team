@@ -5,7 +5,7 @@ import Popover from '@/components/Popover'
 import { KIND_LABEL } from '@/content/agenda'
 import type { AgendaKind, CalendarEvent } from '@/content/types'
 
-import { CELL_ATTR, type Dragging } from '../../usePointerDrag'
+import { CELL_ATTR, type Dragging } from '../../dragging'
 
 import styles from './DayCell.module.scss'
 

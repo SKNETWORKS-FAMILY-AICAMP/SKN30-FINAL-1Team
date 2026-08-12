@@ -38,3 +38,6 @@ export const dailyComposePath = (dateISO?: string, kind: ReportKind = '일일') 
 
 /** 제출된 보고서 상세 */
 export const dailyReportPath = (id: string) => `${ROUTES.DAILY}/${id}`
+
+/** 계약 상세. 계약번호(FM-CT-2026-0039)를 그대로 씁니다. */
+export const contractPath = (no: string) => `${ROUTES.CONTRACTS}/${no}`

@@ -18,7 +18,7 @@ import {
   fmtMonth,
 } from '@/utils/date'
 
-import type { Dragging } from '../../usePointerDrag'
+import type { Dragging } from '../../dragging'
 import DayCell, { type Ghost } from '../DayCell'
 
 import styles from './MonthGrid.module.scss'

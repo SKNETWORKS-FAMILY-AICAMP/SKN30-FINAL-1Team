@@ -197,7 +197,10 @@ export interface ContractSeed {
   amount: number
   kind: ContractKind
   status: ContractStatus
-  /** 계약일. 오늘로부터 며칠이며 과거이므로 음수입니다. */
+  /**
+   * 계약일. 오늘로부터 며칠이며 과거이므로 음수입니다.
+   * 아직 체결하지 않은 '진행중' 건은 협의를 시작한 날입니다.
+   */
   signedOff: number
   /** 담당 영업 */
   owner: string
