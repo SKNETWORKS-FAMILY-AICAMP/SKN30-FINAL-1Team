@@ -1,0 +1,80 @@
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    padding: 9px var(--s3);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    font-size: 13px;
+    outline: none;
+    transition:
+      border-color var(--t-fast) var(--ease-out),
+      box-shadow var(--t-fast) var(--ease-out);
+
+    &:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px var(--blue-ring);
+    }
+  }
+
+  textarea {
+    resize: vertical;
+    line-height: 1.62;
+  }
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+}
+
+.label {
+  color: var(--ink-2);
+  font-size: 12px;
+  font-weight: 600;
+
+  b {
+    margin-left: 3px;
+    color: var(--red);
+  }
+}
+
+// 어디까지가 AI 가 쓴 것인지 보여야 사람이 무엇을 검토할지 압니다.
+.ai {
+  @include tag-pill;
+
+  background: var(--purple-tint);
+  color: var(--purple-ink);
+  font-size: 10px;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.value {
+  white-space: pre-wrap;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--ink-2);
+}
+
+.blank {
+  color: var(--muted);
+  font-size: 13px;
+}

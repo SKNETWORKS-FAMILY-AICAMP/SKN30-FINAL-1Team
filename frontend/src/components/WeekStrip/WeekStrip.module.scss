@@ -1,0 +1,109 @@
+// demo/layout_v3.html §11 의 주간 달력 그리드입니다.
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--s2);
+}
+
+.day {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: var(--s3) var(--s1);
+  border: 1px solid transparent;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  cursor: pointer;
+  transition:
+    background var(--t-fast),
+    box-shadow var(--t-fast);
+
+  &:hover {
+    background: var(--fill-2);
+  }
+
+  @include md {
+    padding: var(--s2) 2px;
+  }
+}
+
+.wd {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.todayTag {
+  font-style: normal;
+
+  @include md {
+    display: none;
+  }
+}
+
+.isSun .wd {
+  color: var(--red-ink);
+}
+
+.isSat .wd {
+  color: var(--blue);
+}
+
+.num {
+  font-size: 17px;
+  font-weight: 600;
+
+  @include md {
+    font-size: 15px;
+  }
+}
+
+// 월이 바뀌는 칸의 라벨이 그 줄 전체를 늘리지 않도록 흐름에서 뺍니다.
+.month {
+  position: absolute;
+  top: 5px;
+  right: 7px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--blue);
+}
+
+.marks {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 8px;
+}
+
+.isToday {
+  box-shadow: inset 0 0 0 1.5px var(--blue);
+
+  .num {
+    color: var(--blue);
+  }
+}
+
+.isSelected {
+  background: var(--blue);
+  color: #fff;
+  box-shadow: var(--sh-blue);
+
+  .wd,
+  .num,
+  .month {
+    color: #fff;
+  }
+}
+
+// 선택한 날을 바로 아래 내용으로 이어 주는 노치
+.hasNotch .isSelected::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -19px;
+  transform: translateX(-50%);
+  border: 7px solid transparent;
+  border-top-color: var(--blue);
+}

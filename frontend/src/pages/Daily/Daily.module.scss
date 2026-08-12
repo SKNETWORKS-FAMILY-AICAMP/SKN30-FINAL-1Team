@@ -1,0 +1,325 @@
+/* 기간 탭은 왼쪽, 작성 버튼은 오른쪽 끝. 한 줄로 읽히게 둡니다. */
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  flex-wrap: wrap;
+  margin-bottom: var(--s4);
+}
+
+.tabs {
+  display: flex;
+  gap: var(--s1);
+  padding: var(--s1);
+  border-radius: var(--r-pill);
+  background: var(--fill-2);
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.tab {
+  padding: 7px var(--s4);
+  border: 0;
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background var(--t-fast),
+    color var(--t-fast);
+
+  &:hover {
+    color: var(--ink);
+  }
+}
+
+.isActive {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--sh-1);
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s1);
+  padding: 11px var(--s5);
+  border-radius: var(--r-pill);
+  background: var(--blue);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: var(--sh-blue);
+  transition: background var(--t-fast);
+
+  &:hover {
+    background: var(--blue-press);
+  }
+}
+
+/* 제출 이력 — 기본은 한 주, "달력 더보기"를 누르면 같은 자리에 한 달입니다. */
+.week {
+  @include card;
+
+  padding: var(--s5);
+
+  @include md {
+    padding: var(--s4);
+  }
+}
+
+.weekHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  flex-wrap: wrap;
+}
+
+.range {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.014em;
+}
+
+.weekTools {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+}
+
+.iconBtn {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  cursor: pointer;
+  transition:
+    background var(--t-fast),
+    border-color var(--t-fast);
+
+  &:hover {
+    background: var(--blue-tint);
+    border-color: rgba(0, 122, 255, 0.28);
+  }
+}
+
+.thisWeek {
+  padding: 7px var(--s3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--fill-2);
+  }
+
+  &:disabled {
+    color: var(--muted-2);
+    cursor: default;
+  }
+}
+
+.more {
+  margin-left: var(--s2);
+  padding: 7px var(--s3);
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--blue-tint);
+  }
+}
+
+.strip {
+  margin-top: var(--s4);
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+  flex-wrap: wrap;
+  margin-top: var(--s4);
+  color: var(--muted);
+  font-size: 11px;
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+}
+
+/* 상태 점. 선택 칸은 배경이 파래져서 흰색으로 뒤집습니다. */
+.markDone,
+.markPending,
+.markDraft,
+.markMissing {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.markDone {
+  background: var(--green);
+}
+
+.markPending {
+  background: var(--blue);
+}
+
+.markDraft {
+  background: var(--muted-2);
+}
+
+.markMissing {
+  background: var(--orange);
+}
+
+.isOnBlue {
+  background: #fff;
+}
+
+/* 작성 리스트 */
+.listHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s3);
+  margin: var(--s7) 0 var(--s3);
+}
+
+.listTitle {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.rows {
+  @include card;
+
+  overflow: hidden;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto auto auto auto;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s3) var(--s4);
+
+  & + .row {
+    border-top: 1px solid var(--line);
+  }
+
+  // 좁아지면 보고 대상·날짜부터 접습니다. 제목과 상태가 남아야 합니다.
+  @include md {
+    grid-template-columns: 40px minmax(0, 1fr) auto auto;
+
+    .approver,
+    .date {
+      display: none;
+    }
+  }
+}
+
+.type {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 26px;
+  border-radius: var(--r-xs);
+  background: var(--fill);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.rowBody {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+
+  strong {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  span {
+    color: var(--muted);
+    font-size: 12px;
+  }
+}
+
+.approver,
+.date {
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.open {
+  padding: 5px var(--s3);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-sm);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &:hover {
+    background: var(--fill-2);
+  }
+}
+
+.count {
+  margin-top: var(--s3);
+  color: var(--muted);
+  font-size: 12px;
+  text-align: right;
+
+  b {
+    color: var(--ink-2);
+  }
+}
+
+.empty {
+  @include card;
+
+  padding: var(--s8) var(--s4);
+  text-align: center;
+  color: var(--muted);
+}
+
+.reset {
+  margin-top: var(--s3);
+  padding: 8px var(--s4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--ink-2);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--fill-2);
+  }
+}

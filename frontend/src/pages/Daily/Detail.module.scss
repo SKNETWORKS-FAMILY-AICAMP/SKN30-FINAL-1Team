@@ -1,0 +1,82 @@
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  flex-wrap: wrap;
+  margin-bottom: var(--s4);
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+
+  &:hover {
+    color: var(--blue);
+  }
+}
+
+.date {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.016em;
+  font-variant-numeric: tabular-nums;
+}
+
+.approver {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.rewrite {
+  margin-left: auto;
+  padding: 6px var(--s4);
+  border-radius: var(--r-pill);
+  background: var(--blue);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+
+  &:hover {
+    background: var(--blue-press);
+  }
+}
+
+.panels {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+}
+
+.panel {
+  @include card;
+
+  padding: var(--s5);
+
+  h2 {
+    margin-bottom: var(--s3);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  @include md {
+    padding: var(--s4);
+  }
+}
+
+.missing {
+  @include card;
+
+  padding: var(--s8) var(--s4);
+  text-align: center;
+  color: var(--muted);
+
+  a {
+    color: var(--blue);
+    font-weight: 600;
+  }
+}

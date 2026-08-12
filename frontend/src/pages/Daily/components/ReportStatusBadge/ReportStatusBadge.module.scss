@@ -1,0 +1,26 @@
+.badge {
+  @include tag-pill;
+
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.isDraft {
+  background: var(--blue-tint);
+  color: var(--blue);
+}
+
+.isPending {
+  background: var(--orange-tint);
+  color: var(--orange-ink);
+}
+
+.isDone {
+  background: var(--green-tint);
+  color: var(--green-ink);
+}
+
+.isRejected {
+  background: var(--red-tint);
+  color: var(--red-ink);
+}

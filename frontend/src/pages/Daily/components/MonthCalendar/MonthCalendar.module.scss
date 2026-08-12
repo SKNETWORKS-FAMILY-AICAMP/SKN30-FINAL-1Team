@@ -1,0 +1,84 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--s1);
+  margin-top: var(--s4);
+}
+
+.wd {
+  padding-bottom: var(--s1);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.isSun {
+  color: var(--red-ink);
+}
+
+.isSat {
+  color: var(--blue);
+}
+
+.cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  min-height: 62px;
+  padding: var(--s2);
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--fill-2);
+  }
+
+  @include md {
+    min-height: 52px;
+    padding: 5px;
+  }
+}
+
+// 앞뒤 달의 날짜는 자리만 지킵니다.
+.isOther {
+  opacity: 0.38;
+}
+
+.isToday {
+  box-shadow: inset 0 0 0 1.5px var(--blue);
+
+  .num {
+    color: var(--blue);
+  }
+}
+
+// drawer 가 열려 있는 칸. 어디를 보고 있는지 표시만 합니다.
+.isSelected {
+  border-color: var(--blue);
+  background: var(--blue-tint);
+}
+
+.num {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.cellTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.cellTag {
+  padding: 1px 5px;
+  border-radius: var(--r-xs);
+  background: var(--blue-tint);
+  color: var(--blue);
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}

@@ -1,3 +1,5 @@
+import type { ReportKind } from '@/content/types'
+
 // 화면 경로. 내비게이션 라벨은 navigation.ts 가 갖습니다.
 //
 // 아직 라우트를 정의하지 않은 경로는 App.tsx 의 catch-all 이 404 로 받습니다.
@@ -18,3 +20,21 @@ export const ROUTES = {
 } as const
 
 export type Route = (typeof ROUTES)[keyof typeof ROUTES]
+
+// 쿼리에 쓰는 종류 값. 기간 탭(?tab=)과 같은 어휘를 씁니다.
+const KIND_PARAM: Record<ReportKind, string> = { 일일: 'daily', 주간: 'weekly', 월간: 'monthly' }
+
+/**
+ * 업무보고 작성 화면. dateISO 를 주면 그날 보고서를, kind 를 주면 그 종류를 씁니다.
+ * 밀린 날짜를 소급 작성하는 경로도 이 하나를 씁니다.
+ */
+export const dailyComposePath = (dateISO?: string, kind: ReportKind = '일일') => {
+  const query = new URLSearchParams()
+  if (dateISO) query.set('date', dateISO)
+  if (kind !== '일일') query.set('kind', KIND_PARAM[kind])
+  const suffix = query.toString()
+  return suffix ? `${ROUTES.DAILY}/new?${suffix}` : `${ROUTES.DAILY}/new`
+}
+
+/** 제출된 보고서 상세 */
+export const dailyReportPath = (id: string) => `${ROUTES.DAILY}/${id}`

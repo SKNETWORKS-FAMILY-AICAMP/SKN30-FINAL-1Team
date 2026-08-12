@@ -73,6 +73,15 @@ export function fmtMonth(d: Date): string {
   return `${d.getFullYear()}년 ${d.getMonth() + 1}월`
 }
 
+/** 8월 9일 – 15일. 달을 넘으면 7월 30일 – 8월 5일 처럼 양쪽에 달을 붙입니다. */
+export function weekRangeLabel(days: Date[]): string {
+  const first = days[0]
+  const last = days[days.length - 1]
+  return first.getMonth() === last.getMonth()
+    ? `${first.getMonth() + 1}월 ${first.getDate()}일 – ${last.getDate()}일`
+    : `${first.getMonth() + 1}월 ${first.getDate()}일 – ${last.getMonth() + 1}월 ${last.getDate()}일`
+}
+
 // 모듈 로드 시 한 번만 정합니다. 데모 데이터의 offset 이 모두 이 기준입니다.
 export const TODAY = startOfDay(new Date())
 export const TODAY_ISO = iso(TODAY)

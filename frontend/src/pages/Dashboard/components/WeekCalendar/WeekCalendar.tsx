@@ -1,10 +1,9 @@
-import type { KeyboardEvent } from 'react'
-
 import Button from '@/components/Button'
 import { ChevronLeftIcon, ChevronRightIcon } from '@/components/icons'
+import WeekStrip from '@/components/WeekStrip'
 import { agendaFor } from '@/content/agenda'
 import { orders } from '@/content/orders'
-import { addDays, iso, parseISO, TODAY, TODAY_ISO, WD } from '@/utils/date'
+import { addDays, iso, TODAY, weekRangeLabel } from '@/utils/date'
 
 import styles from './WeekCalendar.module.scss'
 
@@ -21,14 +20,6 @@ const rangeStart = (offset: number) => addDays(TODAY, -2 + offset * 7)
 const rangeDays = (offset: number) =>
   Array.from({ length: 7 }, (_, i) => addDays(rangeStart(offset), i))
 
-function rangeLabel(days: Date[]) {
-  const [first] = days
-  const last = days[6]
-  return first.getMonth() === last.getMonth()
-    ? `${first.getMonth() + 1}월 ${first.getDate()}일 – ${last.getDate()}일`
-    : `${first.getMonth() + 1}월 ${first.getDate()}일 – ${last.getMonth() + 1}월 ${last.getDate()}일`
-}
-
 export default function WeekCalendar({
   weekOffset,
   selectedISO,
@@ -38,21 +29,23 @@ export default function WeekCalendar({
 }: Props) {
   const days = rangeDays(weekOffset)
 
-  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return
-    event.preventDefault()
+  // 선택 칸은 배경이 파랗게 차므로 점 색을 뒤집습니다.
+  const renderMarks = (dateISO: string, isSelected: boolean) => {
+    const meetings = agendaFor(dateISO).length
+    const deliveries = orders.filter((o) => o.expect === dateISO).length
+    const meetingCls = `${styles.dotMeeting} ${isSelected ? styles.isOnBlue : ''}`
+    const deliveryCls = `${styles.dotDelivery} ${isSelected ? styles.isOnBlue : ''}`
 
-    const step = event.key === 'ArrowRight' ? 1 : -1
-    const next = iso(addDays(parseISO(selectedISO), step))
-
-    // 보이는 주를 벗어나면 주를 따라 넘깁니다.
-    if (!days.map(iso).includes(next)) onWeekChange(weekOffset + step)
-    onSelect(next)
-
-    // 렌더 후 새 셀로 포커스를 옮깁니다.
-    requestAnimationFrame(() => {
-      document.querySelector<HTMLButtonElement>(`[data-iso="${next}"]`)?.focus()
-    })
+    return (
+      <>
+        {Array.from({ length: Math.min(meetings, 3) }, (_, i) => (
+          <i key={`m${i}`} className={meetingCls} />
+        ))}
+        {Array.from({ length: Math.min(deliveries, 2) }, (_, i) => (
+          <i key={`d${i}`} className={deliveryCls} />
+        ))}
+      </>
+    )
   }
 
   return (
@@ -60,7 +53,7 @@ export default function WeekCalendar({
       <div className={styles.head}>
         <div>
           <p className="eyebrow">Weekly plan</p>
-          <p className={`${styles.range} tnum`}>{rangeLabel(days)}</p>
+          <p className={`${styles.range} tnum`}>{weekRangeLabel(days)}</p>
         </div>
 
         <div className={styles.tools}>
@@ -94,55 +87,17 @@ export default function WeekCalendar({
         </div>
       </div>
 
-      <div className={styles.grid} role="tablist" aria-label="주간 일정" onKeyDown={onKeyDown}>
-        {days.map((d) => {
-          const key = iso(d)
-          const dow = d.getDay()
-          const isToday = key === TODAY_ISO
-          const isSelected = key === selectedISO
-          const meetings = agendaFor(key).length
-          const deliveries = orders.filter((o) => o.expect === key).length
-
-          const cls = [
-            styles.day,
-            isToday && styles.isToday,
-            isSelected && styles.isSelected,
-            dow === 0 && styles.isSun,
-            dow === 6 && styles.isSat,
-          ]
-            .filter(Boolean)
-            .join(' ')
-
-          return (
-            <button
-              key={key}
-              type="button"
-              role="tab"
-              className={cls}
-              data-iso={key}
-              aria-selected={isSelected}
-              tabIndex={isSelected ? 0 : -1}
-              onClick={() => onSelect(key)}
-            >
-              <span className={styles.wd}>
-                {WD[dow]}
-                {isToday && <em className={styles.todayTag}> · 오늘</em>}
-              </span>
-              <span className={`${styles.num} tnum`}>{String(d.getDate()).padStart(2, '0')}</span>
-              {d.getDate() === 1 && (
-                <span className={`${styles.month} tnum`}>{d.getMonth() + 1}월</span>
-              )}
-              <span className={styles.dots}>
-                {Array.from({ length: Math.min(meetings, 3) }, (_, i) => (
-                  <i key={`m${i}`} className={styles.dotMeeting} />
-                ))}
-                {Array.from({ length: Math.min(deliveries, 2) }, (_, i) => (
-                  <i key={`d${i}`} className={styles.dotDelivery} />
-                ))}
-              </span>
-            </button>
-          )
-        })}
+      <div className={styles.strip}>
+        <WeekStrip
+          days={days}
+          selectedISO={selectedISO}
+          onSelect={onSelect}
+          // 화살표로 보이는 주를 벗어나면 주를 따라 넘깁니다.
+          onOutOfRange={(next) => onWeekChange(weekOffset + (iso(days[0]) > next ? -1 : 1))}
+          renderMarks={renderMarks}
+          label="주간 일정"
+          notch
+        />
       </div>
     </article>
   )

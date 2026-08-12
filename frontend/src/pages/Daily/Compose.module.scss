@@ -1,0 +1,224 @@
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  flex-wrap: wrap;
+  margin-bottom: var(--s4);
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+
+  &:hover {
+    color: var(--blue);
+  }
+}
+
+.dateField {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+
+  span {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  input {
+    padding: 6px var(--s2);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    outline: none;
+
+    &:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px var(--blue-ring);
+    }
+  }
+}
+
+.template {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.headActions {
+  display: flex;
+  gap: var(--s2);
+  margin-left: auto;
+
+  @include md {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
+.saved,
+.locked {
+  margin-bottom: var(--s3);
+  padding: var(--s3) var(--s4);
+  border-radius: var(--r-md);
+  font-size: 13px;
+}
+
+.saved {
+  background: var(--green-tint);
+  color: var(--green-ink);
+}
+
+.locked {
+  background: var(--orange-tint);
+  color: var(--orange-ink);
+
+  a {
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
+
+/* 왼쪽 = 무엇을 근거로 쓰는지, 오른쪽 = 무엇을 낼지. */
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--s4);
+  align-items: start;
+
+  @include md {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+  min-width: 0;
+}
+
+.panel {
+  @include card;
+
+  padding: var(--s5);
+
+  @include md {
+    padding: var(--s4);
+  }
+}
+
+.panelHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+
+  h2 {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+}
+
+.pill {
+  @include tag-pill;
+
+  font-size: 11px;
+}
+
+.panelNote {
+  margin: var(--s2) 0 var(--s3);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* 작성 버튼 — 이 화면에서 상태를 바꾸는 유일한 자리라 따로 세웁니다. */
+.generate {
+  @include card;
+
+  padding: var(--s5);
+  text-align: center;
+  border-color: rgba(0, 122, 255, 0.28);
+}
+
+.basis {
+  margin-top: var(--s2);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.hint {
+  margin-top: var(--s1);
+  color: var(--orange-ink);
+  font-size: 12px;
+}
+
+.blank {
+  padding: var(--s8) var(--s4);
+  text-align: center;
+  border: 1px dashed var(--line-2);
+  border-radius: var(--r-md);
+  color: var(--ink-2);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.blankSub {
+  margin-top: var(--s1);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.approverField {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  span {
+    color: var(--ink-2);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  select {
+    width: 100%;
+    padding: 9px var(--s3);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    font-size: 13px;
+    outline: none;
+
+    &:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px var(--blue-ring);
+    }
+  }
+}
+
+.missing,
+.okay {
+  margin: var(--s3) 0;
+  font-size: 12px;
+}
+
+.missing {
+  color: var(--orange-ink);
+}
+
+.okay {
+  color: var(--green-ink);
+}
+
+.submit {
+  width: 100%;
+}

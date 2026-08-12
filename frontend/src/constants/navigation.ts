@@ -85,7 +85,16 @@ export const NAV_SECTIONS: NavSection[] = [
 
 const NAV_ITEMS = NAV_SECTIONS.flatMap((section) => section.items)
 
-/** 경로에 해당하는 화면 이름. 정의되지 않은 경로면 undefined. */
+/**
+ * 경로에 해당하는 화면 이름. 정의되지 않은 경로면 undefined.
+ *
+ * 하위 경로(예: /daily/new)는 부모 메뉴의 이름을 물려받습니다. 가장 긴 것부터 보므로
+ * 나중에 /daily 아래 별도 메뉴가 생겨도 그쪽이 먼저 잡힙니다.
+ * '/' 는 모든 경로의 접두사라 완전일치일 때만 씁니다.
+ */
 export function findNavLabel(pathname: string): string | undefined {
-  return NAV_ITEMS.find((item) => item.to === pathname)?.label
+  return [...NAV_ITEMS]
+    .sort((a, b) => b.to.length - a.to.length)
+    .find((item) => item.to === pathname || (item.to !== '/' && pathname.startsWith(`${item.to}/`)))
+    ?.label
 }
