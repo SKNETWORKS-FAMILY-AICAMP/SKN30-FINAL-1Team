@@ -203,7 +203,9 @@ export default function Compose() {
                 </p>
               )}
               {draft.staleAttachments && draft.phase === 'ready' && (
-                <p className={styles.hint}>새로 분석된 자료가 있습니다. 다시 작성하면 반영됩니다.</p>
+                <p className={styles.hint}>
+                  새로 분석된 자료가 있습니다. 다시 작성하면 반영됩니다.
+                </p>
               )}
             </div>
           )}

@@ -1,13 +1,6 @@
 // 업무 보고의 기간 탭. ?tab= 값과 화면 문구를 한 곳에서 봅니다.
 import type { DailyReport, ReportKind } from '@/content/types'
-import {
-  addDays,
-  fmtDay,
-  fmtMonth,
-  parseISO,
-  startOfWeek,
-  weekRangeLabel,
-} from '@/utils/date'
+import { addDays, fmtDay, fmtMonth, parseISO, startOfWeek, weekRangeLabel } from '@/utils/date'
 
 export const PERIODS = ['all', 'daily', 'weekly', 'monthly'] as const
 

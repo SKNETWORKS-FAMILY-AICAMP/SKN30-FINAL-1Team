@@ -87,8 +87,7 @@ export default function useDailyReports() {
 
   // 같은 날 주간보고가 있다고 해서 그날 일일보고를 낸 것으로 보면 안 됩니다.
   const findByDate = useCallback(
-    (dateISO: string, kind: ReportKind) =>
-      byDate.get(dateISO)?.find((r) => r.kind === kind),
+    (dateISO: string, kind: ReportKind) => byDate.get(dateISO)?.find((r) => r.kind === kind),
     [byDate],
   )
 
