@@ -1,0 +1,132 @@
+.bar {
+  margin-bottom: var(--s5);
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  flex-wrap: wrap;
+}
+
+.tabs {
+  display: flex;
+  gap: var(--s1);
+  padding: var(--s1);
+  border-radius: var(--r-pill);
+  background: var(--fill-2);
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.tab {
+  padding: 7px var(--s4);
+  border: 0;
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background var(--t-fast),
+    color var(--t-fast);
+
+  &:hover {
+    color: var(--ink);
+  }
+}
+
+.isActive {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--sh-1);
+}
+
+.export {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s1);
+  padding: 8px var(--s4);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--fill-2);
+  }
+}
+
+/* 기간 이동 — 라벨을 가운데 두고 좌우 화살표, 끝에 현재 기간 복귀 */
+.nav {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  margin-top: var(--s4);
+}
+
+.label {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s2);
+  flex-wrap: wrap;
+  margin: 0 var(--s2);
+
+  strong {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.016em;
+  }
+
+  span {
+    color: var(--muted);
+    font-size: 12px;
+  }
+}
+
+.iconBtn {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  cursor: pointer;
+  transition:
+    background var(--t-fast),
+    border-color var(--t-fast);
+
+  &:hover {
+    background: var(--blue-tint);
+    border-color: rgba(0, 122, 255, 0.28);
+  }
+}
+
+.reset {
+  margin-left: auto;
+  padding: 7px var(--s3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--fill-2);
+  }
+
+  &:disabled {
+    color: var(--muted-2);
+    cursor: default;
+  }
+}

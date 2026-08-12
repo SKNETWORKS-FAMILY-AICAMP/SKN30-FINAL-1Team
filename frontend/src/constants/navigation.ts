@@ -60,7 +60,7 @@ export const NAV_SECTIONS: NavSection[] = [
     items: [
       { to: ROUTES.CALENDAR, label: '캘린더', icon: CalendarIcon },
       { to: ROUTES.DAILY, label: '업무 보고', icon: DailyReportIcon },
-      { to: ROUTES.SALES, label: '매출 보고', icon: SalesReportIcon },
+      { to: ROUTES.SALES, label: '매출 분석', icon: SalesReportIcon },
     ],
   },
   {

@@ -41,6 +41,16 @@ export function monthMatrix(d: Date): Date[] {
   return Array.from({ length: 42 }, (_, i) => addDays(first, i))
 }
 
+/** 그 분기의 첫날. 1·4·7·10월 1일입니다. */
+export function startOfQuarter(d: Date): Date {
+  return new Date(d.getFullYear(), Math.floor(d.getMonth() / 3) * 3, 1)
+}
+
+// 다음 달 0일은 이번 달 말일입니다. 달마다 다른 일수를 직접 세지 않아도 됩니다.
+export function endOfMonth(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth() + 1, 0)
+}
+
 const pad = (n: number) => String(n).padStart(2, '0')
 
 /** 로컬 기준 YYYY-MM-DD. 날짜별 데이터를 묶는 키로 씁니다. */
@@ -71,6 +81,16 @@ export function fmtDay(d: Date): string {
 /** 2026년 8월 */
 export function fmtMonth(d: Date): string {
   return `${d.getFullYear()}년 ${d.getMonth() + 1}월`
+}
+
+/** 2026년 3분기 */
+export function fmtQuarter(d: Date): string {
+  return `${d.getFullYear()}년 ${Math.floor(d.getMonth() / 3) + 1}분기`
+}
+
+/** 2026년 하반기 */
+export function fmtHalf(d: Date): string {
+  return `${d.getFullYear()}년 ${d.getMonth() < 6 ? '상반기' : '하반기'}`
 }
 
 /** 8월 9일 – 15일. 달을 넘으면 7월 30일 – 8월 5일 처럼 양쪽에 달을 붙입니다. */

@@ -12,7 +12,7 @@ export const ROUTES = {
   CUSTOMERS: '/customers',
   CALENDAR: '/calendar',
   DAILY: '/daily', // 업무 보고
-  SALES: '/sales', // 매출 보고
+  SALES: '/sales', // 매출 분석
   CONTRACTS: '/contracts',
   ORDERS: '/orders',
   DOCUMENTS: '/documents',

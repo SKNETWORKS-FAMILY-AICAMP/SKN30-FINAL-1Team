@@ -1,0 +1,18 @@
+/* 왼쪽 계약 리스트가 넓고 오른쪽 목표 패널이 좁습니다.
+   목표 패널은 숫자 몇 줄과 막대 하나라서 더 넓어져도 읽을 것이 늘지 않습니다. */
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  gap: var(--s4);
+  align-items: start;
+
+  // 두 칸이 나란히 서기 어려워지면 목표 패널을 위로 올립니다.
+  // 좁은 화면에서는 "얼마 남았나"가 계약 목록보다 먼저 읽혀야 합니다.
+  @include lg {
+    grid-template-columns: minmax(0, 1fr);
+
+    > :last-child {
+      order: -1;
+    }
+  }
+}

@@ -10,6 +10,7 @@ import Daily, { DailyCompose, DailyDetail } from '@/pages/Daily'
 import Dashboard from '@/pages/Dashboard'
 import Login from '@/pages/Login'
 import NotFound from '@/pages/NotFound'
+import Sales from '@/pages/Sales'
 
 export default function App() {
   return (
@@ -34,6 +35,8 @@ export default function App() {
                 <Route path="history" element={<Navigate to={ROUTES.DAILY} replace />} />
                 <Route path=":reportId" element={<DailyDetail />} />
               </Route>
+
+              <Route path={ROUTES.SALES} element={<Sales />} />
 
               {/* 나머지 메뉴는 아직 라우트가 없어 여기로 떨어집니다.
                   화면을 구현하면 위에 <Route> 한 줄을 추가하세요. */}
