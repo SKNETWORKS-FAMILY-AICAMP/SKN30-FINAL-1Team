@@ -10,7 +10,7 @@ import type { CalendarEvent } from '@/content/types'
 const seedEvents: CalendarEvent[] = Object.values(agendaByDate).flat()
 
 /** 새 일정의 기본값. 인라인 추가는 제목만 받고 나머지는 여기서 채웁니다. */
-const DEFAULTS = { time: '09:00', dur: '1시간', kind: 'internal', done: false } as const
+export const DEFAULTS = { time: '09:00', dur: '1시간', kind: 'internal', done: false } as const
 
 // Date.now() 는 같은 밀리초 안에 두 번 부르면 같은 값이 나옵니다. id 가 겹치면
 // 드래그가 엉뚱한 일정을 옮기고 React 키도 중복되므로 증가하는 번호를 씁니다.

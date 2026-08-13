@@ -3,7 +3,7 @@ import { useState, type ReactNode } from 'react'
 import Button from '@/components/Button'
 import { TrashIcon } from '@/components/icons'
 import Modal from '@/components/Modal'
-import { KIND_LABEL } from '@/content/agenda'
+import { EXTERNAL_STATUSES, INTERNAL_STATUSES, KIND_LABEL } from '@/content/agenda'
 import type { AgendaKind, CalendarEvent } from '@/content/types'
 
 import styles from './EventModal.module.scss'
@@ -11,14 +11,16 @@ import styles from './EventModal.module.scss'
 interface Props {
   /** 열 때의 일정. 편집은 이 모달 안에서만 하고 저장할 때 한 번에 올립니다. */
   draft: CalendarEvent
+  /** 새로 만드는 중이면 지울 것이 아직 없어 삭제를 감춥니다. */
+  mode?: 'edit' | 'create'
   onClose: () => void
   onSave: (event: CalendarEvent) => void
-  onDelete: (id: string) => void
+  onDelete?: (id: string) => void
 }
 
 const KINDS = Object.keys(KIND_LABEL) as AgendaKind[]
 
-export default function EventModal({ draft, onClose, onSave, onDelete }: Props) {
+export default function EventModal({ draft, mode = 'edit', onClose, onSave, onDelete }: Props) {
   const [form, setForm] = useState<CalendarEvent>(draft)
   const [error, setError] = useState('')
 
@@ -35,20 +37,22 @@ export default function EventModal({ draft, onClose, onSave, onDelete }: Props) 
 
   return (
     <Modal
-      title="일정 수정"
+      title={mode === 'create' ? '일정 등록' : '일정 수정'}
       onClose={onClose}
       onSubmit={submit}
       footer={
         <>
-          <Button
-            type="button"
-            variant="ghost"
-            className={styles.delete}
-            onClick={() => onDelete(form.id)}
-          >
-            <TrashIcon width={15} height={15} />
-            삭제
-          </Button>
+          {onDelete && mode === 'edit' && (
+            <Button
+              type="button"
+              variant="ghost"
+              className={styles.delete}
+              onClick={() => onDelete(form.id)}
+            >
+              <TrashIcon width={15} height={15} />
+              삭제
+            </Button>
+          )}
           <Button type="button" variant="outline" onClick={onClose}>
             취소
           </Button>
@@ -84,6 +88,30 @@ export default function EventModal({ draft, onClose, onSave, onDelete }: Props) 
                 {KIND_LABEL[k]}
               </option>
             ))}
+          </select>
+        </Field>
+
+        {/* 상태는 외부(고객 대상)와 내부(사내)로 갈립니다. 목록의 태그 색이 이 값을 따릅니다. */}
+        <Field label="상태">
+          <select
+            value={form.stage ?? ''}
+            onChange={(e) => set('stage', (e.target.value || undefined) as CalendarEvent['stage'])}
+          >
+            <option value="">선택 안 함</option>
+            <optgroup label="외부">
+              {EXTERNAL_STATUSES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </optgroup>
+            <optgroup label="내부">
+              {INTERNAL_STATUSES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </optgroup>
           </select>
         </Field>
 

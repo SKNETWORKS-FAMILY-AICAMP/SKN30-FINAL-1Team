@@ -2,8 +2,10 @@ import { useCallback, useRef, useState } from 'react'
 
 import OrderDrawer from '@/components/OrderDrawer'
 import { orders } from '@/content/orders'
-import type { AgendaItem, PurchaseOrder } from '@/content/types'
+import type { AgendaItem, CalendarEvent, PurchaseOrder } from '@/content/types'
 import useMediaQuery from '@/hooks/useMediaQuery'
+import EventModal from '@/pages/Calendar/components/EventModal'
+import { DEFAULTS } from '@/pages/Calendar/useCalendarEvents'
 import { addDays, iso, TODAY, TODAY_ISO } from '@/utils/date'
 
 import DayAgenda from './components/DayAgenda'
@@ -29,6 +31,7 @@ const FLASH_MS = 1400
  * '목록으로' 가 생깁니다. 일정에서 바로 들어온 발주는 돌아갈 목록이 없습니다.
  */
 type OpenDrawer =
+  | { type: 'addEvent' }
   | { type: 'record'; item: AgendaItem }
   | { type: 'kpi'; key: KpiListKey }
   | { type: 'orders'; key: OrderFilterKey }
@@ -114,6 +117,7 @@ export default function Dashboard() {
         doneIds={doneIds}
         onToggleDone={toggleDone}
         onOpen={(item) => setOpen({ type: 'record', item })}
+        onAddSchedule={() => setOpen({ type: 'addEvent' })}
         flash={flash}
       />
 
@@ -121,6 +125,16 @@ export default function Dashboard() {
         onOpenList={(key) => setOpen({ type: 'orders', key })}
         onOpenOrder={(no) => openOrder(no)}
       />
+
+      {open?.type === 'addEvent' && (
+        <EventModal
+          mode="create"
+          draft={{ ...DEFAULTS, id: '', date: selectedISO, title: '' } satisfies CalendarEvent}
+          onClose={closeDrawer}
+          // 목업 단계라 저장하지 않습니다. 백엔드가 붙는 지점은 useCalendarEvents 입니다.
+          onSave={closeDrawer}
+        />
+      )}
 
       {open?.type === 'record' && (
         <RecordDrawer

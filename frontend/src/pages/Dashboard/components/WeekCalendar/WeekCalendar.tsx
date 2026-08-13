@@ -52,7 +52,7 @@ export default function WeekCalendar({
     <article className={styles.weekcal}>
       <div className={styles.head}>
         <div>
-          <p className="eyebrow">Weekly plan</p>
+          <p className={styles.eyebrow}>주간업무</p>
           <p className={`${styles.range} tnum`}>{weekRangeLabel(days)}</p>
         </div>
 

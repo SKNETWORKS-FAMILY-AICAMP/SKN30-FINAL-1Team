@@ -20,10 +20,7 @@ export default function PurchaseOrders({ onOpenList, onOpenOrder }: Props) {
   return (
     <article className={styles.po}>
       <div className={styles.head}>
-        <div>
-          <p className="eyebrow">Purchase order</p>
-          <h2>발주 진행 현황</h2>
-        </div>
+        <h2>발주 진행 현황</h2>
         <Link className={styles.link} to={ROUTES.ORDERS}>
           발주관리 전체 →
         </Link>

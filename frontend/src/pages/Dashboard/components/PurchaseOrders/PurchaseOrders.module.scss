@@ -9,9 +9,11 @@
   }
 }
 
+// 위에 있던 eyebrow 줄이 빠져 제목과 링크가 한 줄로 섭니다. flex-end 로 두면
+// 글자 크기가 달라 링크만 아래로 처집니다.
 .head {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   gap: var(--s4);
 

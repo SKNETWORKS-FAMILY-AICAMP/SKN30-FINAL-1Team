@@ -20,7 +20,9 @@
     background var(--t-fast),
     box-shadow var(--t-fast);
 
-  &:hover {
+  // 선택 칸은 제외합니다. :hover 가 .isSelected 보다 구체적이라 그냥 두면
+  // 파란 배경만 회색으로 덮이고 글자는 흰색으로 남아 읽히지 않습니다.
+  &:hover:not(.isSelected) {
     background: var(--fill-2);
   }
 
@@ -94,6 +96,10 @@
   .num,
   .month {
     color: #fff;
+  }
+
+  &:hover {
+    background: var(--blue-press);
   }
 }
 

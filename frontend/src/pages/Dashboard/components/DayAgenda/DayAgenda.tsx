@@ -1,8 +1,9 @@
 import { forwardRef } from 'react'
 
+import Button from '@/components/Button'
 import { CalendarIcon } from '@/components/icons'
-import { agendaFor, KIND_LABEL } from '@/content/agenda'
-import type { AgendaItem, AgendaKind } from '@/content/types'
+import { agendaFor, statusScope } from '@/content/agenda'
+import type { AgendaItem } from '@/content/types'
 import { fmtDay, parseISO, TODAY } from '@/utils/date'
 
 import styles from './DayAgenda.module.scss'
@@ -13,23 +14,16 @@ interface Props {
   doneIds: ReadonlySet<string>
   onToggleDone: (id: string) => void
   onOpen: (item: AgendaItem) => void
+  onAddSchedule: () => void
   /** 오늘 방문 회사 타일이 이 카드로 스크롤할 때 잠깐 켜집니다. */
   flash?: boolean
-}
-
-const KIND_TONE: Partial<Record<AgendaKind, string>> = {
-  visit: styles.kindBlue,
-  demo: styles.kindPurple,
-  booth: styles.kindPurple,
-  edu: styles.kindGreen,
-  delivery: styles.kindOrange,
 }
 
 const DAY = 86_400_000
 const RELATIVE: Record<string, string> = { '-1': '어제', '0': '오늘', '1': '내일' }
 
 const DayAgenda = forwardRef<HTMLElement, Props>(function DayAgenda(
-  { dateISO, doneIds, onToggleDone, onOpen, flash },
+  { dateISO, doneIds, onToggleDone, onOpen, onAddSchedule, flash },
   ref,
 ) {
   const list = agendaFor(dateISO)
@@ -45,6 +39,9 @@ const DayAgenda = forwardRef<HTMLElement, Props>(function DayAgenda(
             <i className={`${styles.pill} ${relative === '오늘' ? styles.now : ''}`}>{relative}</i>
           )}
         </h2>
+        <Button variant="outline" onClick={onAddSchedule}>
+          일정 추가
+        </Button>
       </div>
 
       {list.length === 0 ? (
@@ -95,15 +92,15 @@ const DayAgenda = forwardRef<HTMLElement, Props>(function DayAgenda(
 
                 <div className={styles.body}>
                   <div className={styles.metaRow}>
-                    <span className={`${styles.kind} ${KIND_TONE[it.kind] ?? ''}`}>
-                      {KIND_LABEL[it.kind]}
-                    </span>
-                    <i className={styles.pill}>{it.stage}</i>
-                    {it.tags.map((t) => (
-                      <i key={t} className={styles.pill}>
-                        {t}
-                      </i>
-                    ))}
+                    <i
+                      className={`${styles.pill} ${statusScope(it.stage) === '외부' ? styles.scopeExternal : ''}`}
+                    >
+                      {it.stage}
+                    </i>
+                    {/* 끝냈다고 표시했는데 보고를 아직 안 쓴 것만 드러냅니다. */}
+                    {done && !it.reported && (
+                      <i className={`${styles.pill} ${styles.needsReport}`}>보고서 미작성</i>
+                    )}
                   </div>
 
                   {/* 마우스는 줄 전체를 누르지만 키보드는 잡을 곳이 있어야 합니다.

@@ -8,7 +8,7 @@ import { Link } from 'react-router'
 
 import Button from '@/components/Button'
 import Drawer from '@/components/Drawer'
-import { KIND_LABEL } from '@/content/agenda'
+import { KIND_LABEL, statusScope } from '@/content/agenda'
 import { findOrderFor, orderItemLabel } from '@/content/orders'
 import type { AgendaItem, AgendaKind } from '@/content/types'
 import { dailyComposePath } from '@/constants/routes'
@@ -55,11 +55,20 @@ export default function RecordDrawer({ item, done, onToggleDone, onOpenOrder, on
           <span className={`${styles.kind} ${KIND_TONE[item.kind] ?? ''}`}>
             {KIND_LABEL[item.kind]}
           </span>
-          <i className={styles.pill}>{item.stage}</i>
+          <i
+            className={`${styles.pill} ${statusScope(item.stage) === '외부' ? styles.scopeExternal : ''}`}
+          >
+            {item.stage}
+          </i>
           <span className={styles.when}>
             {fmtDay(parseISO(item.date))} {item.time}
           </span>
-          {done && <i className={`${styles.pill} ${styles.good}`}>업무보고 완료</i>}
+          {/* 보고 여부는 완료 표시와 별개입니다. 끝냈는데 안 썼으면 그것만 말합니다. */}
+          {item.reported ? (
+            <i className={`${styles.pill} ${styles.good}`}>보고서 작성 완료</i>
+          ) : (
+            done && <i className={`${styles.pill} ${styles.needsReport}`}>보고서 미작성</i>
+          )}
         </>
       }
       footer={

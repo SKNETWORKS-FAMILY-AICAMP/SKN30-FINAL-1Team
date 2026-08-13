@@ -8,6 +8,17 @@
   color: var(--green-ink);
 }
 
+// DayAgenda 의 상태 알약과 같은 톤입니다. 목록에서 본 색이 여기서 바뀌면 안 됩니다.
+.scopeExternal {
+  background: var(--blue-tint);
+  color: var(--blue);
+}
+
+.needsReport {
+  background: var(--orange-tint);
+  color: var(--orange-ink);
+}
+
 .when {
   color: var(--muted);
   font-size: 12px;

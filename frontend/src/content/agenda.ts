@@ -2,7 +2,14 @@
 // 실제 병원·담당자·제품이 아닙니다.
 import { addDays, iso, TODAY } from '@/utils/date'
 
-import type { AgendaItem, AgendaKind, AgendaSeed } from './types'
+import type {
+  AgendaItem,
+  AgendaKind,
+  AgendaSeed,
+  ExternalStatus,
+  InternalStatus,
+  ScheduleStatus,
+} from './types'
 
 export const KIND_LABEL: Record<AgendaKind, string> = {
   visit: '방문',
@@ -12,6 +19,33 @@ export const KIND_LABEL: Record<AgendaKind, string> = {
   delivery: '납품',
   booth: '학회',
   internal: '내부',
+}
+
+/** 고객 대상 활동 */
+export const EXTERNAL_STATUSES: readonly ExternalStatus[] = [
+  '첫 전화',
+  '미팅',
+  '데모 요청',
+  '데모 진행',
+  '데모 완료',
+  '견적완료',
+  '계약완료',
+  '제품교육',
+]
+
+/** 사내 활동 */
+export const INTERNAL_STATUSES: readonly InternalStatus[] = [
+  '내부회의',
+  '주간점검',
+  '월간점검',
+  '분기점검',
+  '컨퍼런스',
+  'OJT',
+]
+
+/** 상태가 어느 계열인지. 태그 색이 여기서 갈립니다. */
+export function statusScope(status: ScheduleStatus): '내부' | '외부' {
+  return (INTERNAL_STATUSES as readonly ScheduleStatus[]).includes(status) ? '내부' : '외부'
 }
 
 const agendaSeed: AgendaSeed[] = [
@@ -25,7 +59,7 @@ const agendaSeed: AgendaSeed[] = [
     dept: '순환기내과',
     contact: '박서준 교수',
     product: 'CardioView X7',
-    stage: '계약 협의',
+    stage: '견적완료',
     place: '본관 3층 회의실',
     title: 'CardioView X7 도입 후속 미팅',
     brief:
@@ -42,6 +76,7 @@ const agendaSeed: AgendaSeed[] = [
     ],
     tags: ['우선순위 높음', '견적 검토중'],
     done: true,
+    reported: true,
   },
   {
     id: 'a2',
@@ -53,7 +88,7 @@ const agendaSeed: AgendaSeed[] = [
     dept: '원무팀',
     contact: '오정민 병원장',
     product: 'SonoFlex Pro',
-    stage: '후속 필요',
+    stage: '견적완료',
     place: '전화',
     title: '견적 회신 지연 건 후속 통화',
     brief:
@@ -64,6 +99,7 @@ const agendaSeed: AgendaSeed[] = [
     ],
     tags: ['후속 지연'],
     done: false,
+    reported: false,
   },
   {
     id: 'a3',
@@ -75,7 +111,7 @@ const agendaSeed: AgendaSeed[] = [
     dept: '영상의학과',
     contact: '윤가영 간호팀장',
     product: 'OrthoScan Mini',
-    stage: '제품 데모',
+    stage: '데모 진행',
     place: '교육실',
     title: '프로브 3종 비교 시연',
     brief:
@@ -86,6 +122,7 @@ const agendaSeed: AgendaSeed[] = [
     ],
     tags: ['장비 반출'],
     done: false,
+    reported: false,
   },
   {
     id: 'a4',
@@ -97,13 +134,14 @@ const agendaSeed: AgendaSeed[] = [
     dept: '내부 회의',
     contact: '김서현 팀장',
     product: '—',
-    stage: '주간 점검',
+    stage: '주간점검',
     place: '본사 회의실 B',
     title: '주간 파이프라인 점검',
     brief: '8월 확정 매출 진척과 리스크 딜 2건을 공유합니다. 일일보고서 미작성 3건을 마감합니다.',
     history: [{ when: '지난 주', what: '리스크 딜로 새봄정형외과와 정우병원을 지정했습니다.' }],
     tags: [],
     done: false,
+    reported: false,
   },
   {
     id: 'a5',
@@ -115,13 +153,14 @@ const agendaSeed: AgendaSeed[] = [
     dept: '전시 부스',
     contact: '부스 3-A',
     product: 'CardioView X7',
-    stage: '리드 수집',
+    stage: '컨퍼런스',
     place: '코엑스 C홀',
     title: '학술대회 부스 운영 1일차',
     brief: 'CardioView X7 실물 전시와 상담을 진행합니다. 리드 카드는 당일 저녁에 CRM으로 옮깁니다.',
     history: [{ when: '2주 전', what: '부스 위치와 전시 장비 반출 일정을 확정했습니다.' }],
     tags: ['리드 수집'],
     done: true,
+    reported: false,
   },
   {
     id: 'a6',
@@ -133,7 +172,7 @@ const agendaSeed: AgendaSeed[] = [
     dept: '구매팀',
     contact: '최수아 책임',
     product: 'OrthoScan Mini',
-    stage: '초기 접촉',
+    stage: '미팅',
     place: '학회장 미팅룸',
     title: '학회 현장 구매 담당자 면담',
     brief:
@@ -141,6 +180,7 @@ const agendaSeed: AgendaSeed[] = [
     history: [{ when: '1개월 전', what: '첫 콜드 콜에서 하반기 검토 의향을 확인했습니다.' }],
     tags: [],
     done: true,
+    reported: true,
   },
   {
     id: 'a7',
@@ -152,7 +192,7 @@ const agendaSeed: AgendaSeed[] = [
     dept: '원무팀',
     contact: '오정민 병원장',
     product: 'SonoFlex Pro',
-    stage: '납품 입회',
+    stage: '계약완료',
     place: '1층 처치실',
     title: 'SonoFlex Pro 납품 입회',
     brief:
@@ -160,6 +200,7 @@ const agendaSeed: AgendaSeed[] = [
     history: [{ when: '9일 전', what: '본사 생산팀으로 발주를 등록했습니다.' }],
     tags: ['입회 필요'],
     done: false,
+    reported: false,
   },
   {
     id: 'a8',
@@ -171,7 +212,7 @@ const agendaSeed: AgendaSeed[] = [
     dept: '영상의학과',
     contact: '윤가영 간호팀장',
     product: 'OrthoScan Mini',
-    stage: '사용 교육',
+    stage: '제품교육',
     place: '교육실',
     title: 'OrthoScan Mini 사용 교육 1회차',
     brief:
@@ -179,6 +220,7 @@ const agendaSeed: AgendaSeed[] = [
     history: [{ when: '2일 후 예정', what: '데모 결과에 따라 교육 범위를 조정합니다.' }],
     tags: [],
     done: false,
+    reported: false,
   },
   {
     id: 'a9',
@@ -190,13 +232,14 @@ const agendaSeed: AgendaSeed[] = [
     dept: '구매팀',
     contact: '이도현 과장',
     product: 'CardioView X7',
-    stage: '계약 협의',
+    stage: '계약완료',
     place: '본관 2층',
     title: 'CardioView X7 계약 조건 협의',
     brief: '발주 FM-PO-2026-0020의 분할 납품 2차 일정과 계약 조건을 함께 정리합니다.',
     history: [{ when: '13일 전', what: '1차 분할 납품분을 발주했습니다.' }],
     tags: [],
     done: false,
+    reported: false,
   },
   {
     id: 'a10',
@@ -208,7 +251,7 @@ const agendaSeed: AgendaSeed[] = [
     dept: '순환기내과',
     contact: '박서준 교수',
     product: 'CardioView X7',
-    stage: '제품 테스트',
+    stage: '데모 완료',
     place: '본관 3층',
     title: 'CardioView X7 제품 테스트',
     brief:
@@ -216,6 +259,7 @@ const agendaSeed: AgendaSeed[] = [
     history: [{ when: '당일', what: '테스트 결과를 정리해 브리핑에 반영했습니다.' }],
     tags: [],
     done: true,
+    reported: false,
   },
   {
     id: 'a11',
@@ -227,7 +271,7 @@ const agendaSeed: AgendaSeed[] = [
     dept: '구매팀',
     contact: '최수아 책임',
     product: 'OrthoScan Mini',
-    stage: '제품 데모',
+    stage: '데모 요청',
     place: '회의실',
     title: 'OrthoScan Mini 본원 데모',
     brief:
@@ -235,6 +279,7 @@ const agendaSeed: AgendaSeed[] = [
     history: [{ when: '학회 당일', what: '구매 담당자와 첫 면담을 진행했습니다.' }],
     tags: [],
     done: false,
+    reported: false,
   },
 ]
 
