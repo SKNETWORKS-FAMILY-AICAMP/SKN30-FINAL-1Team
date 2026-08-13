@@ -58,6 +58,31 @@
   }
 }
 
+/**
+ * 누르면 상세가 열리는 줄. 배경은 위의 tbody tr:hover 와 고정 열용 보정이
+ * 이미 맡고 있어 여기서는 손가락만 바꿉니다. 색을 새로 넣으면 두 곳이 어긋납니다.
+ */
+.clickable {
+  cursor: pointer;
+}
+
+/**
+ * 이름 칸의 키보드용 손잡이입니다. 누를 곳은 줄 전체이므로 이름에는 단서를
+ * 붙이지 않습니다. 밑줄을 그으면 이름만 눌리는 것처럼 보입니다.
+ */
+.openButton {
+  display: block;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
 /* 선택된 행. 왼쪽 파란 획은 demo 의 .customer-row.active 와 같은 언어입니다. */
 .isSelected td {
   background: var(--blue-tint) !important;

@@ -29,6 +29,8 @@ interface Props {
   onOpen: (no: string) => void
   onGrab: (event: ReactPointerEvent, contract: BoardContract) => void
   onNudge: (no: string, delta: -1 | 1) => void
+  onEditCard: (no: string) => void
+  onDeleteCard: (no: string) => void
   onAddCard: (columnId: string) => void
   onRename: (id: string, name: string) => void
   onRecolor: (id: string, tone: ColumnTone) => void
@@ -45,6 +47,8 @@ export default function StageColumn({
   onOpen,
   onGrab,
   onNudge,
+  onEditCard,
+  onDeleteCard,
   onAddCard,
   onRename,
   onRecolor,
@@ -94,6 +98,8 @@ export default function StageColumn({
                 onOpen={onOpen}
                 onGrab={onGrab}
                 onNudge={onNudge}
+                onEdit={onEditCard}
+                onDelete={onDeleteCard}
               />
             </li>
           )

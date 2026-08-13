@@ -1,0 +1,105 @@
+.root {
+  position: relative;
+  flex: none;
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s2);
+  min-width: 100px;
+  padding: 9px 10px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover,
+  &.isOpen {
+    border-color: var(--blue);
+  }
+
+  &.isOpen {
+    box-shadow: 0 0 0 3px var(--blue-ring);
+  }
+
+  &:active {
+    transform: none;
+  }
+}
+
+.chevron {
+  flex: none;
+  color: var(--muted);
+  transition: transform var(--t-fast) var(--ease-out);
+}
+
+.isOpen .chevron {
+  color: var(--blue);
+  transform: rotate(180deg);
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + var(--s1));
+  left: 0;
+  z-index: 30;
+  min-width: 100%;
+  width: max-content;
+  padding: var(--s1);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  box-shadow: var(--sh-pop);
+  animation: appear var(--t-fast) var(--ease-out);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s4);
+  width: 100%;
+  padding: 7px var(--s2);
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:active {
+    transform: none;
+  }
+}
+
+.isActive:not(.isSelected) {
+  background: var(--blue-tint);
+  color: var(--blue);
+}
+
+.isSelected {
+  background: var(--blue);
+  color: var(--surface);
+}
+
+.check {
+  flex: 0 0 14px;
+}
+
+.isHidden {
+  visibility: hidden;
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+}

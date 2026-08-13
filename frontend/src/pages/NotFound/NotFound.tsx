@@ -24,9 +24,7 @@ export default function NotFound() {
       <p className={styles.eyebrow}>404</p>
       <h1 className={styles.title}>{plannedLabel ?? '페이지를 찾을 수 없습니다'}</h1>
       <p className={styles.copy}>
-        {plannedLabel
-          ? '아직 만들지 않은 화면입니다.'
-          : `${pathname} 경로에 해당하는 화면이 없습니다.`}
+        해당하는 화면이 없습니다.
       </p>
       <Button variant="outline" onClick={() => void navigate(ROUTES.DASHBOARD)}>
         대시보드로 돌아가기

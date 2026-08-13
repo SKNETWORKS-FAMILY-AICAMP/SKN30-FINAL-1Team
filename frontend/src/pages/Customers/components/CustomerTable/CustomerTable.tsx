@@ -25,6 +25,8 @@ interface CustomerTableProps {
   selected: ReadonlySet<string>
   onToggleRow: (id: string) => void
   onTogglePage: () => void
+  /** 줄을 누르면 그 고객의 상세 드로어가 섭니다. */
+  onOpen: (id: string) => void
   isFiltered: boolean
   hasAnyData: boolean
   onClearFilters: () => void
@@ -41,6 +43,7 @@ export default function CustomerTable({
   selected,
   onToggleRow,
   onTogglePage,
+  onOpen,
   isFiltered,
   hasAnyData,
   onClearFilters,
@@ -95,11 +98,15 @@ export default function CustomerTable({
     return (
       <ul className={styles.cardList}>
         {rows.map((row) => (
+          // 카드 어디를 눌러도 상세가 열립니다. 체크박스는 할 일이 따로 있어 막습니다.
           <li
             key={row.id}
-            className={`${styles.miniCard} ${selected.has(row.id) ? styles.isSelected : ''}`}
+            className={`${styles.miniCard} ${styles.clickable} ${
+              selected.has(row.id) ? styles.isSelected : ''
+            }`}
+            onClick={() => onOpen(row.id)}
           >
-            <label className={styles.miniCheck}>
+            <label className={styles.miniCheck} onClick={(event) => event.stopPropagation()}>
               <input
                 type="checkbox"
                 checked={selected.has(row.id)}
@@ -108,7 +115,18 @@ export default function CustomerTable({
               <span className="sr-only">{row.name} 선택</span>
             </label>
             <div className={styles.miniBody}>
-              <p className={styles.miniName}>{row.name}</p>
+              <p className={styles.miniName}>
+                <button
+                  type="button"
+                  className={styles.openButton}
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    onOpen(row.id)
+                  }}
+                >
+                  {row.name}
+                </button>
+              </p>
               {/* 직함이 비면 가운뎃점만 덩그러니 남습니다. */}
               <p className={styles.miniOrg}>{[row.org, row.title].filter(Boolean).join(' · ')}</p>
               <div className={styles.miniMeta}>
@@ -199,8 +217,15 @@ export default function CustomerTable({
             {rows.map((row) => {
               const isSelected = selected.has(row.id)
               return (
-                <tr key={row.id} className={isSelected ? styles.isSelected : undefined}>
-                  <td className={`${styles.checkCell} ${styles.stickyCheck}`}>
+                <tr
+                  key={row.id}
+                  className={`${styles.clickable} ${isSelected ? styles.isSelected : ''}`}
+                  onClick={() => onOpen(row.id)}
+                >
+                  <td
+                    className={`${styles.checkCell} ${styles.stickyCheck}`}
+                    onClick={(event) => event.stopPropagation()}
+                  >
                     <input
                       type="checkbox"
                       checked={isSelected}
@@ -209,20 +234,38 @@ export default function CustomerTable({
                     />
                   </td>
 
-                  {columns.map((col) => (
-                    <td
-                      key={col.id}
-                      className={col.fixed ? styles.stickyName : undefined}
-                      style={
-                        col.fixed
-                          ? ({ '--sticky-left': `${CHECK_W}px` } as CSSProperties)
-                          : undefined
-                      }
-                      title={col.value(row)}
-                    >
-                      {col.render ? col.render(row) : col.value(row)}
-                    </td>
-                  ))}
+                  {columns.map((col) => {
+                    const cell = col.render ? col.render(row) : col.value(row)
+                    return (
+                      <td
+                        key={col.id}
+                        className={col.fixed ? styles.stickyName : undefined}
+                        style={
+                          col.fixed
+                            ? ({ '--sticky-left': `${CHECK_W}px` } as CSSProperties)
+                            : undefined
+                        }
+                        title={col.value(row)}
+                      >
+                        {/* 줄 전체를 누르지만 tr 은 키보드로 못 잡습니다. 고정된 이름
+                            열이 그 손잡이이고, 하는 일은 줄을 누른 것과 같습니다. */}
+                        {col.fixed ? (
+                          <button
+                            type="button"
+                            className={styles.openButton}
+                            onClick={(event) => {
+                              event.stopPropagation()
+                              onOpen(row.id)
+                            }}
+                          >
+                            {cell}
+                          </button>
+                        ) : (
+                          cell
+                        )}
+                      </td>
+                    )
+                  })}
                 </tr>
               )
             })}

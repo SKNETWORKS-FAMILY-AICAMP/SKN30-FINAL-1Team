@@ -9,7 +9,7 @@ import { ChevronRightIcon, CloseIcon } from '@/components/icons'
 import { dailyComposePath, dailyReportPath } from '@/constants/routes'
 import { agendaFor } from '@/content/agenda'
 import { templateFor } from '@/content/reports'
-import type { DailyReport } from '@/content/types'
+import type { DailyReport, ReportKind } from '@/content/types'
 import { fmtDot, parseISO, TODAY_ISO } from '@/utils/date'
 
 import ReportStatusBadge from '../ReportStatusBadge'
@@ -21,6 +21,8 @@ interface Props {
   dateISO: string
   /** 그날 제출된 보고서. 하루에 일일과 주간이 겹칠 수 있어 배열입니다. */
   reports: DailyReport[]
+  /** 지금 보고 있는 기간 탭의 종류. 작성 화면을 그 양식으로 열어야 합니다. */
+  kind: ReportKind
   onClose: () => void
 }
 
@@ -30,7 +32,7 @@ function summaryOf(report: DailyReport): string {
   return report.values[first.id]?.trim() ?? ''
 }
 
-export default function ReportDrawer({ dateISO, reports, onClose }: Props) {
+export default function ReportDrawer({ dateISO, reports, kind, onClose }: Props) {
   const bodyRef = useRef<HTMLDivElement>(null)
   const titleId = useId()
 
@@ -93,8 +95,8 @@ export default function ReportDrawer({ dateISO, reports, onClose }: Props) {
               </p>
 
               {!isFuture && (
-                <Link className={styles.cta} to={dailyComposePath(dateISO)}>
-                  이 날짜로 작성하기
+                <Link className={styles.cta} to={dailyComposePath(dateISO, kind)}>
+                  이 날짜로 {kind}보고서 작성하기
                   <ChevronRightIcon />
                 </Link>
               )}

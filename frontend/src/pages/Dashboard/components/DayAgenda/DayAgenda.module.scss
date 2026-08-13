@@ -60,6 +60,12 @@
   gap: var(--s3);
   margin: 0 calc(var(--s5) * -1);
   padding: var(--s4) var(--s5);
+  cursor: pointer;
+  transition: background var(--t-fast);
+
+  &:hover {
+    background: var(--fill-2);
+  }
 
   // 구분선을 카드 가장자리까지 흘리지 않고 본문 블록 안으로 들입니다.
   // 체크·레일 열을 가로지르지 않으면서 행을 나눕니다.
@@ -218,6 +224,19 @@
   font-size: 17px;
   font-weight: 700;
   letter-spacing: -0.016em;
+}
+
+// 키보드용 손잡이입니다. 누를 곳은 줄 전체이므로 이름에는 단서를 붙이지
+// 않습니다. 밑줄을 그으면 이름만 눌리는 것처럼 보입니다.
+.open {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 
 .who {

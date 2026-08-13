@@ -2,7 +2,7 @@ import { forwardRef } from 'react'
 
 import { CalendarIcon } from '@/components/icons'
 import { agendaFor, KIND_LABEL } from '@/content/agenda'
-import type { AgendaKind } from '@/content/types'
+import type { AgendaItem, AgendaKind } from '@/content/types'
 import { fmtDay, parseISO, TODAY } from '@/utils/date'
 
 import styles from './DayAgenda.module.scss'
@@ -12,6 +12,7 @@ interface Props {
   /** 완료 표시한 일정 id. 메모리에만 있고 저장하지 않습니다. */
   doneIds: ReadonlySet<string>
   onToggleDone: (id: string) => void
+  onOpen: (item: AgendaItem) => void
   /** 오늘 방문 회사 타일이 이 카드로 스크롤할 때 잠깐 켜집니다. */
   flash?: boolean
 }
@@ -28,7 +29,7 @@ const DAY = 86_400_000
 const RELATIVE: Record<string, string> = { '-1': '어제', '0': '오늘', '1': '내일' }
 
 const DayAgenda = forwardRef<HTMLElement, Props>(function DayAgenda(
-  { dateISO, doneIds, onToggleDone, flash },
+  { dateISO, doneIds, onToggleDone, onOpen, flash },
   ref,
 ) {
   const list = agendaFor(dateISO)
@@ -56,13 +57,22 @@ const DayAgenda = forwardRef<HTMLElement, Props>(function DayAgenda(
           {list.map((it) => {
             const done = doneIds.has(it.id)
             return (
-              <article key={it.id} className={`${styles.item} ${done ? styles.isDone : ''}`}>
+              // 줄 어디를 눌러도 상세가 열립니다. 안쪽 버튼들은 각자 할 일이
+              // 따로 있어 여기까지 올라오지 않게 막습니다.
+              <article
+                key={it.id}
+                className={`${styles.item} ${done ? styles.isDone : ''}`}
+                onClick={() => onOpen(it)}
+              >
                 <button
                   type="button"
                   className={styles.check}
                   aria-pressed={done}
                   aria-label={`${it.hospital} ${it.title} 완료 표시`}
-                  onClick={() => onToggleDone(it.id)}
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    onToggleDone(it.id)
+                  }}
                 >
                   <svg
                     width="13"
@@ -96,8 +106,19 @@ const DayAgenda = forwardRef<HTMLElement, Props>(function DayAgenda(
                     ))}
                   </div>
 
+                  {/* 마우스는 줄 전체를 누르지만 키보드는 잡을 곳이 있어야 합니다.
+                      회사 이름이 그 자리이고, 하는 일은 줄을 누른 것과 같습니다. */}
                   <h3 className={styles.org}>
-                    {it.hospital}
+                    <button
+                      type="button"
+                      className={styles.open}
+                      onClick={(event) => {
+                        event.stopPropagation()
+                        onOpen(it)
+                      }}
+                    >
+                      {it.hospital}
+                    </button>
                     <span className={styles.who}>
                       {it.dept} · {it.contact}
                     </span>

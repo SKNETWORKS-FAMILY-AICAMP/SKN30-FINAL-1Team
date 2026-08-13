@@ -18,6 +18,8 @@
   }
 }
 
+// 타일은 전부 버튼입니다. 셋은 목록 드로어를 열고, '오늘 방문 회사'만
+// 아젠다로 내려보냅니다.
 .kpi {
   @include card;
 
@@ -27,24 +29,6 @@
   text-align: left;
   font: inherit;
   color: inherit;
-
-  strong {
-    display: block;
-    margin: 6px 0 2px;
-    font-size: 26px;
-    font-weight: 700;
-    letter-spacing: -0.022em;
-  }
-
-  small {
-    font-size: 11px;
-    color: var(--muted);
-  }
-}
-
-// 지금 클릭이 살아 있는 타일은 이것뿐이라 hover 단서도 여기만 붙입니다.
-// 나머지는 눌러도 할 일이 없어 버튼이 아닙니다.
-.jump {
   cursor: pointer;
   transition:
     border-color var(--t-fast),
@@ -62,6 +46,22 @@
     transform: scale(0.99);
   }
 
+  strong {
+    display: block;
+    margin: 6px 0 2px;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.022em;
+  }
+
+  small {
+    font-size: 11px;
+    color: var(--muted);
+  }
+}
+
+// 이 타일만 아래로 내려보내므로 화살표 단서도 여기만 움직입니다.
+.jump {
   &:hover .cue {
     color: var(--blue);
     transform: translateY(2px);

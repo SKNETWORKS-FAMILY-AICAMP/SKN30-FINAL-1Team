@@ -4,6 +4,8 @@
   flex-direction: column;
   flex: 0 0 288px;
   max-height: 100%;
+  // 가로 스크롤이 컬럼 경계에 섭니다. 반쯤 잘린 컬럼에서 멈추지 않습니다.
+  scroll-snap-align: start;
   padding: var(--s3);
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
