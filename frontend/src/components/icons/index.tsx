@@ -229,6 +229,14 @@ export function ColumnsIcon(props: IconProps) {
   )
 }
 
+export function ListIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01" />
+    </Icon>
+  )
+}
+
 export function PlusIcon(props: IconProps) {
   return (
     <Icon strokeWidth={2.2} {...props}>

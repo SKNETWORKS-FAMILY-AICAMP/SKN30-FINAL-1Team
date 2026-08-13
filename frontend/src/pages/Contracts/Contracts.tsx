@@ -1,33 +1,30 @@
-// 계약 현황 보드. 컬럼은 영업 단계이고 카드 한 장이 계약 한 건입니다.
+// 계약 목록. 같은 계약을 보드(/contracts/board)에서는 단계별 칸으로 봅니다.
 //
-// 카드를 끄는 동안 목록을 실제로 바꾸지 않습니다. 놓을 자리를 선으로만 알리고,
-// 손을 뗄 때 한 번만 옮깁니다. 끌면서 목록이 계속 재배치되면 어디에 놓이는지
-// 오히려 알기 어렵습니다.
-import {
-  useCallback,
-  useDeferredValue,
-  useMemo,
-  useState,
-  type PointerEvent as ReactPointerEvent,
-} from 'react'
-import { useSearchParams } from 'react-router'
+// 조건은 주소에 둡니다(q·owner·range·stage). 목록을 걸러 둔 채로 링크를 건네면
+// 받는 쪽도 같은 화면을 봅니다. 정렬과 페이지는 보는 사람 사정이라 주소에 남기지 않습니다.
+import { useCallback, useDeferredValue, useMemo, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router'
 
 import Button from '@/components/Button'
-import Modal from '@/components/Modal'
 import { PlusIcon, SearchIcon } from '@/components/icons'
-import usePointerDrag from '@/hooks/usePointerDrag'
+import Modal from '@/components/Modal'
+import Pagination from '@/components/Pagination'
+import { contractNewPath } from '@/constants/routes'
 import { addDays, iso, TODAY } from '@/utils/date'
 
-import { DROP_ATTR, OWNERS, parseSlot, TONES, type BoardContract } from './board'
+import { OWNERS, type BoardContract } from './board'
+import { compareBy, type SortState } from './columns'
 import ContractDrawer from './components/ContractDrawer'
-import FilterSelect from './components/FilterSelect'
 import ContractForm from './components/ContractForm'
-import StageColumn from './components/StageColumn'
+import ContractTable from './components/ContractTable'
+import FilterSelect from './components/FilterSelect'
+import StageTabs from './components/StageTabs'
+import ViewToggle from './components/ViewToggle'
 import useContractBoard from './useContractBoard'
 
 import styles from './Contracts.module.scss'
 
-/** 기간 선택지. 값이 개월 수이고 0 이면 전체입니다. */
+/** 기간 선택지. 값이 개월 수이고 0 이면 전체입니다. 보드와 같은 어휘를 씁니다. */
 const RANGES = [
   { value: '3', label: '최근 3개월' },
   { value: '6', label: '최근 6개월' },
@@ -40,55 +37,39 @@ const OWNER_OPTIONS = [
   ...OWNERS.map((name) => ({ value: name, label: name })),
 ]
 
-/** 기본 기간. 확정 계약이 2년치라 전부 펼치면 확정 컬럼만 길어집니다. */
+/** 기본 기간. 확정 계약이 2년치라 전부 펼치면 목록이 지나치게 길어집니다. */
 const DEFAULT_RANGE = '6'
 
-/** 손끝에 붙어 다니는 조각이 알아야 하는 것 */
-interface CardDrag {
-  no: string
-  label: string
-}
-
 export default function Contracts() {
-  const {
-    columns,
-    byColumn,
-    findContract,
-    moveCard,
-    addContract,
-    updateContract,
-    removeContract,
-    renameColumn,
-    recolorColumn,
-    addColumn,
-    removeColumn,
-  } = useContractBoard()
+  const { columns, cards, findContract, updateContract, removeContract } = useContractBoard()
+  const navigate = useNavigate()
 
   const [params, setParams] = useSearchParams()
   const query = params.get('q') ?? ''
   const owner = params.get('owner') ?? ''
   const range = params.get('range') ?? DEFAULT_RANGE
+  const stage = params.get('stage') ?? ''
 
   // 타이핑 중에도 입력이 밀리지 않도록 목록 계산만 한 박자 늦춥니다.
   const deferredQuery = useDeferredValue(query)
 
+  const [sort, setSort] = useState<SortState>(null)
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(25)
   const [openNo, setOpenNo] = useState<string | null>(null)
-  const [addingTo, setAddingTo] = useState<string | null>(null)
   const [editingNo, setEditingNo] = useState<string | null>(null)
   const [deletingNo, setDeletingNo] = useState<string | null>(null)
   const [openFilter, setOpenFilter] = useState<'owner' | 'range' | null>(null)
-  // 새 컬럼을 어느 컬럼 오른쪽에 넣을지. null 이면 입력칸이 닫힌 상태이고,
-  // 빈 문자열이면 보드 맨 끝입니다.
-  const [newColumnAfter, setNewColumnAfter] = useState<string | null>(null)
-  const [newColumnName, setNewColumnName] = useState('')
 
   // 기본값은 쿼리에서 지웁니다. 주소를 복사했을 때 조건이 그대로 살아나되 짧게 남습니다.
+  // 조건이 바뀌면 첫 페이지로 돌아옵니다. 3페이지에 있다가 결과가 줄면 빈 화면을 봅니다.
   const setParam = useCallback(
     (key: string, value: string, fallback = '') => {
       const next = new URLSearchParams(params)
       if (value === fallback) next.delete(key)
       else next.set(key, value)
       setParams(next, { replace: true })
+      setPage(1)
     },
     [params, setParams],
   )
@@ -99,84 +80,63 @@ export default function Contracts() {
     return iso(addDays(TODAY, -Math.round(months * 30.4)))
   }, [range])
 
-  const matches = useCallback(
-    (card: BoardContract) => {
+  // 단계를 뺀 나머지 조건까지만 거른 목록입니다. 탭의 건수를 여기서 셉니다.
+  const beforeStage = useMemo(() => {
+    const needle = deferredQuery.trim().toLowerCase()
+    return cards.filter((card) => {
       if (owner !== '' && card.owner !== owner) return false
       if (fromISO !== null && card.date < fromISO) return false
-      const needle = deferredQuery.trim().toLowerCase()
       if (needle === '') return true
       return [card.no, card.org, card.product, card.owner, card.memo ?? '']
         .join(' ')
         .toLowerCase()
         .includes(needle)
-    },
-    [owner, fromISO, deferredQuery],
-  )
+    })
+  }, [cards, owner, fromISO, deferredQuery])
 
-  const shownByColumn = useMemo(() => {
-    const map = new Map<string, BoardContract[]>()
-    for (const column of columns)
-      map.set(column.id, (byColumn.get(column.id) ?? []).filter(matches))
+  const stageCounts = useMemo(() => {
+    const map = new Map<string, number>()
+    for (const card of beforeStage) map.set(card.stageId, (map.get(card.stageId) ?? 0) + 1)
     return map
-  }, [columns, byColumn, matches])
+  }, [beforeStage])
 
-  const shownCount = useMemo(
-    () => [...shownByColumn.values()].reduce((sum, list) => sum + list.length, 0),
-    [shownByColumn],
+  const matched = useMemo(() => {
+    const rows = stage === '' ? beforeStage : beforeStage.filter((c) => c.stageId === stage)
+    if (!sort) return rows
+    const sign = sort.dir === 'asc' ? 1 : -1
+    const compare = compareBy(sort.id, columns)
+    return [...rows].sort((a, b) => sign * compare(a, b))
+  }, [beforeStage, stage, sort, columns])
+
+  // 결과가 줄어들어 현재 페이지가 사라졌으면 마지막 페이지로 당겨 옵니다.
+  const pageCount = Math.max(1, Math.ceil(matched.length / pageSize))
+  const safePage = Math.min(page, pageCount)
+  const pageRows = useMemo(
+    () => matched.slice((safePage - 1) * pageSize, safePage * pageSize),
+    [matched, safePage, pageSize],
   )
 
-  /**
-   * 놓은 자리는 화면에 보이는 목록 기준입니다. 필터가 걸려 있으면 그 자리가
-   * 전체 목록에서는 다른 번호라, 그 자리에 있던 카드 앞으로 넣습니다.
-   */
-  const drop = useCallback(
-    (dragged: CardDrag, key: string) => {
-      const slot = parseSlot(key)
-      if (!slot) return
+  const onSort = useCallback((id: string) => {
+    // 오름 → 내림 → 해제. 원래 순서로 되돌릴 방법이 있어야 합니다.
+    setSort((prev) => {
+      if (prev?.id !== id) return { id, dir: 'asc' }
+      if (prev.dir === 'asc') return { id, dir: 'desc' }
+      return null
+    })
+  }, [])
 
-      const shown = shownByColumn.get(slot.columnId) ?? []
-      const all = byColumn.get(slot.columnId) ?? []
-      const anchor = shown[slot.index]
-      const index = anchor ? all.findIndex((c) => c.no === anchor.no) : all.length
+  const clearFilters = useCallback(() => {
+    setParams(new URLSearchParams(), { replace: true })
+    setPage(1)
+  }, [setParams])
 
-      moveCard(dragged.no, slot.columnId, index < 0 ? all.length : index)
-    },
-    [shownByColumn, byColumn, moveCard],
-  )
-
-  const { dragging, dropKey, point, start } = usePointerDrag<CardDrag>(DROP_ATTR, drop)
-
-  const grab = useCallback(
-    (pointer: ReactPointerEvent, contract: BoardContract) =>
-      start(pointer, { no: contract.no, label: `${contract.org} · ${contract.product}` }),
-    [start],
-  )
-
-  /** 키보드로 앞뒤 컬럼에 옮깁니다. 옮긴 카드는 그 컬럼 맨 위로 갑니다. */
-  const nudge = useCallback(
-    (no: string, delta: -1 | 1) => {
-      const card = findContract(no)
-      if (!card) return
-      const at = columns.findIndex((col) => col.id === card.stageId)
-      const target = columns[at + delta]
-      if (target) moveCard(no, target.id, 0)
-    },
-    [findContract, columns, moveCard],
-  )
-
+  // 객체가 아니라 계약번호를 들고 목록에서 찾습니다. 열어 둔 계약을 지우면
+  // 여기가 비면서 드로어가 알아서 닫힙니다.
   const openContract = openNo ? findContract(openNo) : undefined
   const editingContract = editingNo ? findContract(editingNo) : undefined
   const deletingContract = deletingNo ? findContract(deletingNo) : undefined
-  const addingColumn = addingTo ? columns.find((col) => col.id === addingTo) : undefined
 
-  const createColumn = () => {
-    const name = newColumnName.trim()
-    if (name === '') return
-    // 색은 컬럼 수에 따라 돌려 씁니다. 만들자마자 옆 컬럼과 같은 색이면 구분이 안 됩니다.
-    addColumn(name, TONES[columns.length % TONES.length], newColumnAfter ?? undefined)
-    setNewColumnName('')
-    setNewColumnAfter(null)
-  }
+  const isFiltered = query.trim() !== '' || owner !== '' || stage !== '' || range !== DEFAULT_RANGE
 
   return (
     <section className={styles.page}>
@@ -212,71 +172,47 @@ export default function Contracts() {
           onChange={(value) => setParam('range', value, DEFAULT_RANGE)}
         />
 
-        <span className={styles.count}>{shownCount}건</span>
-      </div>
-
-      <div className={styles.board}>
-        {columns.map((column) => (
-          <StageColumn
-            key={column.id}
-            column={column}
-            cards={shownByColumn.get(column.id) ?? []}
-            dropSlot={dropKey}
-            draggingNo={dragging?.no ?? null}
-            others={columns.filter((col) => col.id !== column.id)}
-            onOpen={setOpenNo}
-            onGrab={grab}
-            onNudge={nudge}
-            onEditCard={setEditingNo}
-            onDeleteCard={setDeletingNo}
-            onAddCard={setAddingTo}
-            onRename={renameColumn}
-            onRecolor={recolorColumn}
-            onAddAfter={(id) => setNewColumnAfter(id)}
-            onRemove={removeColumn}
-          />
-        ))}
-
-        <div className={styles.newColumn}>
-          {newColumnAfter === null ? (
-            <button
-              type="button"
-              className={styles.newButton}
-              onClick={() => setNewColumnAfter('')}
-            >
-              <PlusIcon width={14} height={14} />
-              컬럼 추가
-            </button>
-          ) : (
-            <div className={styles.newForm}>
-              <input
-                autoFocus
-                className={styles.newInput}
-                value={newColumnName}
-                placeholder="컬럼 이름"
-                aria-label="새 컬럼 이름"
-                onChange={(event) => setNewColumnName(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter') createColumn()
-                  if (event.key === 'Escape') {
-                    setNewColumnName('')
-                    setNewColumnAfter(null)
-                  }
-                }}
-              />
-              <Button type="button" onClick={createColumn}>
-                추가
-              </Button>
-            </div>
-          )}
+        <div className={styles.actions}>
+          <ViewToggle view="list" />
+          <Button onClick={() => navigate(contractNewPath(stage || undefined))}>
+            <PlusIcon width={15} height={15} />
+            계약 추가
+          </Button>
         </div>
       </div>
 
-      {/* 네이티브 드래그가 아니라 직접 그리므로, 끌고 다니는 조각도 우리가 띄웁니다. */}
-      {dragging && point && (
-        <div className={styles.dragChip} style={{ left: point.x, top: point.y }} aria-hidden="true">
-          {dragging.label}
-        </div>
+      <StageTabs
+        stages={columns}
+        value={stage}
+        countOf={(id) => stageCounts.get(id) ?? 0}
+        total={beforeStage.length}
+        onChange={(next) => setParam('stage', next)}
+      />
+
+      <ContractTable
+        rows={pageRows}
+        stages={columns}
+        sort={sort}
+        onSort={onSort}
+        onOpen={setOpenNo}
+        isFiltered={isFiltered}
+        onClearFilters={clearFilters}
+        onCreate={() => navigate(contractNewPath())}
+      />
+
+      {matched.length > 0 && (
+        <Pagination
+          page={safePage}
+          pageCount={pageCount}
+          pageSize={pageSize}
+          total={matched.length}
+          unit="건"
+          onPage={setPage}
+          onPageSize={(size) => {
+            setPageSize(size)
+            setPage(1)
+          }}
+        />
       )}
 
       {openContract && (
@@ -295,17 +231,6 @@ export default function Contracts() {
         />
       )}
 
-      {addingColumn && (
-        <ContractForm
-          columnName={addingColumn.name}
-          onClose={() => setAddingTo(null)}
-          onSubmit={(draft) => {
-            addContract(draft, addingColumn.id)
-            setAddingTo(null)
-          }}
-        />
-      )}
-
       {editingContract && (
         <ContractForm
           contract={editingContract}
@@ -318,32 +243,46 @@ export default function Contracts() {
       )}
 
       {deletingContract && (
-        <Modal
-          title="계약을 삭제할까요?"
-          description={`${deletingContract.no} · ${deletingContract.org}. 되돌릴 수 없습니다.`}
+        <DeleteConfirm
+          contract={deletingContract}
           onClose={() => setDeletingNo(null)}
-          footer={
-            <>
-              <Button type="button" variant="outline" onClick={() => setDeletingNo(null)}>
-                취소
-              </Button>
-              <Button
-                type="button"
-                onClick={() => {
-                  removeContract(deletingContract.no)
-                  setDeletingNo(null)
-                }}
-              >
-                삭제
-              </Button>
-            </>
-          }
-        >
-          <p className={styles.confirm}>
-            {deletingContract.product} · {deletingContract.owner}
-          </p>
-        </Modal>
+          onConfirm={() => {
+            removeContract(deletingContract.no)
+            setDeletingNo(null)
+          }}
+        />
       )}
     </section>
+  )
+}
+
+interface DeleteConfirmProps {
+  contract: BoardContract
+  onClose: () => void
+  onConfirm: () => void
+}
+
+/** 지우기 전 한 번 묻습니다. 보드와 같은 문구를 씁니다. */
+function DeleteConfirm({ contract, onClose, onConfirm }: DeleteConfirmProps) {
+  return (
+    <Modal
+      title="계약을 삭제할까요?"
+      description={`${contract.no} · ${contract.org}. 되돌릴 수 없습니다.`}
+      onClose={onClose}
+      footer={
+        <>
+          <Button type="button" variant="outline" onClick={onClose}>
+            취소
+          </Button>
+          <Button type="button" onClick={onConfirm}>
+            삭제
+          </Button>
+        </>
+      }
+    >
+      <p className={styles.confirm}>
+        {contract.product} · {contract.owner}
+      </p>
+    </Modal>
   )
 }

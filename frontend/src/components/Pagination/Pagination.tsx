@@ -9,6 +9,8 @@ interface PaginationProps {
   pageCount: number
   pageSize: number
   total: number
+  /** 세는 단위. 화면마다 다릅니다(고객은 명, 계약은 건). */
+  unit?: string
   onPage: (page: number) => void
   onPageSize: (size: number) => void
 }
@@ -18,6 +20,7 @@ export default function Pagination({
   pageCount,
   pageSize,
   total,
+  unit = '명',
   onPage,
   onPageSize,
 }: PaginationProps) {
@@ -30,7 +33,8 @@ export default function Pagination({
         <span className="tnum">
           {from}–{to}
         </span>{' '}
-        / <span className="tnum">{total}</span>명
+        / <span className="tnum">{total}</span>
+        {unit}
       </p>
 
       <div className={styles.controls}>
@@ -39,7 +43,8 @@ export default function Pagination({
           <select value={pageSize} onChange={(event) => onPageSize(Number(event.target.value))}>
             {PAGE_SIZES.map((size) => (
               <option key={size} value={size}>
-                {size}명
+                {size}
+                {unit}
               </option>
             ))}
           </select>

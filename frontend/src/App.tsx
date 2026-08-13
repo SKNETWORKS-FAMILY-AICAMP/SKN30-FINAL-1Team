@@ -5,7 +5,7 @@ import SessionProvider from '@/auth/SessionProvider'
 import AppShell from '@/components/layout/AppShell'
 import { ROUTES } from '@/constants/routes'
 import Calendar from '@/pages/Calendar'
-import Contracts, { ContractDetail } from '@/pages/Contracts'
+import Contracts, { ContractBoard, ContractDetail, ContractNew } from '@/pages/Contracts'
 import Customers from '@/pages/Customers'
 import Daily, { DailyCompose, DailyDetail } from '@/pages/Daily'
 import Dashboard from '@/pages/Dashboard'
@@ -39,9 +39,12 @@ export default function App() {
 
               <Route path={ROUTES.SALES} element={<Sales />} />
 
-              {/* 계약은 보드와 상세가 한 기능이라 경로를 묶어 둡니다. */}
+              {/* 계약은 목록·보드·작성·상세가 한 기능이라 경로를 묶어 둡니다.
+                  고정 경로를 :contractNo 위에 둡니다. */}
               <Route path={ROUTES.CONTRACTS}>
                 <Route index element={<Contracts />} />
+                <Route path="board" element={<ContractBoard />} />
+                <Route path="new" element={<ContractNew />} />
                 <Route path=":contractNo" element={<ContractDetail />} />
               </Route>
 
