@@ -11,6 +11,7 @@ import Daily, { DailyCompose, DailyDetail } from '@/pages/Daily'
 import Dashboard from '@/pages/Dashboard'
 import Login from '@/pages/Login'
 import NotFound from '@/pages/NotFound'
+import Orders, { OrderDetail, OrderNew } from '@/pages/Orders'
 import Sales from '@/pages/Sales'
 
 export default function App() {
@@ -46,6 +47,14 @@ export default function App() {
                 <Route path="board" element={<ContractBoard />} />
                 <Route path="new" element={<ContractNew />} />
                 <Route path=":contractNo" element={<ContractDetail />} />
+              </Route>
+
+              {/* 발주도 목록·작성·상세가 한 기능이라 경로를 묶어 둡니다.
+                  고정 경로를 :orderNo 위에 둡니다. */}
+              <Route path={ROUTES.ORDERS}>
+                <Route index element={<Orders />} />
+                <Route path="new" element={<OrderNew />} />
+                <Route path=":orderNo" element={<OrderDetail />} />
               </Route>
 
               {/* 나머지 메뉴는 아직 라우트가 없어 여기로 떨어집니다.

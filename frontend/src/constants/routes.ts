@@ -50,3 +50,10 @@ export const contractNewPath = (stageId?: string) =>
   stageId
     ? `${ROUTES.CONTRACTS}/new?stage=${encodeURIComponent(stageId)}`
     : `${ROUTES.CONTRACTS}/new`
+
+/** 발주 상세. 발주번호(FM-PO-2026-0021)를 그대로 씁니다. */
+export const orderPath = (no: string) => `${ROUTES.ORDERS}/${no}`
+
+/** 발주 추가 화면. status 를 주면 그 상태로 시작합니다. */
+export const orderNewPath = (status?: string) =>
+  status ? `${ROUTES.ORDERS}/new?status=${encodeURIComponent(status)}` : `${ROUTES.ORDERS}/new`

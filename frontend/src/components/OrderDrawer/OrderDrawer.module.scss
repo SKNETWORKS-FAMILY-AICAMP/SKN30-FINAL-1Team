@@ -1,0 +1,57 @@
+// demo/layout_v3.html §14 의 .detail-row
+.pill {
+  @include tag-pill;
+}
+
+.risk {
+  background: var(--orange-tint);
+  color: var(--orange-ink);
+}
+
+// 하단 버튼. 계약 드로어와 같은 어휘를 씁니다.
+.danger {
+  border-color: var(--red-tint);
+  background: var(--red-tint);
+  color: var(--red-ink);
+
+  &:hover {
+    background: var(--red-tint);
+    filter: brightness(0.97);
+  }
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s1);
+  padding: 8px var(--s4);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-pill);
+  font-size: 13px;
+  font-weight: 600;
+
+  &:hover {
+    background: var(--fill-2);
+  }
+}
+
+.rows {
+  display: grid;
+  gap: var(--s3);
+
+  div {
+    display: grid;
+    grid-template-columns: 84px minmax(0, 1fr);
+    gap: var(--s3);
+    font-size: 13px;
+  }
+
+  dt {
+    color: var(--muted);
+  }
+
+  dd {
+    margin: 0;
+    line-height: 1.6;
+  }
+}

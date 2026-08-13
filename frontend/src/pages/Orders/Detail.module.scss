@@ -1,0 +1,271 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s4);
+  max-width: 860px;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s1);
+  align-self: flex-start;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+
+  &:hover {
+    color: var(--ink);
+  }
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s4);
+  flex-wrap: wrap;
+  padding: var(--s5);
+
+  @include card;
+}
+
+.no {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.hospital {
+  margin-top: var(--s1);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.supplier {
+  margin-top: var(--s1);
+  color: var(--ink-2);
+  font-size: 13px;
+}
+
+.amount {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  flex-wrap: wrap;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  margin-right: auto;
+}
+
+.statusLabel {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.select {
+  padding: 9px var(--s3);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--s4);
+  padding: var(--s5);
+
+  @include card;
+
+  dt {
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  dd {
+    display: flex;
+    align-items: center;
+    gap: var(--s2);
+    flex-wrap: wrap;
+    margin: 3px 0 0;
+    font-size: 14px;
+    font-weight: 600;
+  }
+}
+
+.link {
+  color: var(--blue);
+  font-weight: 600;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.late {
+  color: var(--orange-ink);
+  font-size: 11px;
+  font-weight: 600;
+  font-style: normal;
+}
+
+/* 상태 배지. 목록·탭과 같은 색을 씁니다. */
+.pill {
+  @include tag-pill;
+
+  background: var(--tone-tint);
+  color: var(--tone-ink);
+}
+
+.gray {
+  --tone-tint: var(--fill);
+  --tone-ink: var(--ink-2);
+}
+.blue {
+  --tone-tint: var(--blue-tint);
+  --tone-ink: var(--blue);
+}
+.purple {
+  --tone-tint: var(--purple-tint);
+  --tone-ink: var(--purple-ink);
+}
+.orange {
+  --tone-tint: var(--orange-tint);
+  --tone-ink: var(--orange-ink);
+}
+.green {
+  --tone-tint: var(--green-tint);
+  --tone-ink: var(--green-ink);
+}
+.red {
+  --tone-tint: var(--red-tint);
+  --tone-ink: var(--red-ink);
+}
+
+.memo {
+  padding: var(--s4);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.block {
+  padding: var(--s5);
+
+  @include card;
+}
+
+.blockTitle {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.empty {
+  margin-top: var(--s3);
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* ---- 품목 ---- */
+
+.items {
+  margin-top: var(--s3);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  flex-wrap: wrap;
+  padding: var(--s3) 0;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+}
+
+.itemProduct {
+  font-weight: 600;
+}
+
+.itemQty {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.itemSum {
+  margin-left: auto;
+  font-weight: 600;
+}
+
+/* ---- 같은 병원의 다른 발주 ---- */
+
+.siblings {
+  margin-top: var(--s3);
+}
+
+.sibling {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  flex-wrap: wrap;
+  padding: var(--s3);
+  margin: 0 calc(var(--s3) * -1);
+  border-radius: var(--r-sm);
+  font-size: 13px;
+
+  &:hover {
+    background: var(--fill-2);
+  }
+}
+
+.siblingNo {
+  font-weight: 600;
+}
+
+.siblingItems {
+  color: var(--ink-2);
+}
+
+.siblingAmount {
+  margin-left: auto;
+  font-weight: 600;
+}
+
+.siblingDate {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.missing {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s3);
+  padding: var(--s8) 0;
+
+  h1 {
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  p {
+    color: var(--muted);
+    font-size: 13px;
+  }
+}

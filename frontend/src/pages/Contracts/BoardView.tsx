@@ -13,6 +13,7 @@ import {
 import { useSearchParams } from 'react-router'
 
 import Button from '@/components/Button'
+import FilterSelect from '@/components/FilterSelect'
 import Modal from '@/components/Modal'
 import { PlusIcon, SearchIcon } from '@/components/icons'
 import usePointerDrag from '@/hooks/usePointerDrag'
@@ -20,7 +21,6 @@ import { addDays, iso, TODAY } from '@/utils/date'
 
 import { DROP_ATTR, OWNERS, parseSlot, TONES, type BoardContract } from './board'
 import ContractDrawer from './components/ContractDrawer'
-import FilterSelect from './components/FilterSelect'
 import ContractForm from './components/ContractForm'
 import StageColumn from './components/StageColumn'
 import ViewToggle from './components/ViewToggle'

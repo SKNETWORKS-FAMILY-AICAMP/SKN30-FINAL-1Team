@@ -1,6 +1,7 @@
-// 계약 목록. 같은 계약을 보드(/contracts/board)에서는 단계별 칸으로 봅니다.
+// 발주 목록. 계약 현황 목록과 같은 형태입니다. 발주는 결재·생산·물류를 따라
+// 한 방향으로만 흐르므로 옮겨 담을 보드를 두지 않고 목록 하나만 둡니다.
 //
-// 조건은 주소에 둡니다(q·owner·range·stage). 목록을 걸러 둔 채로 링크를 건네면
+// 조건은 주소에 둡니다(q·supplier·range·status). 목록을 걸러 둔 채로 링크를 건네면
 // 받는 쪽도 같은 화면을 봅니다. 정렬과 페이지는 보는 사람 사정이라 주소에 남기지 않습니다.
 import { useCallback, useDeferredValue, useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
@@ -9,22 +10,23 @@ import Button from '@/components/Button'
 import FilterSelect from '@/components/FilterSelect'
 import { PlusIcon, SearchIcon } from '@/components/icons'
 import Modal from '@/components/Modal'
+import OrderDrawer from '@/components/OrderDrawer'
 import Pagination from '@/components/Pagination'
-import { contractNewPath } from '@/constants/routes'
+import { orderNewPath, orderPath } from '@/constants/routes'
+import { orderItemLabel } from '@/content/orders'
+import type { OrderStatus, PurchaseOrder } from '@/content/types'
 import { addDays, iso, TODAY } from '@/utils/date'
 
-import { OWNERS, type BoardContract } from './board'
 import { compareBy, type SortState } from './columns'
-import ContractDrawer from './components/ContractDrawer'
-import ContractForm from './components/ContractForm'
-import ContractTable from './components/ContractTable'
-import StageTabs from './components/StageTabs'
-import ViewToggle from './components/ViewToggle'
-import useContractBoard from './useContractBoard'
+import OrderForm from './components/OrderForm'
+import OrderTable from './components/OrderTable'
+import StatusTabs from './components/StatusTabs'
+import { SUPPLIERS } from './pipeline'
+import useOrderList from './useOrderList'
 
-import styles from './Contracts.module.scss'
+import styles from './Orders.module.scss'
 
-/** 기간 선택지. 값이 개월 수이고 0 이면 전체입니다. 보드와 같은 어휘를 씁니다. */
+/** 기간 선택지. 값이 개월 수이고 0 이면 전체입니다. 계약 목록과 같은 어휘를 씁니다. */
 const RANGES = [
   { value: '3', label: '최근 3개월' },
   { value: '6', label: '최근 6개월' },
@@ -32,23 +34,23 @@ const RANGES = [
   { value: '0', label: '전체' },
 ]
 
-const OWNER_OPTIONS = [
-  { value: '', label: '담당 전체' },
-  ...OWNERS.map((name) => ({ value: name, label: name })),
+const SUPPLIER_OPTIONS = [
+  { value: '', label: '공급처 전체' },
+  ...SUPPLIERS.map((name) => ({ value: name, label: name })),
 ]
 
-/** 기본 기간. 확정 계약이 2년치라 전부 펼치면 목록이 지나치게 길어집니다. */
+/** 기본 기간. 발주일 기준입니다. */
 const DEFAULT_RANGE = '6'
 
-export default function Contracts() {
-  const { columns, cards, findContract, updateContract, removeContract } = useContractBoard()
+export default function Orders() {
+  const { orders, findOrder, updateOrder, removeOrder } = useOrderList()
   const navigate = useNavigate()
 
   const [params, setParams] = useSearchParams()
   const query = params.get('q') ?? ''
-  const owner = params.get('owner') ?? ''
+  const supplier = params.get('supplier') ?? ''
   const range = params.get('range') ?? DEFAULT_RANGE
-  const stage = params.get('stage') ?? ''
+  const status = params.get('status') ?? ''
 
   // 타이핑 중에도 입력이 밀리지 않도록 목록 계산만 한 박자 늦춥니다.
   const deferredQuery = useDeferredValue(query)
@@ -59,7 +61,7 @@ export default function Contracts() {
   const [openNo, setOpenNo] = useState<string | null>(null)
   const [editingNo, setEditingNo] = useState<string | null>(null)
   const [deletingNo, setDeletingNo] = useState<string | null>(null)
-  const [openFilter, setOpenFilter] = useState<'owner' | 'range' | null>(null)
+  const [openFilter, setOpenFilter] = useState<'supplier' | 'range' | null>(null)
 
   // 기본값은 쿼리에서 지웁니다. 주소를 복사했을 때 조건이 그대로 살아나되 짧게 남습니다.
   // 조건이 바뀌면 첫 페이지로 돌아옵니다. 3페이지에 있다가 결과가 줄면 빈 화면을 봅니다.
@@ -80,33 +82,34 @@ export default function Contracts() {
     return iso(addDays(TODAY, -Math.round(months * 30.4)))
   }, [range])
 
-  // 단계를 뺀 나머지 조건까지만 거른 목록입니다. 탭의 건수를 여기서 셉니다.
-  const beforeStage = useMemo(() => {
+  // 상태를 뺀 나머지 조건까지만 거른 목록입니다. 탭의 건수를 여기서 셉니다.
+  const beforeStatus = useMemo(() => {
     const needle = deferredQuery.trim().toLowerCase()
-    return cards.filter((card) => {
-      if (owner !== '' && card.owner !== owner) return false
-      if (fromISO !== null && card.date < fromISO) return false
+    return orders.filter((order) => {
+      if (supplier !== '' && order.supplier !== supplier) return false
+      if (fromISO !== null && order.ordered < fromISO) return false
       if (needle === '') return true
-      return [card.no, card.org, card.product, card.owner, card.memo ?? '']
+      return [order.no, order.hospital, order.supplier, order.contract, order.memo]
+        .concat(orderItemLabel(order))
         .join(' ')
         .toLowerCase()
         .includes(needle)
     })
-  }, [cards, owner, fromISO, deferredQuery])
+  }, [orders, supplier, fromISO, deferredQuery])
 
-  const stageCounts = useMemo(() => {
-    const map = new Map<string, number>()
-    for (const card of beforeStage) map.set(card.stageId, (map.get(card.stageId) ?? 0) + 1)
+  const statusCounts = useMemo(() => {
+    const map = new Map<OrderStatus, number>()
+    for (const order of beforeStatus) map.set(order.status, (map.get(order.status) ?? 0) + 1)
     return map
-  }, [beforeStage])
+  }, [beforeStatus])
 
   const matched = useMemo(() => {
-    const rows = stage === '' ? beforeStage : beforeStage.filter((c) => c.stageId === stage)
+    const rows = status === '' ? beforeStatus : beforeStatus.filter((o) => o.status === status)
     if (!sort) return rows
     const sign = sort.dir === 'asc' ? 1 : -1
-    const compare = compareBy(sort.id, columns)
+    const compare = compareBy(sort.id)
     return [...rows].sort((a, b) => sign * compare(a, b))
-  }, [beforeStage, stage, sort, columns])
+  }, [beforeStatus, status, sort])
 
   // 결과가 줄어들어 현재 페이지가 사라졌으면 마지막 페이지로 당겨 옵니다.
   const pageCount = Math.max(1, Math.ceil(matched.length / pageSize))
@@ -130,37 +133,38 @@ export default function Contracts() {
     setPage(1)
   }, [setParams])
 
-  // 객체가 아니라 계약번호를 들고 목록에서 찾습니다. 열어 둔 계약을 지우면
+  // 객체가 아니라 발주번호를 들고 목록에서 찾습니다. 열어 둔 발주를 지우면
   // 여기가 비면서 드로어가 알아서 닫힙니다.
-  const openContract = openNo ? findContract(openNo) : undefined
-  const editingContract = editingNo ? findContract(editingNo) : undefined
-  const deletingContract = deletingNo ? findContract(deletingNo) : undefined
+  const openOrder = openNo ? findOrder(openNo) : undefined
+  const editingOrder = editingNo ? findOrder(editingNo) : undefined
+  const deletingOrder = deletingNo ? findOrder(deletingNo) : undefined
 
-  const isFiltered = query.trim() !== '' || owner !== '' || stage !== '' || range !== DEFAULT_RANGE
+  const isFiltered =
+    query.trim() !== '' || supplier !== '' || status !== '' || range !== DEFAULT_RANGE
 
   return (
     <section className={styles.page}>
       {/* Topbar 빵부스러기가 이미 화면 이름을 말하므로 제목은 읽어 주기만 합니다. */}
-      <h1 className="sr-only">계약 현황</h1>
+      <h1 className="sr-only">발주 관리</h1>
 
       <div className={styles.toolbar}>
         <label className={styles.search}>
           <SearchIcon width={16} height={16} />
           <input
             value={query}
-            placeholder="고객사·제품·계약번호 검색"
-            aria-label="계약 검색"
+            placeholder="병원·품목·발주번호 검색"
+            aria-label="발주 검색"
             onChange={(event) => setParam('q', event.target.value)}
           />
         </label>
 
         <FilterSelect
-          label="담당 영업"
-          value={owner}
-          options={OWNER_OPTIONS}
-          open={openFilter === 'owner'}
-          onOpenChange={(open) => setOpenFilter(open ? 'owner' : null)}
-          onChange={(value) => setParam('owner', value)}
+          label="공급처"
+          value={supplier}
+          options={SUPPLIER_OPTIONS}
+          open={openFilter === 'supplier'}
+          onOpenChange={(open) => setOpenFilter(open ? 'supplier' : null)}
+          onChange={(value) => setParam('supplier', value)}
         />
 
         <FilterSelect
@@ -173,31 +177,28 @@ export default function Contracts() {
         />
 
         <div className={styles.actions}>
-          <ViewToggle view="list" />
-          <Button onClick={() => navigate(contractNewPath(stage || undefined))}>
+          <Button onClick={() => navigate(orderNewPath(status || undefined))}>
             <PlusIcon width={15} height={15} />
-            계약 추가
+            발주 추가
           </Button>
         </div>
       </div>
 
-      <StageTabs
-        stages={columns}
-        value={stage}
-        countOf={(id) => stageCounts.get(id) ?? 0}
-        total={beforeStage.length}
-        onChange={(next) => setParam('stage', next)}
+      <StatusTabs
+        value={status}
+        countOf={(id) => statusCounts.get(id) ?? 0}
+        total={beforeStatus.length}
+        onChange={(next) => setParam('status', next)}
       />
 
-      <ContractTable
+      <OrderTable
         rows={pageRows}
-        stages={columns}
         sort={sort}
         onSort={onSort}
         onOpen={setOpenNo}
         isFiltered={isFiltered}
         onClearFilters={clearFilters}
-        onCreate={() => navigate(contractNewPath())}
+        onCreate={() => navigate(orderNewPath())}
       />
 
       {matched.length > 0 && (
@@ -215,39 +216,39 @@ export default function Contracts() {
         />
       )}
 
-      {openContract && (
-        <ContractDrawer
-          contract={openContract}
-          column={columns.find((col) => col.id === openContract.stageId)}
+      {openOrder && (
+        <OrderDrawer
+          order={openOrder}
+          detailTo={orderPath(openOrder.no)}
           onClose={() => setOpenNo(null)}
           onEdit={() => {
-            setEditingNo(openContract.no)
+            setEditingNo(openOrder.no)
             setOpenNo(null)
           }}
           onDelete={() => {
-            setDeletingNo(openContract.no)
+            setDeletingNo(openOrder.no)
             setOpenNo(null)
           }}
         />
       )}
 
-      {editingContract && (
-        <ContractForm
-          contract={editingContract}
+      {editingOrder && (
+        <OrderForm
+          order={editingOrder}
           onClose={() => setEditingNo(null)}
           onSubmit={(draft) => {
-            updateContract(editingContract.no, draft)
+            updateOrder(editingOrder.no, draft)
             setEditingNo(null)
           }}
         />
       )}
 
-      {deletingContract && (
+      {deletingOrder && (
         <DeleteConfirm
-          contract={deletingContract}
+          order={deletingOrder}
           onClose={() => setDeletingNo(null)}
           onConfirm={() => {
-            removeContract(deletingContract.no)
+            removeOrder(deletingOrder.no)
             setDeletingNo(null)
           }}
         />
@@ -257,17 +258,17 @@ export default function Contracts() {
 }
 
 interface DeleteConfirmProps {
-  contract: BoardContract
+  order: PurchaseOrder
   onClose: () => void
   onConfirm: () => void
 }
 
-/** 지우기 전 한 번 묻습니다. 보드와 같은 문구를 씁니다. */
-function DeleteConfirm({ contract, onClose, onConfirm }: DeleteConfirmProps) {
+/** 지우기 전 한 번 묻습니다. 계약 목록과 같은 문구를 씁니다. */
+function DeleteConfirm({ order, onClose, onConfirm }: DeleteConfirmProps) {
   return (
     <Modal
-      title="계약을 삭제할까요?"
-      description={`${contract.no} · ${contract.org}. 되돌릴 수 없습니다.`}
+      title="발주를 삭제할까요?"
+      description={`${order.no} · ${order.hospital}. 되돌릴 수 없습니다.`}
       onClose={onClose}
       footer={
         <>
@@ -281,7 +282,7 @@ function DeleteConfirm({ contract, onClose, onConfirm }: DeleteConfirmProps) {
       }
     >
       <p className={styles.confirm}>
-        {contract.product} · {contract.owner}
+        {orderItemLabel(order)} · {order.supplier}
       </p>
     </Modal>
   )
