@@ -1,6 +1,6 @@
-# 필드메드 (FieldMed)
+# SalesLuv
 
-의료기기 현장 영업을 돕는 다중 에이전트 업무 자동화 시스템입니다.
+고객·회사, 딜, 일정, 미팅 기록을 연결해 다음 영업 행동과 보고 업무를 돕는 범용 영업 CRM입니다.
 
 - 팀: 셀럽(SalesLove)
 - 슬로건: Become the Celebrity of Sales.

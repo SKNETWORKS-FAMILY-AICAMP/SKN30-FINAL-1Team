@@ -152,7 +152,7 @@ export default function Orders() {
           <SearchIcon width={16} height={16} />
           <input
             value={query}
-            placeholder="병원·품목·발주번호 검색"
+            placeholder="고객사·품목·발주번호 검색"
             aria-label="발주 검색"
             onChange={(event) => setParam('q', event.target.value)}
           />

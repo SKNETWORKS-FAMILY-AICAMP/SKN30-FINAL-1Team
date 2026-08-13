@@ -5,8 +5,8 @@ from app.api import api_router
 from app.core.config import settings
 
 app = FastAPI(
-    title="FieldMed API",
-    description="다중 에이전트 협업 기반 업무 자동화 시스템",
+    title="SalesLuv API",
+    description="고객·딜·일정·미팅 기록을 연결하는 다중 에이전트 기반 영업 업무 자동화 API",
     version="0.1.0",
 )
 

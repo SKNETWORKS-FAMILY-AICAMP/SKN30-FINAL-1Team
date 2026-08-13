@@ -34,7 +34,7 @@ export default function OrderFields({ form, errors, onChange, onItemsChange, chi
 
   return (
     <div className={styles.grid}>
-      <Field label="병원" required error={errors.hospital}>
+      <Field label="고객사" required error={errors.hospital}>
         {/* 목록에 없는 곳도 새로 적을 수 있어야 해서 select 가 아니라 datalist 입니다. */}
         <input
           list="order-hospitals"

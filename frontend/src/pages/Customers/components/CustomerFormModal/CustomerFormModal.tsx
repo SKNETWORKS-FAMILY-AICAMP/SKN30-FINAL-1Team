@@ -39,7 +39,7 @@ function validate(draft: Draft): Errors {
   if (draft.org.trim() === '') errors.org = '소속 회사를 입력하세요.'
   if (draft.email.trim() === '') errors.email = '이메일을 입력하세요.'
   else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(draft.email.trim()))
-    errors.email = '이메일 형식이 맞지 않습니다. 예: name@hospital.kr'
+    errors.email = '이메일 형식이 맞지 않습니다. 예: name@company.com'
   return errors
 }
 
@@ -123,7 +123,7 @@ export default function CustomerFormModal({ onClose, onSubmit }: CustomerFormMod
           <input
             type="email"
             value={draft.email}
-            placeholder="name@hospital.kr"
+            placeholder="name@company.com"
             onChange={(e) => set('email', e.target.value)}
           />
         </Field>

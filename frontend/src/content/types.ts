@@ -167,7 +167,7 @@ export type CustomerSource = '소개' | '박람회' | '홈페이지' | '콜드�
 export interface CustomerSeed {
   id: string
   name: string
-  /** 소속 병원·기관 */
+  /** 소속 고객사·기관 */
   org: string
   dept: string
   /** 직함 */

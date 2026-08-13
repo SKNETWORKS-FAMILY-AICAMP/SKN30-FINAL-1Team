@@ -26,7 +26,7 @@ export interface OrderColumn {
 
 export const ORDER_COLUMNS: OrderColumn[] = [
   { id: 'no', header: '발주번호', width: 140, numeric: true, sortable: true, text: (o) => o.no },
-  { id: 'hospital', header: '병원', width: 150, sortable: true, text: (o) => o.hospital },
+  { id: 'hospital', header: '고객사', width: 150, sortable: true, text: (o) => o.hospital },
   { id: 'items', header: '품목', width: 170, sortable: true, text: orderItemLabel },
   { id: 'supplier', header: '공급처', width: 140, sortable: true, text: (o) => o.supplier },
   {

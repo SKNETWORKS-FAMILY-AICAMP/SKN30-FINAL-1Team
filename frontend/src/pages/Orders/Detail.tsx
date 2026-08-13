@@ -1,5 +1,5 @@
 // 발주 한 건의 전체 화면입니다. Drawer 가 요약이라면 여기는 품목을 줄 단위로 펼치고
-// 걸린 계약과 같은 병원의 다른 발주까지 봅니다.
+// 걸린 계약과 같은 고객사의 다른 발주까지 봅니다.
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 

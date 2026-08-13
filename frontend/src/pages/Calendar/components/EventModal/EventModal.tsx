@@ -115,7 +115,7 @@ export default function EventModal({ draft, mode = 'edit', onClose, onSave, onDe
           </select>
         </Field>
 
-        <Field label="병원·기관">
+        <Field label="고객사·기관">
           <input
             value={form.hospital ?? ''}
             placeholder="한빛대학교병원"

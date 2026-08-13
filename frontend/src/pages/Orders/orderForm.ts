@@ -62,7 +62,7 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
 
 export function validate(form: FormState): FormErrors {
   const errors: FormErrors = {}
-  if (form.hospital.trim() === '') errors.hospital = '병원을 입력하세요.'
+  if (form.hospital.trim() === '') errors.hospital = '고객사를 입력하세요.'
   if (form.supplier.trim() === '') errors.supplier = '공급처를 입력하세요.'
 
   if (!DATE_RE.test(form.ordered)) errors.ordered = '날짜를 선택하세요.'

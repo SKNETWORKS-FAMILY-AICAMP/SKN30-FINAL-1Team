@@ -165,7 +165,7 @@ export default function OrderTable({
                         .join(' ')}
                       title={col.text(order)}
                     >
-                      {/* 줄 전체를 누르지만 tr 은 키보드로 못 잡습니다. 병원 칸이
+                      {/* 줄 전체를 누르지만 tr 은 키보드로 못 잡습니다. 고객사 칸이
                           그 손잡이이고, 하는 일은 줄을 누른 것과 같습니다. */}
                       {col.id === 'hospital' ? (
                         <button
