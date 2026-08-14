@@ -175,7 +175,7 @@ export default function DayCell({
 
         <span className={styles.marks}>
           {deliveries > 0 && (
-            <i className={styles.dotDelivery} title={`납기 ${deliveries}건`} aria-hidden="true" />
+            <i className={styles.dotDelivery} title={`업무 ${deliveries}건`} aria-hidden="true" />
           )}
           <button
             type="button"

@@ -143,10 +143,10 @@ export default function MonthGrid({
         <div className={styles.tools}>
           <span className={styles.legend}>
             <span>
-              <i className={styles.dotMeeting} /> 일정
+              <i className={styles.dotMeeting} /> 미팅
             </span>
             <span>
-              <i className={styles.dotDelivery} /> 납기
+              <i className={styles.dotDelivery} /> 업무
             </span>
           </span>
           <Button variant="ghost" onClick={goToday}>
