@@ -2,12 +2,15 @@
 //
 // 계약 목록 표와 같은 구조입니다. 다른 점은 예상 입고 칸으로, 납기를 넘긴 건은
 // 여기서 바로 알아야 해서 지연 일수를 함께 붙입니다.
+import { useMemo } from 'react'
+
 import Button from '@/components/Button'
 import { ArrowUpIcon, OrdersIcon, SearchIcon, SortIcon } from '@/components/icons'
 import { BP_DESKTOP } from '@/constants/breakpoints'
 import { isLate, orderItemLabel, orderTotal } from '@/content/orders'
 import type { PurchaseOrder } from '@/content/types'
 import useMediaQuery from '@/hooks/useMediaQuery'
+import { useOwnerScope } from '@/scope/scopeContext'
 import { fmtDotShort, parseISO } from '@/utils/date'
 import { won } from '@/utils/format'
 
@@ -38,6 +41,13 @@ export default function OrderTable({
   onClearFilters,
   onCreate,
 }: Props) {
+  // 한 사람만 보고 있으면 담당 영업 열은 모든 줄이 같은 값이라 자리만 차지합니다.
+  const { showOwner } = useOwnerScope()
+  const columns = useMemo(
+    () => ORDER_COLUMNS.filter((col) => col.id !== 'owner' || showOwner),
+    [showOwner],
+  )
+
   // 표와 카드는 마크업 자체가 다릅니다. CSS 로는 한쪽을 숨기는 것밖에 못 해
   // 폰에서도 아홉 열짜리 DOM 을 그대로 들고 있게 됩니다.
   const isDesktop = useMediaQuery(`(min-width: ${BP_DESKTOP}px)`)
@@ -100,19 +110,19 @@ export default function OrderTable({
       <div className={styles.scroller}>
         <table
           className={styles.table}
-          style={{ width: ORDER_COLUMNS.reduce((sum, col) => sum + col.width, 0) }}
+          style={{ width: columns.reduce((sum, col) => sum + col.width, 0) }}
         >
           <caption className="sr-only">발주 목록. 헤더를 눌러 정렬할 수 있습니다.</caption>
 
           <colgroup>
-            {ORDER_COLUMNS.map((col) => (
+            {columns.map((col) => (
               <col key={col.id} style={{ width: col.width }} />
             ))}
           </colgroup>
 
           <thead>
             <tr>
-              {ORDER_COLUMNS.map((col) => {
+              {columns.map((col) => {
                 const active = sort?.id === col.id
                 return (
                   <th
@@ -154,7 +164,7 @@ export default function OrderTable({
               const late = isLate(order)
               return (
                 <tr key={order.no} className={styles.clickable} onClick={() => onOpen(order.no)}>
-                  {ORDER_COLUMNS.map((col) => (
+                  {columns.map((col) => (
                     <td
                       key={col.id}
                       className={[

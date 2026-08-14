@@ -1,5 +1,7 @@
 import { type ReactNode, useCallback, useMemo, useState } from 'react'
 
+import { clearScope } from '@/scope/scopeStorage'
+
 import { PROFILES, type Role, type Session, SessionContext } from './sessionContext'
 
 // 탭을 닫으면 사라지도록 sessionStorage 를 씁니다. 실제 인증이 붙으면
@@ -26,6 +28,8 @@ export default function SessionProvider({ children }: { children: ReactNode }) {
     } catch {
       // 저장에 실패해도 이번 세션 동안은 그대로 동작합니다.
     }
+    // 앞사람이 보던 범위가 다음 로그인에 남지 않도록 지웁니다.
+    clearScope()
     setSession({ role, profile: PROFILES[role] })
   }, [])
 
@@ -35,6 +39,7 @@ export default function SessionProvider({ children }: { children: ReactNode }) {
     } catch {
       // 위와 같음
     }
+    clearScope()
     setSession(null)
   }, [])
 

@@ -15,13 +15,14 @@ import Pagination from '@/components/Pagination'
 import { orderNewPath, orderPath } from '@/constants/routes'
 import { orderItemLabel } from '@/content/orders'
 import type { OrderStatus, PurchaseOrder } from '@/content/types'
+import { useOwnerScope } from '@/scope/scopeContext'
 import { addDays, iso, TODAY } from '@/utils/date'
 
 import { compareBy, type SortState } from './columns'
 import OrderForm from './components/OrderForm'
 import OrderTable from './components/OrderTable'
 import StatusTabs from './components/StatusTabs'
-import { SUPPLIERS } from './pipeline'
+import { ownerOfOrder, SUPPLIERS } from './pipeline'
 import useOrderList from './useOrderList'
 
 import styles from './Orders.module.scss'
@@ -45,6 +46,7 @@ const DEFAULT_RANGE = '6'
 export default function Orders() {
   const { orders, findOrder, updateOrder, removeOrder } = useOrderList()
   const navigate = useNavigate()
+  const { matchesOwner, isTeamView } = useOwnerScope()
 
   const [params, setParams] = useSearchParams()
   const query = params.get('q') ?? ''
@@ -86,6 +88,9 @@ export default function Orders() {
   const beforeStatus = useMemo(() => {
     const needle = deferredQuery.trim().toLowerCase()
     return orders.filter((order) => {
+      // 계약 없는 선발주는 담당자를 알 수 없어 팀 전체에서만 보입니다.
+      const owner = ownerOfOrder(order)
+      if (owner === undefined ? !isTeamView : !matchesOwner(owner)) return false
       if (supplier !== '' && order.supplier !== supplier) return false
       if (fromISO !== null && order.ordered < fromISO) return false
       if (needle === '') return true
@@ -95,7 +100,7 @@ export default function Orders() {
         .toLowerCase()
         .includes(needle)
     })
-  }, [orders, supplier, fromISO, deferredQuery])
+  }, [orders, matchesOwner, isTeamView, supplier, fromISO, deferredQuery])
 
   const statusCounts = useMemo(() => {
     const map = new Map<OrderStatus, number>()

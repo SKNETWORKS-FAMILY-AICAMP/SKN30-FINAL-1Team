@@ -2,11 +2,14 @@
 //
 // 발주 목록 표와 같은 구조입니다. 다른 점은 파일명 칸으로, 무슨 파일인지가 제목만큼
 // 중요해서 종류 배지를 제목 앞에 붙입니다.
+import { useMemo } from 'react'
+
 import Button from '@/components/Button'
 import { ArrowUpIcon, DocumentsIcon, SearchIcon, SortIcon } from '@/components/icons'
 import { BP_DESKTOP } from '@/constants/breakpoints'
 import type { SalesDocument } from '@/content/types'
 import useMediaQuery from '@/hooks/useMediaQuery'
+import { useOwnerScope } from '@/scope/scopeContext'
 import { sizeLabel } from '@/utils/attachment'
 import { fmtDotShort, parseISO } from '@/utils/date'
 
@@ -34,6 +37,13 @@ export default function DocumentTable({
   onClearFilters,
   onUpload,
 }: Props) {
+  // 한 사람만 보고 있으면 등록자 열은 모든 줄이 같은 값이라 자리만 차지합니다.
+  const { showOwner } = useOwnerScope()
+  const columns = useMemo(
+    () => DOCUMENT_COLUMNS.filter((col) => col.id !== 'owner' || showOwner),
+    [showOwner],
+  )
+
   // 표와 카드는 마크업 자체가 다릅니다. CSS 로는 한쪽을 숨기는 것밖에 못 해
   // 폰에서도 일곱 열짜리 DOM 을 그대로 들고 있게 됩니다.
   const isDesktop = useMediaQuery(`(min-width: ${BP_DESKTOP}px)`)
@@ -96,19 +106,19 @@ export default function DocumentTable({
       <div className={styles.scroller}>
         <table
           className={styles.table}
-          style={{ width: DOCUMENT_COLUMNS.reduce((sum, col) => sum + col.width, 0) }}
+          style={{ width: columns.reduce((sum, col) => sum + col.width, 0) }}
         >
           <caption className="sr-only">자료 목록. 헤더를 눌러 정렬할 수 있습니다.</caption>
 
           <colgroup>
-            {DOCUMENT_COLUMNS.map((col) => (
+            {columns.map((col) => (
               <col key={col.id} style={{ width: col.width }} />
             ))}
           </colgroup>
 
           <thead>
             <tr>
-              {DOCUMENT_COLUMNS.map((col) => {
+              {columns.map((col) => {
                 const active = sort?.id === col.id
                 return (
                   <th
@@ -148,7 +158,7 @@ export default function DocumentTable({
           <tbody>
             {rows.map((doc) => (
               <tr key={doc.id} className={styles.clickable} onClick={() => onOpen(doc.id)}>
-                {DOCUMENT_COLUMNS.map((col) => (
+                {columns.map((col) => (
                   <td
                     key={col.id}
                     className={[

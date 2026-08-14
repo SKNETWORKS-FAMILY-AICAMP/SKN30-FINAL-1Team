@@ -4,6 +4,7 @@
 // 계약의 board.ts 와 달리 상태 집합은 데이터가 아니라 타입입니다. 발주 상태는
 // 결재·생산·물류 흐름이라 화면에서 늘리고 줄일 수 있는 것이 아닙니다.
 // (파일 이름이 orders.ts 가 아닌 이유: Orders.tsx 와 대소문자만 달라 충돌합니다.)
+import { contracts } from '@/content/contracts'
 import { orders as seed } from '@/content/orders'
 import type { OrderStatus, PurchaseOrder } from '@/content/types'
 
@@ -36,6 +37,16 @@ export const HOSPITALS: string[] = [...new Set(seed.map((o) => o.hospital))].sor
 export const PRODUCTS: string[] = [
   ...new Set(seed.flatMap((o) => o.items.map((it) => it.product))),
 ].sort()
+
+const OWNER_BY_CONTRACT = new Map(contracts.map((contract) => [contract.no, contract.owner]))
+
+/**
+ * 발주의 담당 영업. 발주 자체에는 담당자가 없어 연결된 계약에서 가져옵니다.
+ * 계약 없는 선발주는 누구 것인지 알 수 없어 undefined 입니다.
+ */
+export function ownerOfOrder(order: PurchaseOrder): string | undefined {
+  return order.contract ? OWNER_BY_CONTRACT.get(order.contract) : undefined
+}
 
 /** 시드를 목록의 초기 상태로. 발주일 최신순으로 세워 둡니다. */
 export function initialOrders(): PurchaseOrder[] {

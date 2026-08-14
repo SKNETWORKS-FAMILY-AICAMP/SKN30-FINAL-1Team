@@ -2,10 +2,13 @@
 //
 // 열 폭 조절·선택 체크박스는 두지 않습니다. 여기서 하는 일은 훑어보고 여는 것뿐이라
 // 고객 목록만큼의 도구가 필요하지 않습니다.
+import { useMemo } from 'react'
+
 import Button from '@/components/Button'
 import { ArrowUpIcon, ContractIcon, SearchIcon, SortIcon } from '@/components/icons'
 import { BP_DESKTOP } from '@/constants/breakpoints'
 import useMediaQuery from '@/hooks/useMediaQuery'
+import { useOwnerScope } from '@/scope/scopeContext'
 import { fmtDot, parseISO } from '@/utils/date'
 import { won } from '@/utils/format'
 
@@ -36,6 +39,13 @@ export default function ContractTable({
   onClearFilters,
   onCreate,
 }: Props) {
+  // 한 사람만 보고 있으면 담당 영업 열은 모든 줄이 같은 값이라 자리만 차지합니다.
+  const { showOwner } = useOwnerScope()
+  const columns = useMemo(
+    () => CONTRACT_COLUMNS.filter((col) => col.id !== 'owner' || showOwner),
+    [showOwner],
+  )
+
   // 표와 카드는 마크업 자체가 다릅니다. CSS 로는 한쪽을 숨기는 것밖에 못 해
   // 폰에서도 여덟 열짜리 DOM 을 그대로 들고 있게 됩니다.
   const isDesktop = useMediaQuery(`(min-width: ${BP_DESKTOP}px)`)
@@ -87,7 +97,7 @@ export default function ContractTable({
               <div className={styles.miniMeta}>
                 <span className={`${styles.miniAmount} tnum`}>{won(card.amount)}</span>
                 <span className="tnum">{fmtDot(parseISO(card.date))}</span>
-                <span>{card.owner}</span>
+                {showOwner && <span>{card.owner}</span>}
               </div>
             </li>
           )
@@ -101,19 +111,19 @@ export default function ContractTable({
       <div className={styles.scroller}>
         <table
           className={styles.table}
-          style={{ width: CONTRACT_COLUMNS.reduce((sum, col) => sum + col.width, 0) }}
+          style={{ width: columns.reduce((sum, col) => sum + col.width, 0) }}
         >
           <caption className="sr-only">계약 목록. 헤더를 눌러 정렬할 수 있습니다.</caption>
 
           <colgroup>
-            {CONTRACT_COLUMNS.map((col) => (
+            {columns.map((col) => (
               <col key={col.id} style={{ width: col.width }} />
             ))}
           </colgroup>
 
           <thead>
             <tr>
-              {CONTRACT_COLUMNS.map((col) => {
+              {columns.map((col) => {
                 const active = sort?.id === col.id
                 return (
                   <th
@@ -155,7 +165,7 @@ export default function ContractTable({
               const stage = stageOf(card)
               return (
                 <tr key={card.no} className={styles.clickable} onClick={() => onOpen(card.no)}>
-                  {CONTRACT_COLUMNS.map((col) => (
+                  {columns.map((col) => (
                     <td
                       key={col.id}
                       className={[

@@ -1,4 +1,5 @@
 import { CUSTOMER_OWNERS, CUSTOMER_SOURCES, CUSTOMER_STATUSES } from '@/content/customers'
+import { useOwnerScope } from '@/scope/scopeContext'
 
 import type { Filters } from '../../Customers'
 
@@ -18,6 +19,17 @@ const GROUPS: { key: ListKey; label: string; options: string[] }[] = [
 ]
 
 export default function FilterPanel({ filters, onChange }: FilterPanelProps) {
+  // 보기 범위가 이미 한 사람이면 담당 영업으로 또 거를 것이 없습니다.
+  const { showOwner, owners } = useOwnerScope()
+  const groups = showOwner
+    ? GROUPS.map((group) =>
+        // 팀에 없는 이름은 어차피 목록에 나오지 않으므로 선택지에서 뺍니다.
+        group.key === 'owner'
+          ? { ...group, options: group.options.filter((name) => owners.includes(name)) }
+          : group,
+      )
+    : GROUPS.filter((group) => group.key !== 'owner')
+
   const toggle = (key: ListKey, value: string) => {
     const current = filters[key]
     onChange({
@@ -27,11 +39,12 @@ export default function FilterPanel({ filters, onChange }: FilterPanelProps) {
   }
 
   const active =
-    filters.status.length + filters.owner.length + filters.source.length > 0 || filters.overdueOnly
+    filters.status.length + (showOwner ? filters.owner.length : 0) + filters.source.length > 0 ||
+    filters.overdueOnly
 
   return (
     <div className={styles.root}>
-      {GROUPS.map((group) => (
+      {groups.map((group) => (
         <fieldset key={group.key} className={styles.group}>
           <legend className={styles.legend}>{group.label}</legend>
           <div className={styles.chips}>

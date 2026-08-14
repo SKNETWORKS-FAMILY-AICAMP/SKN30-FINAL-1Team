@@ -41,18 +41,24 @@
   }
 }
 
-.breadcrumb {
-  font-size: 13px;
-  color: var(--muted);
-
-  strong {
-    color: var(--ink);
-    font-weight: 600;
-  }
+.pageName {
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  // 좁은 화면에서 스위처에 자리를 내주고 줄어듭니다.
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .spacer {
   flex: 1;
+}
+
+// 지금 누구를 보고 있는지가 화면 이름보다 중요하므로 좁은 화면에서도 남깁니다.
+.scope {
+  flex: none;
 }
 
 .demoBadge {

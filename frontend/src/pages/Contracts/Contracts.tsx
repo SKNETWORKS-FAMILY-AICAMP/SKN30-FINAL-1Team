@@ -11,6 +11,7 @@ import { PlusIcon, SearchIcon } from '@/components/icons'
 import Modal from '@/components/Modal'
 import Pagination from '@/components/Pagination'
 import { contractNewPath } from '@/constants/routes'
+import { useOwnerScope } from '@/scope/scopeContext'
 import { addDays, iso, TODAY } from '@/utils/date'
 
 import { OWNERS, type BoardContract } from './board'
@@ -32,21 +33,30 @@ const RANGES = [
   { value: '0', label: '전체' },
 ]
 
-const OWNER_OPTIONS = [
-  { value: '', label: '담당 전체' },
-  ...OWNERS.map((name) => ({ value: name, label: name })),
-]
-
 /** 기본 기간. 확정 계약이 2년치라 전부 펼치면 목록이 지나치게 길어집니다. */
 const DEFAULT_RANGE = '6'
 
 export default function Contracts() {
   const { columns, cards, findContract, updateContract, removeContract } = useContractBoard()
   const navigate = useNavigate()
+  // 팀 전체를 볼 때만 담당 영업으로 한 번 더 좁힙니다. 범위가 이미 한 사람이면
+  // 같은 뜻의 조건이 둘이 되어 서로 어긋날 수 있습니다.
+  const { matchesOwner, showOwner, owners } = useOwnerScope()
 
   const [params, setParams] = useSearchParams()
   const query = params.get('q') ?? ''
-  const owner = params.get('owner') ?? ''
+  const owner = showOwner ? (params.get('owner') ?? '') : ''
+
+  const ownerOptions = useMemo(
+    () => [
+      { value: '', label: '담당 전체' },
+      ...OWNERS.filter((name) => owners.includes(name)).map((name) => ({
+        value: name,
+        label: name,
+      })),
+    ],
+    [owners],
+  )
   const range = params.get('range') ?? DEFAULT_RANGE
   const stage = params.get('stage') ?? ''
 
@@ -84,6 +94,7 @@ export default function Contracts() {
   const beforeStage = useMemo(() => {
     const needle = deferredQuery.trim().toLowerCase()
     return cards.filter((card) => {
+      if (!matchesOwner(card.owner)) return false
       if (owner !== '' && card.owner !== owner) return false
       if (fromISO !== null && card.date < fromISO) return false
       if (needle === '') return true
@@ -92,7 +103,7 @@ export default function Contracts() {
         .toLowerCase()
         .includes(needle)
     })
-  }, [cards, owner, fromISO, deferredQuery])
+  }, [cards, matchesOwner, owner, fromISO, deferredQuery])
 
   const stageCounts = useMemo(() => {
     const map = new Map<string, number>()
@@ -154,14 +165,16 @@ export default function Contracts() {
           />
         </label>
 
-        <FilterSelect
-          label="담당 영업"
-          value={owner}
-          options={OWNER_OPTIONS}
-          open={openFilter === 'owner'}
-          onOpenChange={(open) => setOpenFilter(open ? 'owner' : null)}
-          onChange={(value) => setParam('owner', value)}
-        />
+        {showOwner && (
+          <FilterSelect
+            label="담당 영업"
+            value={owner}
+            options={ownerOptions}
+            open={openFilter === 'owner'}
+            onOpenChange={(open) => setOpenFilter(open ? 'owner' : null)}
+            onChange={(value) => setParam('owner', value)}
+          />
+        )}
 
         <FilterSelect
           label="기간"

@@ -13,6 +13,7 @@ import { SearchIcon, UploadIcon } from '@/components/icons'
 import Modal from '@/components/Modal'
 import Pagination from '@/components/Pagination'
 import type { DocumentCategory, SalesDocument } from '@/content/types'
+import { useOwnerScope } from '@/scope/scopeContext'
 import { addDays, iso, TODAY } from '@/utils/date'
 
 import { latestOf, OWNERS } from './catalog'
@@ -33,22 +34,30 @@ const RANGES = [
   { value: '0', label: '전체' },
 ]
 
-const OWNER_OPTIONS = [
-  { value: '', label: '등록자 전체' },
-  ...OWNERS.map((name) => ({ value: name, label: name })),
-]
-
 /** 기본 기간. 등록일 기준입니다. 자료는 오래 남으므로 발주보다 넉넉하게 잡습니다. */
 const DEFAULT_RANGE = '12'
 
 export default function Documents() {
   const { documents, findDocument, addDocument, addVersion, removeDocument } = useDocuments()
   const { profile } = useCurrentUser()
+  // 자료는 최신 버전의 등록자를 그 자료의 담당으로 봅니다.
+  const { matchesOwner, showOwner, owners } = useOwnerScope()
 
   const [params, setParams] = useSearchParams()
   const query = params.get('q') ?? ''
-  const owner = params.get('owner') ?? ''
+  const owner = showOwner ? (params.get('owner') ?? '') : ''
   const range = params.get('range') ?? DEFAULT_RANGE
+
+  const ownerOptions = useMemo(
+    () => [
+      { value: '', label: '등록자 전체' },
+      ...OWNERS.filter((name) => owners.includes(name)).map((name) => ({
+        value: name,
+        label: name,
+      })),
+    ],
+    [owners],
+  )
   const category = params.get('category') ?? ''
 
   // 타이핑 중에도 입력이 밀리지 않도록 목록 계산만 한 박자 늦춥니다.
@@ -87,6 +96,7 @@ export default function Documents() {
     const needle = deferredQuery.trim().toLowerCase()
     return documents.filter((doc) => {
       const latest = latestOf(doc)
+      if (!matchesOwner(latest.owner)) return false
       if (owner !== '' && latest.owner !== owner) return false
       if (fromISO !== null && latest.uploaded < fromISO) return false
       if (needle === '') return true
@@ -97,7 +107,7 @@ export default function Documents() {
         .toLowerCase()
         .includes(needle)
     })
-  }, [documents, owner, fromISO, deferredQuery])
+  }, [documents, matchesOwner, owner, fromISO, deferredQuery])
 
   const categoryCounts = useMemo(() => {
     const map = new Map<DocumentCategory, number>()
@@ -184,14 +194,16 @@ export default function Documents() {
           />
         </label>
 
-        <FilterSelect
-          label="등록자"
-          value={owner}
-          options={OWNER_OPTIONS}
-          open={openFilter === 'owner'}
-          onOpenChange={(open) => setOpenFilter(open ? 'owner' : null)}
-          onChange={(value) => setParam('owner', value)}
-        />
+        {showOwner && (
+          <FilterSelect
+            label="등록자"
+            value={owner}
+            options={ownerOptions}
+            open={openFilter === 'owner'}
+            onOpenChange={(open) => setOpenFilter(open ? 'owner' : null)}
+            onChange={(value) => setParam('owner', value)}
+          />
+        )}
 
         <FilterSelect
           label="기간"

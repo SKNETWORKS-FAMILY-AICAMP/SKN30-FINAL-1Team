@@ -7,11 +7,13 @@ import { useSidebar } from '@/components/layout/AppShell/sidebarContext'
 import { SIDEBAR_ID } from '@/components/layout/Sidebar/Sidebar'
 import { findNavLabel } from '@/constants/navigation'
 
+import ScopeSwitcher from './ScopeSwitcher'
+
 import styles from './Topbar.module.scss'
 
 export default function Topbar() {
   const { mobileOpen, openMobile } = useSidebar()
-  const { profile } = useCurrentUser()
+  const { profile, isManager } = useCurrentUser()
   const { pathname } = useLocation()
 
   const hamburgerRef = useRef<HTMLButtonElement>(null)
@@ -39,11 +41,17 @@ export default function Topbar() {
         <MenuIcon />
       </button>
 
-      <p className={styles.breadcrumb}>
-        SalesLuv / <strong>{pageLabel}</strong>
-      </p>
+      {/* 브랜드 이름은 사이드바 로고가 이미 말합니다. 여기는 지금 화면 이름만 둡니다. */}
+      <p className={styles.pageName}>{pageLabel}</p>
 
       <div className={styles.spacer} />
+
+      {/* 팀원에게는 고를 것이 없습니다. 늘 자기 데이터만 봅니다. */}
+      {isManager && (
+        <div className={styles.scope}>
+          <ScopeSwitcher />
+        </div>
+      )}
 
       <button type="button" className={styles.iconBtn} aria-label="알림">
         <BellIcon />

@@ -141,6 +141,17 @@ export const ALL_COLUMNS: ColumnDef[] = [
 ]
 
 /** 처음 보이는 컬럼. 나머지는 컬럼 설정에서 켭니다. */
-export const DEFAULT_VISIBLE = ['org', 'name', 'title', 'email', 'phone', 'status', 'last', 'next']
+// 담당 영업은 여러 사람의 고객이 섞여 보일 때만 표에 나옵니다(Customers.tsx).
+export const DEFAULT_VISIBLE = [
+  'org',
+  'name',
+  'title',
+  'email',
+  'phone',
+  'owner',
+  'status',
+  'last',
+  'next',
+]
 
 export const COLUMN_BY_ID = new Map(ALL_COLUMNS.map((c) => [c.id, c]))

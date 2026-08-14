@@ -6,6 +6,7 @@ import Sidebar from '@/components/layout/Sidebar'
 import Topbar from '@/components/layout/Topbar'
 import { BP_DESKTOP } from '@/constants/breakpoints'
 import useMediaQuery from '@/hooks/useMediaQuery'
+import ScopeProvider from '@/scope/ScopeProvider'
 
 import { SidebarContext } from './sidebarContext'
 
@@ -75,20 +76,23 @@ export default function AppShell() {
     [collapsed, toggleCollapsed, mobileOpen, openMobile, closeMobile],
   )
 
+  // 보기 범위는 셸이 들고 있습니다. 화면을 옮겨도 셸은 그대로라 스코프가 유지됩니다.
   return (
-    <SidebarContext value={sidebar}>
-      <div className={`${styles.shell} ${collapsed ? styles.isRail : ''}`}>
-        <Sidebar />
+    <ScopeProvider>
+      <SidebarContext value={sidebar}>
+        <div className={`${styles.shell} ${collapsed ? styles.isRail : ''}`}>
+          <Sidebar />
 
-        <div className={styles.main}>
-          <Topbar />
-          <div className={styles.content}>
-            <Outlet />
+          <div className={styles.main}>
+            <Topbar />
+            <div className={styles.content}>
+              <Outlet />
+            </div>
           </div>
-        </div>
 
-        {mobileOpen && <Scrim onClick={closeMobile} />}
-      </div>
-    </SidebarContext>
+          {mobileOpen && <Scrim onClick={closeMobile} />}
+        </div>
+      </SidebarContext>
+    </ScopeProvider>
   )
 }

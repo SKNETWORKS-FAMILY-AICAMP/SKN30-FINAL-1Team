@@ -3,6 +3,7 @@ import { useCallback, useDeferredValue, useMemo, useState } from 'react'
 import Pagination from '@/components/Pagination'
 import { customers as seedCustomers } from '@/content/customers'
 import type { Customer } from '@/content/types'
+import { useOwnerScope } from '@/scope/scopeContext'
 import { downloadCsv, toCsv } from '@/utils/csv'
 
 import { COLUMN_BY_ID } from './columns'
@@ -24,9 +25,13 @@ export interface Filters {
 
 const NO_FILTERS: Filters = { status: [], owner: [], source: [], overdueOnly: false }
 
+/** 담당 영업 필터를 쓰지 않을 때의 값. 참조가 고정돼야 목록 계산이 매번 다시 돌지 않습니다. */
+const NO_OWNERS: string[] = []
+
 export type SortState = { id: string; dir: 'asc' | 'desc' } | null
 
 export default function Customers() {
+  const { matchesOwner, showOwner } = useOwnerScope()
   const [rows, setRows] = useState<Customer[]>(seedCustomers)
   const [query, setQuery] = useState('')
   const [filters, setFilters] = useState<Filters>(NO_FILTERS)
@@ -46,14 +51,24 @@ export default function Customers() {
     () =>
       prefs.order
         .filter((id) => prefs.visible.includes(id))
+        // 한 사람만 보고 있으면 담당 영업 열은 모든 줄이 같은 값이라 자리만 차지합니다.
+        .filter((id) => id !== 'owner' || showOwner)
         .map((id) => COLUMN_BY_ID.get(id))
         .filter((c) => c !== undefined),
-    [prefs.order, prefs.visible],
+    [prefs.order, prefs.visible, showOwner],
   )
+
+  // 보기 범위 밖은 없는 셈 칩니다. 빈 화면 안내와 드로어의 '같은 회사 고객'까지
+  // 같은 범위를 봐야 하므로 필터보다 먼저 한 번 걸러 둡니다.
+  const scoped = useMemo(() => rows.filter((c) => matchesOwner(c.owner)), [rows, matchesOwner])
+
+  // 보기 범위가 한 사람으로 좁혀져 있으면 담당 영업 필터는 감춰져 있습니다. 그때 남아 있던
+  // 선택은 세지도, 걸지도 않습니다. 보이지 않는 조건이 목록을 비우면 이유를 알 수 없습니다.
+  const ownerFilter = showOwner ? filters.owner : NO_OWNERS
 
   const filterCount =
     filters.status.length +
-    filters.owner.length +
+    ownerFilter.length +
     filters.source.length +
     (filters.overdueOnly ? 1 : 0)
 
@@ -61,9 +76,9 @@ export default function Customers() {
   const matched = useMemo(() => {
     const needle = deferredQuery.trim().toLowerCase()
 
-    const filtered = rows.filter((c) => {
+    const filtered = scoped.filter((c) => {
       if (filters.status.length > 0 && !filters.status.includes(c.status)) return false
-      if (filters.owner.length > 0 && !filters.owner.includes(c.owner)) return false
+      if (ownerFilter.length > 0 && !ownerFilter.includes(c.owner)) return false
       if (filters.source.length > 0 && !filters.source.includes(c.source)) return false
       if (filters.overdueOnly && !c.overdue) return false
       if (needle === '') return true
@@ -80,7 +95,7 @@ export default function Customers() {
 
     const sign = sort.dir === 'asc' ? 1 : -1
     return [...filtered].sort((a, b) => sign * column.value(a).localeCompare(column.value(b), 'ko'))
-  }, [rows, deferredQuery, filters, sort])
+  }, [scoped, deferredQuery, filters, ownerFilter, sort])
 
   // 결과가 줄어들어 현재 페이지가 사라졌으면 마지막 페이지로 당겨 옵니다.
   const pageCount = Math.max(1, Math.ceil(matched.length / pageSize))
@@ -92,7 +107,7 @@ export default function Customers() {
 
   // 객체가 아니라 id 를 들고 목록에서 찾습니다. 열어 둔 고객을 지우면
   // 여기가 비면서 드로어가 알아서 닫힙니다.
-  const openCustomer = useMemo(() => rows.find((r) => r.id === openId) ?? null, [rows, openId])
+  const openCustomer = useMemo(() => scoped.find((r) => r.id === openId) ?? null, [scoped, openId])
 
   const resetPage = useCallback(() => setPage(1), [])
 
@@ -213,7 +228,7 @@ export default function Customers() {
         onTogglePage={togglePage}
         onOpen={setOpenId}
         isFiltered={filterCount > 0 || query.trim() !== ''}
-        hasAnyData={rows.length > 0}
+        hasAnyData={scoped.length > 0}
         onClearFilters={clearFilters}
         onCreate={() => setModal('create')}
       />
@@ -240,7 +255,7 @@ export default function Customers() {
       {openCustomer && (
         <CustomerDrawer
           customer={openCustomer}
-          all={rows}
+          all={scoped}
           onOpen={setOpenId}
           onClose={() => setOpenId(null)}
         />

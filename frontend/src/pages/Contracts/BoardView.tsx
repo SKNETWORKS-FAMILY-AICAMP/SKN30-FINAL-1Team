@@ -17,6 +17,7 @@ import FilterSelect from '@/components/FilterSelect'
 import Modal from '@/components/Modal'
 import { PlusIcon, SearchIcon } from '@/components/icons'
 import usePointerDrag from '@/hooks/usePointerDrag'
+import { useOwnerScope } from '@/scope/scopeContext'
 import { addDays, iso, TODAY } from '@/utils/date'
 
 import { DROP_ATTR, OWNERS, parseSlot, TONES, type BoardContract } from './board'
@@ -34,11 +35,6 @@ const RANGES = [
   { value: '6', label: '최근 6개월' },
   { value: '12', label: '최근 1년' },
   { value: '0', label: '전체' },
-]
-
-const OWNER_OPTIONS = [
-  { value: '', label: '담당 전체' },
-  ...OWNERS.map((name) => ({ value: name, label: name })),
 ]
 
 /** 기본 기간. 확정 계약이 2년치라 전부 펼치면 확정 컬럼만 길어집니다. */
@@ -65,10 +61,24 @@ export default function BoardView() {
     removeColumn,
   } = useContractBoard()
 
+  // 팀 전체를 볼 때만 담당 영업으로 한 번 더 좁힙니다. 목록 화면과 같은 규칙입니다.
+  const { matchesOwner, showOwner, owners } = useOwnerScope()
+
   const [params, setParams] = useSearchParams()
   const query = params.get('q') ?? ''
-  const owner = params.get('owner') ?? ''
+  const owner = showOwner ? (params.get('owner') ?? '') : ''
   const range = params.get('range') ?? DEFAULT_RANGE
+
+  const ownerOptions = useMemo(
+    () => [
+      { value: '', label: '담당 전체' },
+      ...OWNERS.filter((name) => owners.includes(name)).map((name) => ({
+        value: name,
+        label: name,
+      })),
+    ],
+    [owners],
+  )
 
   // 타이핑 중에도 입력이 밀리지 않도록 목록 계산만 한 박자 늦춥니다.
   const deferredQuery = useDeferredValue(query)
@@ -102,6 +112,7 @@ export default function BoardView() {
 
   const matches = useCallback(
     (card: BoardContract) => {
+      if (!matchesOwner(card.owner)) return false
       if (owner !== '' && card.owner !== owner) return false
       if (fromISO !== null && card.date < fromISO) return false
       const needle = deferredQuery.trim().toLowerCase()
@@ -111,7 +122,7 @@ export default function BoardView() {
         .toLowerCase()
         .includes(needle)
     },
-    [owner, fromISO, deferredQuery],
+    [matchesOwner, owner, fromISO, deferredQuery],
   )
 
   const shownByColumn = useMemo(() => {
@@ -195,14 +206,16 @@ export default function BoardView() {
           />
         </label>
 
-        <FilterSelect
-          label="담당 영업"
-          value={owner}
-          options={OWNER_OPTIONS}
-          open={openFilter === 'owner'}
-          onOpenChange={(open) => setOpenFilter(open ? 'owner' : null)}
-          onChange={(value) => setParam('owner', value)}
-        />
+        {showOwner && (
+          <FilterSelect
+            label="담당 영업"
+            value={owner}
+            options={ownerOptions}
+            open={openFilter === 'owner'}
+            onOpenChange={(open) => setOpenFilter(open ? 'owner' : null)}
+            onChange={(value) => setParam('owner', value)}
+          />
+        )}
 
         <FilterSelect
           label="기간"
