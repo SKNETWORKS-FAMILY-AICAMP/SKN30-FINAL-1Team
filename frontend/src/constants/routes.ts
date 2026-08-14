@@ -11,6 +11,7 @@ export const ROUTES = {
   TEAM: '/team', // 팀 관리 (팀장 전용)
   CUSTOMERS: '/customers',
   CALENDAR: '/calendar',
+  MEETINGS: '/meetings', // 미팅보고서. 진입은 대시보드 일정에서 합니다.
   DAILY: '/daily', // 업무 보고
   SALES: '/sales', // 매출 분석
   CONTRACTS: '/contracts',
@@ -38,6 +39,18 @@ export const dailyComposePath = (dateISO?: string, kind: ReportKind = '일일') 
 
 /** 제출된 보고서 상세 */
 export const dailyReportPath = (id: string) => `${ROUTES.DAILY}/${id}`
+
+/**
+ * 미팅보고서 작성 화면. 일정 하나를 기록하므로 그 일정 id 를 달고 갑니다.
+ * 이미 쓴 기록을 고칠 때도 같은 경로를 씁니다.
+ */
+export const meetingComposePath = (agendaId?: string) =>
+  agendaId
+    ? `${ROUTES.MEETINGS}/new?agenda=${encodeURIComponent(agendaId)}`
+    : `${ROUTES.MEETINGS}/new`
+
+/** 확정한 미팅보고서 상세 */
+export const meetingReportPath = (id: string) => `${ROUTES.MEETINGS}/${id}`
 
 /** 계약 상세. 계약번호(FM-CT-2026-0039)를 그대로 씁니다. */
 export const contractPath = (no: string) => `${ROUTES.CONTRACTS}/${no}`

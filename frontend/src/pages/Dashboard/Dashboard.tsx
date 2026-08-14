@@ -137,13 +137,7 @@ export default function Dashboard() {
       )}
 
       {open?.type === 'record' && (
-        <RecordDrawer
-          item={open.item}
-          done={doneIds.has(open.item.id)}
-          onToggleDone={toggleDone}
-          onOpenOrder={(no) => openOrder(no)}
-          onClose={closeDrawer}
-        />
+        <RecordDrawer item={open.item} done={doneIds.has(open.item.id)} onClose={closeDrawer} />
       )}
 
       {open?.type === 'kpi' && <ListDrawer list={kpiList(open.key)} onClose={closeDrawer} />}

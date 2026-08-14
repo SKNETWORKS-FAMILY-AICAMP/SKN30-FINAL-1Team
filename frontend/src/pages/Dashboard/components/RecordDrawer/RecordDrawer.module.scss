@@ -3,11 +3,6 @@
   @include tag-pill;
 }
 
-.good {
-  background: var(--green-tint);
-  color: var(--green-ink);
-}
-
 // DayAgenda 의 상태 알약과 같은 톤입니다. 목록에서 본 색이 여기서 바뀌면 안 됩니다.
 .scopeExternal {
   background: var(--blue-tint);
@@ -19,50 +14,12 @@
   color: var(--orange-ink);
 }
 
+// 일시는 일정 제목 뒤에 이어 붙입니다. 제목보다 약하게 둡니다.
 .when {
+  margin-left: 5px;
   color: var(--muted);
   font-size: 12px;
-}
-
-// DayAgenda 의 .kind 와 같은 배지입니다.
-.kind {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 3px 9px;
-  border-radius: var(--r-pill);
-  background: var(--fill);
-  color: var(--ink-2);
-  font-size: 11px;
-  font-weight: 700;
-
-  &::before {
-    content: '';
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: currentcolor;
-  }
-}
-
-.kindBlue {
-  background: var(--blue-tint);
-  color: var(--blue);
-}
-
-.kindPurple {
-  background: var(--purple-tint);
-  color: var(--purple-ink);
-}
-
-.kindGreen {
-  background: var(--green-tint);
-  color: var(--green-ink);
-}
-
-.kindOrange {
-  background: var(--orange-tint);
-  color: var(--orange-ink);
+  font-weight: 500;
 }
 
 .grid {
@@ -76,18 +33,17 @@
   }
 }
 
-.col {
-  display: grid;
-  gap: var(--s5);
-  align-content: start;
-}
-
 .block {
   h3 {
     margin-bottom: var(--s3);
     font-size: 13px;
     font-weight: 700;
   }
+}
+
+// 두 열을 가로지르는 블록입니다.
+.full {
+  grid-column: 1 / -1;
 }
 
 .facts {
@@ -117,10 +73,6 @@
   line-height: 1.7;
 }
 
-.muted {
-  color: var(--muted);
-}
-
 // 왼쪽 선 하나로 지난 접촉을 시간순으로 세웁니다.
 .history {
   padding-left: var(--s4);
@@ -141,43 +93,6 @@
     color: var(--ink-2);
     font-size: 13px;
     line-height: 1.6;
-  }
-}
-
-.link {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--s3);
-  width: 100%;
-  padding: var(--s3);
-  border: 1px solid var(--line);
-  border-radius: var(--r-sm);
-  background: var(--surface-2);
-  color: inherit;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-  transition:
-    background var(--t-fast),
-    border-color var(--t-fast);
-
-  &:hover {
-    border-color: rgba(0, 122, 255, 0.3);
-    background: var(--blue-tint);
-  }
-
-  strong {
-    display: block;
-    font-size: 13px;
-    font-weight: 700;
-  }
-
-  small {
-    display: block;
-    margin-top: 2px;
-    color: var(--muted);
-    font-size: 12px;
   }
 }
 

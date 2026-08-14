@@ -1,16 +1,16 @@
 import { useCallback, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
 
+import AttachmentPanel from '@/components/AttachmentPanel'
 import Button from '@/components/Button'
 import { ChevronLeftIcon } from '@/components/icons'
 import Modal from '@/components/Modal'
+import ReportFields from '@/components/ReportFields'
 import { APPROVERS } from '@/content/reports'
 import { dailyReportPath, ROUTES } from '@/constants/routes'
 import { fmtDot, parseISO, TODAY_ISO } from '@/utils/date'
 
 import ActivityList from './components/ActivityList'
-import AttachmentPanel from './components/AttachmentPanel'
-import ReportFields from './components/ReportFields'
 import { PERIOD_KIND, toPeriod } from './periods'
 import useDailyDraft from './useDailyDraft'
 import useDailyReports from './useDailyReports'

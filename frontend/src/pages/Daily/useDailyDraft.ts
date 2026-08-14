@@ -4,14 +4,11 @@
 // api/client.ts 호출로 바꾸면 화면은 그대로 둘 수 있습니다.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { meetingActivitiesFor } from '@/content/meetings'
 import { draftActivitiesFor, templateFor } from '@/content/reports'
-import type {
-  ReportActivity,
-  ReportAttachment,
-  AttachmentKind,
-  ReportKind,
-  ReportTemplate,
-} from '@/content/types'
+import type { ReportActivity, ReportAttachment, ReportKind, ReportTemplate } from '@/content/types'
+import useMeetingReports from '@/pages/Meetings/useMeetingReports'
+import { fakeExtract, kindOf, sizeLabel } from '@/utils/attachment'
 
 export type DraftPhase = 'idle' | 'generating' | 'ready' | 'submitted'
 
@@ -19,30 +16,19 @@ export type DraftPhase = 'idle' | 'generating' | 'ready' | 'submitted'
 const GENERATE_MS = 900
 const ANALYZE_MS = 1400
 
-function kindOf(file: File): AttachmentKind {
-  if (file.type.startsWith('audio/')) return 'audio'
-  if (file.type.startsWith('image/')) return 'image'
-  return 'pdf'
-}
-
-function sizeLabel(bytes: number): string {
-  if (bytes < 1024) return `${bytes}B`
-  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)}KB`
-  return `${(bytes / 1024 / 1024).toFixed(1)}MB`
-}
-
-/** 실제 분석 대신 종류별로 그럴듯한 한 줄을 돌려줍니다. */
-function fakeExtract(kind: AttachmentKind, name: string): string {
-  if (kind === 'audio') return `${name} 음성에서: 유지보수 조건 재협의 요청, 4분기 예산 검토 언급`
-  if (kind === 'image') return `${name} 이미지에서: 화이트보드에 적힌 도입 일정 3단계`
-  return `${name} 문서에서: 견적 총액과 납기 조건 요약`
-}
-
 const emptyValues = (template: ReportTemplate) =>
   Object.fromEntries(template.fields.map((f) => [f.id, '']))
 
 export default function useDailyDraft(dateISO: string, kind: ReportKind) {
   const template = templateFor(kind)
+
+  // 그날 확정한 미팅 기록도 활동 후보입니다. reset() 이 이 배열을 의존성으로 쓰므로
+  // 날짜가 그대로면 같은 배열이어야 다시 수집이 반복되지 않습니다.
+  const { byDate } = useMeetingReports()
+  const fromMeetings = useMemo(
+    () => meetingActivitiesFor(byDate.get(dateISO) ?? []),
+    [byDate, dateISO],
+  )
 
   const [phase, setPhase] = useState<DraftPhase>('idle')
   const [activities, setActivities] = useState<ReportActivity[]>(() => draftActivitiesFor(dateISO))
@@ -67,14 +53,14 @@ export default function useDailyDraft(dateISO: string, kind: ReportKind) {
   // 날짜나 종류가 바뀌면 그날 일정으로 다시 수집하고 처음 상태로 돌아갑니다.
   // 쓰던 내용을 지워도 되는지는 화면이 먼저 묻습니다.
   const reset = useCallback(() => {
-    setActivities(draftActivitiesFor(dateISO))
+    setActivities([...draftActivitiesFor(dateISO), ...fromMeetings])
     setAttachments([])
     setValues(emptyValues(template))
     setAiFilledIds(new Set())
     setDirtyIds(new Set())
     setStaleAttachments(false)
     setPhase('idle')
-  }, [dateISO, template])
+  }, [dateISO, template, fromMeetings])
 
   useEffect(() => {
     reset()

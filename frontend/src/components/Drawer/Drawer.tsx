@@ -13,7 +13,7 @@ import styles from './Drawer.module.scss'
 interface Props {
   title: string
   /** 제목 아래 한 줄 */
-  sub?: string
+  sub?: ReactNode
   /** 제목 아래 배지 줄 */
   meta?: ReactNode
   /** layout_v3 의 .is-wide. 2열로 나눠 담을 내용이 있을 때만 씁니다. */

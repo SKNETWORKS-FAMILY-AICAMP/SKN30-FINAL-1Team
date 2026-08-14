@@ -298,3 +298,12 @@ for (const list of Object.values(agendaByDate)) {
 export function agendaFor(dateISO: string): AgendaItem[] {
   return agendaByDate[dateISO] ?? []
 }
+
+/** 일정 하나를 id 로 찾습니다. 미팅보고서 작성 화면이 ?agenda= 로 받은 값을 폅니다. */
+export function agendaById(id: string): AgendaItem | undefined {
+  for (const list of Object.values(agendaByDate)) {
+    const found = list.find((item) => item.id === id)
+    if (found) return found
+  }
+  return undefined
+}

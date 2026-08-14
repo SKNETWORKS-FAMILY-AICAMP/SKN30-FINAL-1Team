@@ -1,13 +1,13 @@
 import { Link, useParams } from 'react-router'
 
+import AttachmentPanel from '@/components/AttachmentPanel'
 import { ChevronLeftIcon } from '@/components/icons'
+import ReportFields from '@/components/ReportFields'
 import { dailyComposePath, ROUTES } from '@/constants/routes'
 import { templateFor } from '@/content/reports'
 import { fmtDot, parseISO } from '@/utils/date'
 
 import ActivityList from './components/ActivityList'
-import AttachmentPanel from './components/AttachmentPanel'
-import ReportFields from './components/ReportFields'
 import ReportStatusBadge from './components/ReportStatusBadge'
 import useDailyReports from './useDailyReports'
 

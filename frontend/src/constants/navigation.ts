@@ -86,6 +86,14 @@ export const NAV_SECTIONS: NavSection[] = [
 const NAV_ITEMS = NAV_SECTIONS.flatMap((section) => section.items)
 
 /**
+ * 사이드바에 없는 화면의 이름. 미팅보고서처럼 다른 화면에서만 들어가는 곳도
+ * breadcrumb 에는 제 이름이 나와야 합니다.
+ */
+const OFF_MENU_LABELS: { to: Route; label: string }[] = [
+  { to: ROUTES.MEETINGS, label: '미팅보고서' },
+]
+
+/**
  * 경로에 해당하는 화면 이름. 정의되지 않은 경로면 undefined.
  *
  * 하위 경로(예: /daily/new)는 부모 메뉴의 이름을 물려받습니다. 가장 긴 것부터 보므로
@@ -93,7 +101,7 @@ const NAV_ITEMS = NAV_SECTIONS.flatMap((section) => section.items)
  * '/' 는 모든 경로의 접두사라 완전일치일 때만 씁니다.
  */
 export function findNavLabel(pathname: string): string | undefined {
-  return [...NAV_ITEMS]
+  return [...NAV_ITEMS, ...OFF_MENU_LABELS]
     .sort((a, b) => b.to.length - a.to.length)
     .find((item) => item.to === pathname || (item.to !== '/' && pathname.startsWith(`${item.to}/`)))
     ?.label

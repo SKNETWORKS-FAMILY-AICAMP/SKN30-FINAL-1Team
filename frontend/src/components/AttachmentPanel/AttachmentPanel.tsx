@@ -9,6 +9,8 @@ interface Props {
   attachments: ReportAttachment[]
   /** 읽기 모드면 올리기·녹음·삭제가 사라집니다. */
   readOnly?: boolean
+  /** 첨부가 그 화면에서 무엇에 쓰이는지. 화면마다 다릅니다. */
+  note?: string
   onAttach?: (files: FileList | File[]) => void
   onRemove?: (id: string) => void
 }
@@ -22,6 +24,7 @@ const KIND_LABEL: Record<AttachmentKind, string> = {
 export default function AttachmentPanel({
   attachments,
   readOnly = false,
+  note = '음성·사진·PDF를 넣으면 초안이 더 자세해집니다. 넣지 않아도 캘린더 일정만으로 작성됩니다.',
   onAttach,
   onRemove,
 }: Props) {
@@ -51,9 +54,7 @@ export default function AttachmentPanel({
     <div>
       {!readOnly && (
         <>
-          <p className={styles.note}>
-            음성·사진·PDF를 넣으면 초안이 더 자세해집니다. 넣지 않아도 캘린더 일정만으로 작성됩니다.
-          </p>
+          <p className={styles.note}>{note}</p>
 
           <div className={styles.actions}>
             <button

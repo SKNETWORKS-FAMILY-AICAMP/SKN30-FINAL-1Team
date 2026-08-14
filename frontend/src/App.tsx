@@ -10,6 +10,7 @@ import Customers from '@/pages/Customers'
 import Daily, { DailyCompose, DailyDetail } from '@/pages/Daily'
 import Dashboard from '@/pages/Dashboard'
 import Login from '@/pages/Login'
+import { MeetingCompose, MeetingDetail } from '@/pages/Meetings'
 import NotFound from '@/pages/NotFound'
 import Orders, { OrderDetail, OrderNew } from '@/pages/Orders'
 import Sales from '@/pages/Sales'
@@ -27,6 +28,13 @@ export default function App() {
               <Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
               <Route path={ROUTES.CUSTOMERS} element={<Customers />} />
               <Route path={ROUTES.CALENDAR} element={<Calendar />} />
+
+              {/* 미팅보고서는 일정 하나를 기록하는 화면이라 목록이 없습니다.
+                  진입은 대시보드 일정 드로어에서 합니다. */}
+              <Route path={ROUTES.MEETINGS}>
+                <Route path="new" element={<MeetingCompose />} />
+                <Route path=":reportId" element={<MeetingDetail />} />
+              </Route>
 
               {/* 업무 보고는 목록·작성·상세가 한 기능이라 경로를 묶어 둡니다.
                   고정 경로를 :reportId 위에 둡니다. */}
