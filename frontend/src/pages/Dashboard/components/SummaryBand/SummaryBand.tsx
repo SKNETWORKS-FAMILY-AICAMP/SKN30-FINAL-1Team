@@ -22,7 +22,7 @@ function deriveCounters() {
   return {
     visits: {
       count: orgs.size,
-      sub: `오늘 일정 ${todayList.length}건 · 외부 ${external.length}건`,
+      sub: `오늘 일정 ${todayList.length}건`,
     },
     followUp: {
       count: followUps.length,
@@ -33,7 +33,6 @@ function deriveCounters() {
       count: csRequests.length,
       urgent: csRequests.filter((c) => c.urgent).length,
       sub:
-        `미응답 ${csRequests.filter((c) => c.state === '미응답').length}건 · ` +
         `처리중 ${csRequests.filter((c) => c.state === '처리중').length}건`,
     },
     renewal: {
@@ -81,6 +80,11 @@ interface Props {
 export default function SummaryBand({ onJumpToToday, onOpenList }: Props) {
   const c = deriveCounters()
   const percent = (salesGoal.achieved / salesGoal.target) * 100
+  const over = salesGoal.achieved >= salesGoal.target
+  // 목표를 넘기면 트랙이 100%가 아니라 달성률 전체를 담습니다. 그래야 막대가 잘리지 않고
+  // 100% 눈금이 트랙 안쪽에 남아 "얼마나 넘었는지"가 길이로 읽힙니다.
+  const trackMax = Math.max(percent, 100)
+  const surplus = salesGoal.achieved - salesGoal.target
 
   return (
     <div className={styles.summary}>
@@ -119,20 +123,38 @@ export default function SummaryBand({ onJumpToToday, onOpenList }: Props) {
         onOpen={() => onOpenList('renewal')}
       />
 
-      <article className={styles.goal} aria-label={`${salesGoal.month}월 매출 목표`}>
+      <article
+        className={[styles.goal, over && styles.over].filter(Boolean).join(' ')}
+        aria-label={`${salesGoal.month}월 매출 목표${over ? ' — 목표 달성' : ''}`}
+      >
         <div className={styles.goalHead}>
           <span>{salesGoal.month}월 매출 목표</span>
+          {over && <i className={styles.delta}>목표 달성</i>}
           <strong className="tnum">{percent.toFixed(1)}%</strong>
         </div>
         <p className={`${styles.goalValue} tnum`}>
           {won(salesGoal.achieved)} <em>/ {won(salesGoal.target)}</em>
         </p>
-        <div className={styles.goalTrack}>
-          <i style={{ '--p': `${percent}%` } as React.CSSProperties} />
+        <div
+          className={styles.goalTrack}
+          style={
+            {
+              '--p': `${(percent / trackMax) * 100}%`,
+              // 트랙 안에서의 100% 눈금 위치와, 막대 안에서 색이 갈리는 지점.
+              '--mark': `${(100 / trackMax) * 100}%`,
+              '--split': `${(100 / percent) * 100}%`,
+            } as React.CSSProperties
+          }
+        >
+          <i />
         </div>
         <div className={styles.goalFoot}>
           <span>{salesGoal.teamName}</span>
-          <span className="tnum">마감 D-{salesGoal.deadlineInDays}</span>
+          <span className={`tnum ${surplus > 0 ? styles.surplus : ''}`}>
+            {/* 딱 맞춰 달성한 경우엔 초과분 대신 남은 기간을 그대로 둡니다.
+                '초과 +₩0' 은 읽는 사람에게 아무것도 알려 주지 않습니다. */}
+            {surplus > 0 ? `목표 초과 +${won(surplus)}` : `마감 D-${salesGoal.deadlineInDays}`}
+          </span>
         </div>
       </article>
     </div>

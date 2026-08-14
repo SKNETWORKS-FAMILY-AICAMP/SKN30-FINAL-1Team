@@ -121,22 +121,33 @@
 .goal {
   @include card;
 
+  display: flex;
+  flex-direction: column;
   padding: var(--s4);
 }
 
+// 라벨 줄은 KPI 타일의 .top 과 같은 20px 줄에 세웁니다. 20px 숫자가 줄 높이를
+// 밀어 올리면 이 카드 라벨만 아래로 내려가 옆 타일과 어긋나 보입니다.
 .goalHead {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: var(--s2);
+  min-height: 20px;
 
   span {
     font-size: 12px;
     color: var(--muted);
   }
 
+  // 달성 뱃지. 라벨 바로 옆에 붙이고 남은 자리를 밀어내 달성률은 오른쪽 끝에 둡니다.
+  .delta {
+    margin-right: auto;
+  }
+
   strong {
     font-size: 20px;
+    line-height: 20px;
     font-weight: 700;
     letter-spacing: -0.02em;
   }
@@ -154,8 +165,10 @@
 }
 
 .goalTrack {
+  position: relative;
   height: 6px;
-  margin-top: var(--s2);
+  // 막대와 아래 줄은 카드 바닥에 붙여 옆 타일의 보조 문구와 같은 높이에 둡니다.
+  margin-top: auto;
   border-radius: var(--r-pill);
   background: var(--fill);
   overflow: hidden;
@@ -177,4 +190,40 @@
   margin-top: 6px;
   font-size: 11px;
   color: var(--muted);
+}
+
+// 목표 초과. 카드 배경과 테두리는 그대로 두고 색과 눈금만 바꿉니다. 달성률 숫자는
+// 자르지 않으므로 116.7% 처럼 100을 넘는 값이 그대로 보입니다.
+.over {
+  .goalHead strong {
+    color: var(--green-ink);
+  }
+
+  .goalTrack i {
+    background: linear-gradient(
+      90deg,
+      var(--green) 0 var(--split),
+      var(--green-ink) var(--split) 100%
+    );
+  }
+
+  // 100% 눈금. 막대 위에 얇게 파인 자국으로 남겨 넘어선 구간을 갈라 놓습니다.
+  .goalTrack::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--mark);
+    width: 2px;
+    margin-left: -1px;
+    background: var(--surface);
+    opacity: 0.75;
+  }
+
+}
+
+// 목표를 넘긴 금액. 바닥 줄에서 이 조각만 초록으로 올립니다.
+.goalFoot .surplus {
+  color: var(--green-ink);
+  font-weight: 600;
 }

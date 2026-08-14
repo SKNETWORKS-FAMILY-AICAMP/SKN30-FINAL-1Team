@@ -1,0 +1,32 @@
+// 제목 아래 한 줄은 작성 일시만 남습니다. RecordDrawer 의 .when 과 같은 톤입니다.
+.when {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+// 목록에서 잘려 보이던 그 한 줄입니다. 여기서는 끝까지 펼칩니다.
+.headline {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.55;
+  letter-spacing: -0.01em;
+}
+
+.detail {
+  margin-top: var(--s3);
+  color: var(--ink-2);
+  font-size: 13px;
+  line-height: 1.75;
+  white-space: pre-line;
+}
+
+// 첨부 이미지는 드로어 폭에 맞춰 줄이고 원래 비율을 지킵니다.
+.image {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: var(--s4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}

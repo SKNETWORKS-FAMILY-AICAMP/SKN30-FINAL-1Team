@@ -1,113 +1,111 @@
 // demo/layout_v3.html §9
 .notice {
-  position: relative;
+  @include card;
+
+  padding: var(--s4);
+}
+
+.head {
   display: flex;
   align-items: center;
-  gap: var(--s3);
-  height: 44px;
-  margin-bottom: var(--s4);
-  padding: 0 var(--s4);
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--r-md);
-  box-shadow: var(--sh-1);
-
-  &:hover .caret,
-  &:focus-within .caret {
-    transform: rotate(180deg);
-  }
-
-  &:hover .panel,
-  &:focus-within .panel {
-    opacity: 1;
-    transform: none;
-    pointer-events: auto;
-  }
+  justify-content: space-between;
+  gap: var(--s2);
+  min-height: 20px;
 }
 
-.badge {
+// 아젠다 카드 제목(17px/600)을 이 크기의 카드에 맞춰 줄인 값입니다.
+.label {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.nav {
   flex: none;
-  padding: 3px 9px;
-  border-radius: var(--r-pill);
-  background: var(--blue-tint);
-  color: var(--blue);
-  font-size: 11px;
-  font-weight: 700;
-}
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
 
-.viewport {
-  flex: 1;
-  height: 21px;
-  overflow: hidden;
-}
+  button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--r-sm);
+    background: none;
+    color: var(--muted-2);
+    cursor: pointer;
 
-.track {
-  transform: translateY(calc(var(--i, 0) * -21px));
-  transition: transform var(--t-slow) var(--ease-spring);
-
-  li {
-    height: 21px;
-    line-height: 21px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: 13px;
-  }
-
-  em {
-    font-style: normal;
-    color: var(--muted);
+    &:hover {
+      background: var(--surface-2);
+      color: var(--text);
+    }
   }
 }
 
 .count {
-  flex: none;
-  font-size: 12px;
+  min-width: 30px;
+  text-align: center;
+  font-size: 11px;
   color: var(--muted);
 }
 
-.caret {
-  flex: none;
-  color: var(--muted);
-  transition: transform var(--t) var(--ease-spring);
-}
+.list {
+  // 줄이 사방의 여백을 스스로 잡습니다. 목록을 그만큼 밖으로 당겨 두면 글자는
+  // 원래 자리에 남고, 강조 배경만 넓게 깔립니다. 카드 테두리까지 붙이지는
+  // 않습니다. 둥근 모서리에 배경이 닿으면 카드 밖으로 새어 보입니다.
+  // 마지막 페이지가 짧아도 카드 높이가 흔들리지 않게 3줄 자리를 잡습니다.
+  min-height: 119px;
+  margin: calc(var(--s3) - 9px) calc(var(--s2) * -1) -9px;
 
-.panel {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  right: 0;
-  z-index: 25;
-  padding: var(--s2);
-  background: rgba(255, 255, 255, 0.94);
-  border: 1px solid var(--line);
-  border-radius: var(--r-md);
-  box-shadow: var(--sh-pop);
-  backdrop-filter: var(--blur);
-  -webkit-backdrop-filter: var(--blur);
-  opacity: 0;
-  transform: translateY(-6px) scale(0.99);
-  pointer-events: none;
-  transition:
-    opacity var(--t) var(--ease-out),
-    transform var(--t) var(--ease-spring);
+  li + li {
+    border-top: 1px solid var(--line);
+  }
 
-  li {
-    padding: 10px var(--s3);
-    border-radius: var(--r-sm);
+  // 줄 전체가 상세를 여는 버튼입니다. 강조 배경과 줄 사이 구분선은 같은 폭으로
+  // 움직입니다. 배경만 넓히면 구분선이 그 밖으로 삐져나와 보입니다.
+  button {
+    display: flex;
+    align-items: baseline;
+    gap: var(--s3);
+    width: 100%;
+    padding: 9px var(--s2);
+    border: 0;
+    // border-radius: var(--r-sm);
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background var(--t-fast);
 
-    & + li {
-      border-top: 1px solid var(--line);
+    &:hover {
+      background: var(--fill-2);
+    }
+
+    // 목록 한 줄은 눌러도 줄어들지 않습니다. 폭이 넓어 눌림이 화면 흔들림으로 보입니다.
+    &:active {
+      transform: none;
     }
   }
 
   p {
+    flex: 1;
+    min-width: 0;
+    // 아젠다 한 줄 요약(.brief)과 같은 본문 서식을 씁니다.
     font-size: 13px;
+    line-height: 1.62;
+    color: var(--ink-2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   small {
-    display: block;
-    margin-top: 3px;
+    flex: none;
     font-size: 11px;
     color: var(--muted);
   }

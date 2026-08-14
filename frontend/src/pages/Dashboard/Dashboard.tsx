@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react'
 
-import type { AgendaItem, CalendarEvent } from '@/content/types'
+import { directives } from '@/content/notices'
+import type { AgendaItem, CalendarEvent, Notice } from '@/content/types'
 import useMediaQuery from '@/hooks/useMediaQuery'
 import EventModal from '@/pages/Calendar/components/EventModal'
 import { DEFAULTS } from '@/pages/Calendar/useCalendarEvents'
@@ -8,11 +9,14 @@ import { addDays, iso, TODAY, TODAY_ISO } from '@/utils/date'
 
 import DayAgenda from './components/DayAgenda'
 import ListDrawer from './components/ListDrawer'
+import NoticeDrawer from './components/NoticeDrawer'
 import NoticeTicker from './components/NoticeTicker'
 import RecordDrawer from './components/RecordDrawer'
 import SummaryBand from './components/SummaryBand'
 import WeekCalendar from './components/WeekCalendar'
 import { kpiList, type KpiListKey } from './drawerLists'
+
+import styles from './Dashboard.module.scss'
 
 // 주간 캘린더는 오늘을 왼쪽에서 셋째 칸에 둡니다. 주를 옮기면 보이는 범위의
 // 첫날을 고르게 해 선택이 화면 밖으로 나가지 않게 합니다.
@@ -25,6 +29,7 @@ type OpenDrawer =
   | { type: 'addEvent' }
   | { type: 'record'; item: AgendaItem }
   | { type: 'kpi'; key: KpiListKey }
+  | { type: 'notice'; label: string; notice: Notice }
 
 export default function Dashboard() {
   const [selectedISO, setSelectedISO] = useState(TODAY_ISO)
@@ -75,7 +80,15 @@ export default function Dashboard() {
           문서 개요만 잡습니다. */}
       <h1 className="sr-only">영업 대시보드</h1>
 
-      <NoticeTicker />
+      <div className={styles.notices}>
+        <NoticeTicker onOpen={(notice) => setOpen({ type: 'notice', label: '공지', notice })} />
+        <NoticeTicker
+          label="팀장 지시사항"
+          items={directives}
+          onOpen={(notice) => setOpen({ type: 'notice', label: '팀장 지시사항', notice })}
+        />
+      </div>
+
       <SummaryBand
         onJumpToToday={jumpToToday}
         onOpenList={(key) => setOpen({ type: 'kpi', key })}
@@ -114,6 +127,10 @@ export default function Dashboard() {
       )}
 
       {open?.type === 'kpi' && <ListDrawer list={kpiList(open.key)} onClose={closeDrawer} />}
+
+      {open?.type === 'notice' && (
+        <NoticeDrawer label={open.label} notice={open.notice} onClose={closeDrawer} />
+      )}
     </section>
   )
 }
