@@ -1,13 +1,16 @@
 // 업무 보고 한 화면. 위에서부터 기간 탭 → 제출 이력 달력 → 작성 리스트입니다.
 // 작성만 별도 화면(/daily/new)으로 나갑니다.
-import { useDeferredValue, useMemo, useState } from 'react'
+//
+// 미팅보고서도 여기서 함께 봅니다. 목록에는 두 종류가 섞이므로 rows.ts 가 한 모양으로
+// 정리한 뒤 넘깁니다. 조건(tab·q·status·approver·hospital·range)은 주소에 둡니다.
+import { useCallback, useDeferredValue, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 
 import { ChevronLeftIcon, ChevronRightIcon } from '@/components/icons'
 import WeekStrip from '@/components/WeekStrip'
-import { dailyComposePath } from '@/constants/routes'
+import { dailyComposePath, ROUTES } from '@/constants/routes'
 import { APPROVERS } from '@/content/reports'
-import type { DailyReport } from '@/content/types'
+import useMeetingReports from '@/pages/Meetings/useMeetingReports'
 import {
   addDays,
   addMonths,
@@ -26,8 +29,9 @@ import HistoryToolbar from './components/HistoryToolbar'
 import MonthCalendar from './components/MonthCalendar'
 import ReportDrawer from './components/ReportDrawer'
 import ReportStatusBadge from './components/ReportStatusBadge'
-import { countFilters, NO_FILTERS, type HistoryFilters } from './historyFilters'
-import { PERIOD_KIND, PERIOD_LABEL, PERIODS, reportTitle, toPeriod } from './periods'
+import { countFilters, parseFilters, writeFilters, type HistoryFilters } from './historyFilters'
+import { PERIOD_KIND, PERIOD_LABEL, PERIODS, showsDaily, showsMeetings, toPeriod } from './periods'
+import { byDateDesc, fromDailyReport, fromMeetingReport, type ListRow } from './rows'
 import useDailyReports from './useDailyReports'
 
 import styles from './Daily.module.scss'
@@ -45,7 +49,7 @@ const weekDays = (offset: number) => {
  * 달력은 그날 낸 것을 통째로 펴고, 작성 리스트는 고른 보고서 하나만 폅니다.
  * 어느 쪽이든 그 날짜가 달력에서 선택으로 보입니다.
  */
-type OpenPanel = { by: 'date'; dateISO: string } | { by: 'report'; report: DailyReport }
+type OpenPanel = { by: 'date'; dateISO: string } | { by: 'row'; row: ListRow }
 
 /** 기간 필터의 시작일. 'all' 이면 자르지 않습니다. */
 function rangeStartISO(range: HistoryFilters['range']): string | null {
@@ -60,73 +64,122 @@ export default function Daily() {
   const period = toPeriod(params.get('tab'))
   const kind = PERIOD_KIND[period]
 
-  const { reports, byDate } = useDailyReports()
+  const { reports } = useDailyReports()
+  const { reports: meetings } = useMeetingReports()
 
   const [weekOffset, setWeekOffset] = useState(0)
   const [showMonth, setShowMonth] = useState(false)
   const [cursor, setCursor] = useState(() => startOfMonth(TODAY))
   // drawer 가 열려 있는 동안에만 값이 있습니다.
   const [open, setOpen] = useState<OpenPanel | null>(null)
-  const openISO = open === null ? '' : open.by === 'date' ? open.dateISO : open.report.date
+  const openISO = open === null ? '' : open.by === 'date' ? open.dateISO : open.row.date
 
-  const [query, setQuery] = useState('')
-  const [filters, setFilters] = useState<HistoryFilters>(NO_FILTERS)
+  const query = params.get('q') ?? ''
+  const filters = useMemo(() => parseFilters(params), [params])
 
   // 타이핑이 목록 계산에 막히지 않게 검색어만 뒤로 미룹니다.
   const deferredQuery = useDeferredValue(query)
 
   const days = weekDays(weekOffset)
 
-  // 달력과 리스트 모두 탭이 고른 종류만 봅니다.
+  // 탭이 고른 것만 한 모양으로 폅니다. 달력과 리스트가 같은 목록에서 출발합니다.
+  const rows = useMemo(() => {
+    const picked: ListRow[] = []
+    if (showsDaily(period)) {
+      for (const report of reports) {
+        if (kind && report.kind !== kind) continue
+        picked.push(fromDailyReport(report))
+      }
+    }
+    if (showsMeetings(period)) {
+      for (const meeting of meetings) picked.push(fromMeetingReport(meeting))
+    }
+    return picked.sort(byDateDesc)
+  }, [reports, meetings, period, kind])
+
+  // 달력은 그 달에 무엇이 있었는지가 목적이라 검색어·필터를 걸지 않습니다.
   const inKind = useMemo(() => {
-    const map = new Map<string, DailyReport[]>()
-    for (const [date, list] of byDate) {
-      const picked = kind ? list.filter((r) => r.kind === kind) : list
-      if (picked.length > 0) map.set(date, picked)
+    const map = new Map<string, ListRow[]>()
+    for (const row of rows) {
+      const found = map.get(row.date)
+      if (found) found.push(row)
+      else map.set(row.date, [row])
     }
     return map
-  }, [byDate, kind])
+  }, [rows])
 
-  // 리스트는 검색어와 필터까지 겁니다. 달력은 그 달에 무엇이 있었는지가 목적이라 걸지 않습니다.
+  // 리스트는 검색어와 필터까지 겁니다.
   const visible = useMemo(() => {
     const from = rangeStartISO(filters.range)
     const needle = deferredQuery.trim().toLowerCase()
 
-    return reports.filter((report) => {
-      if (kind && report.kind !== kind) return false
-      if (filters.status.length > 0 && !filters.status.includes(report.status)) return false
-      if (filters.approver.length > 0 && !filters.approver.includes(report.approver)) return false
-      if (from && report.date < from) return false
-      if (!needle) return true
-
-      // 보고 본문까지 훑습니다. 제목만으로는 찾을 수 있는 게 거의 없습니다.
-      const haystack = [reportTitle(report), report.note, report.approver, report.kind]
-        .concat(Object.values(report.values))
-        .join(' ')
-        .toLowerCase()
-      return haystack.includes(needle)
+    return rows.filter((row) => {
+      if (filters.status.length > 0 && !filters.status.includes(row.status)) return false
+      // 보고 대상과 고객사는 그 값을 가진 종류에만 겁니다.
+      if (filters.approver.length > 0 && !filters.approver.includes(row.aside)) return false
+      if (filters.hospital.length > 0 && !filters.hospital.includes(row.hospital ?? ''))
+        return false
+      if (from && row.date < from) return false
+      // haystack 은 보고 본문까지 담고 있습니다. 제목만으로는 찾을 수 있는 게 거의 없습니다.
+      return needle === '' || row.haystack.includes(needle)
     })
-  }, [reports, kind, filters, deferredQuery])
+  }, [rows, filters, deferredQuery])
 
   const filterCount = countFilters(filters)
   const narrowed = filterCount > 0 || query.trim().length > 0
 
+  // 기본값인 조건은 주소에서 지웁니다. 주소를 복사했을 때 조건이 그대로 살아나되 짧게 남습니다.
+  const setQuery = useCallback(
+    (next: string) => {
+      const query = new URLSearchParams(params)
+      if (next === '') query.delete('q')
+      else query.set('q', next)
+      setParams(query, { replace: true })
+    },
+    [params, setParams],
+  )
+
+  const setFilters = useCallback(
+    (next: HistoryFilters) => setParams(writeFilters(params, next, period), { replace: true }),
+    [params, setParams, period],
+  )
+
+  // 탭을 갈아탈 때 그 탭에 없는 조건은 함께 지웁니다. 보이지 않는 필터가 목록을
+  // 걸러 버리면 왜 비었는지 알 길이 없습니다.
+  const setPeriod = useCallback(
+    (next: string) => {
+      const query = new URLSearchParams(params)
+      if (next === 'all') query.delete('tab')
+      else query.set('tab', next)
+      setParams(writeFilters(query, filters, toPeriod(next)), { replace: true })
+    },
+    [params, setParams, filters],
+  )
+
   const resetAll = () => {
-    setQuery('')
-    setFilters(NO_FILTERS)
+    const query = new URLSearchParams()
+    const tab = params.get('tab')
+    if (tab) query.set('tab', tab)
+    setParams(query, { replace: true })
   }
+
+  /** 미팅 탭의 고객사 선택지. 목록에 있는 값만 내놓아야 고르고도 0건이 되지 않습니다. */
+  const hospitals = useMemo(
+    () => [...new Set(meetings.map((meeting) => meeting.hospital))].sort(),
+    [meetings],
+  )
 
   // 칸마다 점 하나. 평일인데 지나갔고 일일보고가 비었으면 미작성 표시입니다.
   const renderMark = (dateISO: string, isSelected: boolean) => {
-    const report = inKind.get(dateISO)?.[0]
+    const row = inKind.get(dateISO)?.[0]
     const dow = parseISO(dateISO).getDay()
     const tone = (() => {
-      if (report?.status === '확정') return styles.markDone
-      if (report?.status === '검토 대기') return styles.markPending
-      if (report?.status === '작성중') return styles.markDraft
-      if (report?.status === '반려') return styles.markMissing
-      // 주간·월간은 매일 내는 보고가 아니므로 미작성으로 보지 않습니다.
-      if (kind && kind !== '일일') return null
+      if (row?.status === '확정') return styles.markDone
+      if (row?.status === '검토 대기') return styles.markPending
+      if (row?.status === '작성중') return styles.markDraft
+      if (row?.status === '반려') return styles.markMissing
+      // 주간·월간·미팅은 매일 내는 보고가 아니므로 미작성으로 보지 않습니다.
+      if (period !== 'all' && period !== 'daily') return null
       const past = dateISO < TODAY_ISO
       if (past && dow !== 0 && dow !== 6) return styles.markMissing
       return null
@@ -150,17 +203,26 @@ export default function Daily() {
               role="tab"
               aria-selected={period === item}
               className={`${styles.tab} ${period === item ? styles.isActive : ''}`}
-              onClick={() => setParams(item === 'all' ? {} : { tab: item })}
+              onClick={() => setPeriod(item)}
             >
               {PERIOD_LABEL[item]}
             </button>
           ))}
         </div>
 
-        <Link className={styles.cta} to={dailyComposePath(TODAY_ISO, kind ?? '일일')}>
-          보고서 작성하기
-          <ChevronRightIcon />
-        </Link>
+        {/* 미팅 기록은 캘린더 일정 하나를 받아 쓰는 것이라 빈 화면으로 열 수 없습니다.
+            그래서 미팅 탭에서는 작성 대신 일정을 고르러 보냅니다. */}
+        {period === 'meeting' ? (
+          <Link className={styles.cta} to={ROUTES.CALENDAR}>
+            일정에서 미팅 기록하기
+            <ChevronRightIcon />
+          </Link>
+        ) : (
+          <Link className={styles.cta} to={dailyComposePath(TODAY_ISO, kind ?? '일일')}>
+            보고서 작성하기
+            <ChevronRightIcon />
+          </Link>
+        )}
       </div>
 
       <article className={styles.week}>
@@ -259,6 +321,8 @@ export default function Daily() {
         filters={filters}
         onFiltersChange={setFilters}
         approvers={[...APPROVERS]}
+        hospitals={hospitals}
+        period={period}
       />
 
       {visible.length === 0 ? (
@@ -272,14 +336,10 @@ export default function Daily() {
         </div>
       ) : (
         <ul className={styles.rows}>
-          {visible.map((report) => (
+          {visible.map((row) => (
             // 줄 어디를 눌러도 요약이 섭니다. 전문으로는 그 안의 '전체 보기' 로 넘어갑니다.
-            <li
-              key={report.id}
-              className={styles.row}
-              onClick={() => setOpen({ by: 'report', report })}
-            >
-              <span className={styles.type}>{report.kind}</span>
+            <li key={row.id} className={styles.row} onClick={() => setOpen({ by: 'row', row })}>
+              <span className={styles.type}>{row.kindLabel}</span>
 
               <div className={styles.rowBody}>
                 {/* 줄 전체를 누르지만 li 는 키보드로 못 잡습니다. 제목이 그
@@ -290,31 +350,31 @@ export default function Daily() {
                     className={styles.openButton}
                     onClick={(event) => {
                       event.stopPropagation()
-                      setOpen({ by: 'report', report })
+                      setOpen({ by: 'row', row })
                     }}
                   >
-                    {reportTitle(report)}
+                    {row.title}
                   </button>
                 </strong>
-                <span>{report.note}</span>
+                <span>{row.meta}</span>
               </div>
 
-              <span className={styles.approver}>{report.approver}</span>
-              <span className={`${styles.date} tnum`}>{fmtDotShort(parseISO(report.date))}</span>
-              <ReportStatusBadge status={report.status} />
+              <span className={styles.approver}>{row.aside}</span>
+              <span className={`${styles.date} tnum`}>{fmtDotShort(parseISO(row.date))}</span>
+              <ReportStatusBadge status={row.status} />
             </li>
           ))}
         </ul>
       )}
 
       <p className={styles.count}>
-        전체 {reports.length}건 중 <b className="tnum">{visible.length}</b>건
+        전체 {rows.length}건 중 <b className="tnum">{visible.length}</b>건
       </p>
 
       {open !== null && (
         <ReportDrawer
           dateISO={openISO}
-          reports={open.by === 'report' ? [open.report] : (inKind.get(openISO) ?? [])}
+          rows={open.by === 'row' ? [open.row] : (inKind.get(openISO) ?? [])}
           // '전체' 탭은 종류를 고르지 않았으므로 머리말 CTA 와 같이 일일로 봅니다.
           kind={kind ?? '일일'}
           onClose={() => setOpen(null)}

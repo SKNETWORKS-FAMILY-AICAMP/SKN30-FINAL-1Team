@@ -2,15 +2,16 @@
 //
 // Calendar 의 MonthGrid 는 쓰지 않습니다. 그쪽은 드래그·인라인 추가까지 하는
 // 일정 편집기라 프롭이 열 개가 넘습니다. 여기 필요한 건 종류 표시뿐입니다.
-import type { DailyReport } from '@/content/types'
 import { fmtDotShort, iso, monthMatrix, TODAY_ISO, WD } from '@/utils/date'
+
+import type { ListRow } from '../../rows'
 
 import styles from './MonthCalendar.module.scss'
 
 interface Props {
   /** 표시 중인 달. 달 이동 버튼은 카드 머리글이 갖습니다. */
   cursor: Date
-  byDate: Map<string, DailyReport[]>
+  byDate: Map<string, ListRow[]>
   selectedISO: string
   onSelect: (dateISO: string) => void
 }
@@ -49,9 +50,9 @@ export default function MonthCalendar({ cursor, byDate, selectedISO, onSelect }:
           >
             <span className={`${styles.num} tnum`}>{day.getDate()}</span>
             <span className={styles.cellTags}>
-              {list.map((report) => (
-                <span key={report.id} className={styles.cellTag}>
-                  {report.kind}
+              {list.map((row) => (
+                <span key={row.id} className={styles.cellTag}>
+                  {row.kindLabel}
                 </span>
               ))}
             </span>

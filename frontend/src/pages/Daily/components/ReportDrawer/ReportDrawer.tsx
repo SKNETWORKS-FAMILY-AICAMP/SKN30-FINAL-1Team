@@ -6,33 +6,29 @@ import { useEffect, useId, useRef } from 'react'
 import { Link } from 'react-router'
 
 import { ChevronRightIcon, CloseIcon } from '@/components/icons'
-import { dailyComposePath, dailyReportPath } from '@/constants/routes'
+import { dailyComposePath } from '@/constants/routes'
 import { agendaFor } from '@/content/agenda'
-import { templateFor } from '@/content/reports'
-import type { DailyReport, ReportKind } from '@/content/types'
+import type { ReportKind } from '@/content/types'
 import { fmtDot, parseISO, TODAY_ISO } from '@/utils/date'
 
 import ReportStatusBadge from '../ReportStatusBadge'
-import { reportTitle } from '../../periods'
+import type { ListRow } from '../../rows'
 
 import styles from './ReportDrawer.module.scss'
 
 interface Props {
   dateISO: string
-  /** 그날 제출된 보고서. 하루에 일일과 주간이 겹칠 수 있어 배열입니다. */
-  reports: DailyReport[]
-  /** 지금 보고 있는 기간 탭의 종류. 작성 화면을 그 양식으로 열어야 합니다. */
+  /**
+   * 그날 쓴 보고서. 하루에 일일과 주간이 겹칠 수 있고 미팅도 함께 오므로 배열입니다.
+   * 어느 종류인지는 rows.ts 가 이미 한 모양으로 정리해 넘깁니다.
+   */
+  rows: ListRow[]
+  /** 지금 보고 있는 기간 탭의 종류. 빈 날짜의 작성 화면을 그 양식으로 열어야 합니다. */
   kind: ReportKind
   onClose: () => void
 }
 
-/** 요약으로 보여 줄 대표 필드. 양식의 첫 필드가 언제나 그 보고서의 본문입니다. */
-function summaryOf(report: DailyReport): string {
-  const [first] = templateFor(report.kind).fields
-  return report.values[first.id]?.trim() ?? ''
-}
-
-export default function ReportDrawer({ dateISO, reports, kind, onClose }: Props) {
+export default function ReportDrawer({ dateISO, rows, kind, onClose }: Props) {
   const bodyRef = useRef<HTMLDivElement>(null)
   const titleId = useId()
 
@@ -83,7 +79,7 @@ export default function ReportDrawer({ dateISO, reports, kind, onClose }: Props)
         </header>
 
         <div className={styles.body} ref={bodyRef}>
-          {reports.length === 0 ? (
+          {rows.length === 0 ? (
             <div className={styles.empty}>
               <p className={styles.emptyTitle}>제출된 보고서가 없습니다.</p>
               <p className={styles.emptyDesc}>
@@ -102,40 +98,30 @@ export default function ReportDrawer({ dateISO, reports, kind, onClose }: Props)
               )}
             </div>
           ) : (
-            reports.map((report) => {
-              const summary = summaryOf(report)
-              const files = report.attachments.length
-              const acts = report.activities.filter((a) => a.included).length
+            rows.map((row) => (
+              <article key={row.id} className={styles.item}>
+                <div className={styles.tags}>
+                  <span className={styles.kind}>{row.kindLabel}</span>
+                  <ReportStatusBadge status={row.status} />
+                  <span className={styles.approver}>{row.aside}</span>
+                </div>
 
-              return (
-                <article key={report.id} className={styles.item}>
-                  <div className={styles.tags}>
-                    <span className={styles.kind}>{report.kind}</span>
-                    <ReportStatusBadge status={report.status} />
-                    <span className={styles.approver}>{report.approver}</span>
-                  </div>
+                <h3 className={styles.title}>{row.title}</h3>
 
-                  <h3 className={styles.title}>{reportTitle(report)}</h3>
+                {row.summary ? (
+                  <p className={styles.summary}>{row.summary}</p>
+                ) : (
+                  <p className={styles.summaryEmpty}>내용이 비어 있습니다.</p>
+                )}
 
-                  {summary ? (
-                    <p className={styles.summary}>{summary}</p>
-                  ) : (
-                    <p className={styles.summaryEmpty}>내용이 비어 있습니다.</p>
-                  )}
+                <p className={styles.counts}>{row.meta}</p>
 
-                  <p className={styles.counts}>
-                    {acts > 0 || files > 0
-                      ? `활동 ${acts}건${files > 0 ? ` · 첨부 ${files}건` : ''}`
-                      : report.note}
-                  </p>
-
-                  <Link className={styles.cta} to={dailyReportPath(report.id)}>
-                    전체 보기
-                    <ChevronRightIcon />
-                  </Link>
-                </article>
-              )
-            })
+                <Link className={styles.cta} to={row.to}>
+                  전체 보기
+                  <ChevronRightIcon />
+                </Link>
+              </article>
+            ))
           )}
         </div>
       </aside>

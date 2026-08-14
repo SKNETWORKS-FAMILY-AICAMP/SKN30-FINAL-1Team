@@ -2,7 +2,7 @@
 import type { DailyReport, ReportKind } from '@/content/types'
 import { addDays, fmtDay, fmtMonth, parseISO, startOfWeek, weekRangeLabel } from '@/utils/date'
 
-export const PERIODS = ['all', 'daily', 'weekly', 'monthly'] as const
+export const PERIODS = ['all', 'daily', 'weekly', 'monthly', 'meeting'] as const
 
 export type Period = (typeof PERIODS)[number]
 
@@ -11,15 +11,26 @@ export const PERIOD_LABEL: Record<Period, string> = {
   daily: '일일업무',
   weekly: '주간업무',
   monthly: '월간업무',
+  meeting: '미팅보고서',
 }
 
-/** 탭이 보는 보고서 종류. 'all' 은 거르지 않습니다. */
+/**
+ * 탭이 보는 업무 보고 종류. 'all' 과 'meeting' 은 여기서 거를 것이 없어 null 입니다.
+ * 둘을 가르는 것은 아래 showsDaily·showsMeetings 입니다.
+ */
 export const PERIOD_KIND: Record<Period, ReportKind | null> = {
   all: null,
   daily: '일일',
   weekly: '주간',
   monthly: '월간',
+  meeting: null,
 }
+
+/** 업무 보고(일일·주간·월간)를 목록에 넣는 탭인지 */
+export const showsDaily = (period: Period) => period !== 'meeting'
+
+/** 미팅보고서를 목록에 넣는 탭인지. '전체' 는 둘 다 봅니다. */
+export const showsMeetings = (period: Period) => period === 'all' || period === 'meeting'
 
 export function toPeriod(value: string | null): Period {
   return PERIODS.includes(value as Period) ? (value as Period) : 'all'
