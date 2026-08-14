@@ -27,7 +27,12 @@ function read(): ColumnPrefs {
 
     // 저장된 뒤에 컬럼이 추가·삭제됐을 수 있어 항상 현재 정의와 맞춥니다.
     const savedOrder = (saved.order ?? []).filter((id) => COLUMN_BY_ID.has(id))
-    const order = [...savedOrder, ...base.order.filter((id) => !savedOrder.includes(id))]
+    const merged = [...savedOrder, ...base.order.filter((id) => !savedOrder.includes(id))]
+    // 고정 컬럼이 바뀐 뒤 저장값이 남아 있으면 sticky 열이 첫 자리를 벗어나 표가 깨집니다.
+    const order = [
+      ...merged.filter((id) => COLUMN_BY_ID.get(id)?.fixed),
+      ...merged.filter((id) => !COLUMN_BY_ID.get(id)?.fixed),
+    ]
     const visible = (saved.visible ?? base.visible).filter((id) => COLUMN_BY_ID.has(id))
 
     return {

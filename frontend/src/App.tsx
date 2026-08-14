@@ -9,6 +9,7 @@ import Contracts, { ContractBoard, ContractDetail, ContractNew } from '@/pages/C
 import Customers from '@/pages/Customers'
 import Daily, { DailyCompose, DailyDetail } from '@/pages/Daily'
 import Dashboard from '@/pages/Dashboard'
+import Documents from '@/pages/Documents'
 import Login from '@/pages/Login'
 import { MeetingCompose, MeetingDetail } from '@/pages/Meetings'
 import NotFound from '@/pages/NotFound'
@@ -47,6 +48,7 @@ export default function App() {
               </Route>
 
               <Route path={ROUTES.SALES} element={<Sales />} />
+              <Route path={ROUTES.DOCUMENTS} element={<Documents />} />
 
               {/* 계약은 목록·보드·작성·상세가 한 기능이라 경로를 묶어 둡니다.
                   고정 경로를 :contractNo 위에 둡니다. */}

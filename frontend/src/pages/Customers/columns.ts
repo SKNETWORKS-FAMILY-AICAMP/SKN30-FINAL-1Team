@@ -26,22 +26,22 @@ const short = (isoDate: string) => fmtDotShort(parseISO(isoDate))
 
 export const ALL_COLUMNS: ColumnDef[] = [
   {
-    id: 'name',
-    header: '이름',
-    width: 170,
-    minWidth: 140,
-    sortable: true,
-    fixed: true,
-    value: (c) => c.name,
-    render: (c) => createElement(NameCell, { customer: c }),
-  },
-  {
     id: 'org',
     header: '회사',
     width: 150,
     minWidth: 110,
     sortable: true,
+    fixed: true,
     value: (c) => c.org,
+  },
+  {
+    id: 'name',
+    header: '이름',
+    width: 170,
+    minWidth: 140,
+    sortable: true,
+    value: (c) => c.name,
+    render: (c) => createElement(NameCell, { customer: c }),
   },
   {
     id: 'dept',
@@ -141,6 +141,6 @@ export const ALL_COLUMNS: ColumnDef[] = [
 ]
 
 /** 처음 보이는 컬럼. 나머지는 컬럼 설정에서 켭니다. */
-export const DEFAULT_VISIBLE = ['name', 'org', 'title', 'email', 'phone', 'status', 'last', 'next']
+export const DEFAULT_VISIBLE = ['org', 'name', 'title', 'email', 'phone', 'status', 'last', 'next']
 
 export const COLUMN_BY_ID = new Map(ALL_COLUMNS.map((c) => [c.id, c]))

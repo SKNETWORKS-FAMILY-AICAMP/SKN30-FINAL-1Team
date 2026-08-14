@@ -1,0 +1,132 @@
+.pill {
+  @include tag-pill;
+}
+
+// 하단 삭제 버튼. 발주·계약 드로어와 같은 어휘를 씁니다.
+.danger {
+  border-color: var(--red-tint);
+  background: var(--red-tint);
+  color: var(--red-ink);
+
+  &:hover {
+    background: var(--red-tint);
+    filter: brightness(0.97);
+  }
+}
+
+.rows {
+  display: grid;
+  gap: var(--s3);
+
+  div {
+    display: grid;
+    grid-template-columns: 60px minmax(0, 1fr);
+    gap: var(--s3);
+    font-size: 13px;
+  }
+
+  dt {
+    color: var(--muted);
+  }
+
+  dd {
+    margin: 0;
+    line-height: 1.6;
+    word-break: break-all; // 파일명이 길어도 드로어 밖으로 나가지 않게
+  }
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s1);
+  margin-top: var(--s3);
+
+  li {
+    padding: 3px var(--s2);
+    border-radius: var(--r-pill);
+    background: var(--fill);
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 600;
+  }
+}
+
+/* ---- 버전 이력 ---- */
+
+.sectionTitle {
+  margin-top: var(--s5);
+  margin-bottom: var(--s2);
+  color: var(--ink-2);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.history {
+  display: grid;
+  gap: var(--s2);
+}
+
+.version {
+  padding: var(--s3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+}
+
+.versionHead {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s2);
+  font-size: 13px;
+}
+
+// 파일명이 길면 여기부터 줄어듭니다. 버전과 내려받기는 늘 보여야 합니다.
+.fileName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink-2);
+}
+
+.download {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.demo {
+  flex: none;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.versionMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s3);
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.note {
+  margin-top: var(--s2);
+  color: var(--ink-2);
+  font-size: 12px;
+  line-height: 1.6;
+}

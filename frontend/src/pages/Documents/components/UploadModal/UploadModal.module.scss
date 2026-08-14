@@ -1,0 +1,168 @@
+/* ---- 드롭존 ---- */
+
+.drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s2);
+  padding: var(--s6) var(--s4);
+  border: 1px dashed var(--line-2);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  color: var(--muted);
+  text-align: center;
+  transition:
+    border-color var(--t-fast) var(--ease-out),
+    background var(--t-fast) var(--ease-out);
+
+  p {
+    font-size: 13px;
+  }
+}
+
+.isDragging {
+  border-color: var(--blue);
+  background: var(--blue-tint);
+}
+
+.error {
+  margin-top: var(--s2);
+  color: var(--red-ink);
+  font-size: 12px;
+}
+
+/* ---- 고른 파일 목록 ---- */
+
+.list {
+  display: grid;
+  gap: var(--s2);
+  margin-top: var(--s3);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s2) var(--s3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+}
+
+// 파일명이 길어도 분류 select 와 빼기 버튼은 자리를 잃지 않습니다.
+.file {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s2);
+  flex: 1;
+  min-width: 0;
+}
+
+.name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.size {
+  flex: none;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.category {
+  flex: none;
+  padding: 5px var(--s2);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  font-size: 12px;
+  outline: none;
+
+  &:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px var(--blue-ring);
+  }
+}
+
+.remove {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--red-tint);
+    color: var(--red-ink);
+  }
+}
+
+/* ---- 공통 입력 ---- */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s3);
+  margin-top: var(--s4);
+
+  @include sm {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+
+  input,
+  select {
+    width: 100%;
+    padding: 9px var(--s3);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    font-size: 13px;
+    outline: none;
+    transition:
+      border-color var(--t-fast) var(--ease-out),
+      box-shadow var(--t-fast) var(--ease-out);
+
+    &:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px var(--blue-ring);
+    }
+
+    &:disabled {
+      background: var(--fill);
+      color: var(--muted);
+    }
+  }
+}
+
+.isWide {
+  grid-column: 1 / -1;
+}
+
+.label {
+  color: var(--ink-2);
+  font-size: 12px;
+  font-weight: 600;
+
+  i {
+    margin-left: 5px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 400;
+    font-style: normal;
+  }
+}
