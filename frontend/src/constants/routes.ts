@@ -14,8 +14,9 @@ export const ROUTES = {
   CALENDAR: '/calendar',
   MEETINGS: '/meetings', // 미팅보고서. 진입은 대시보드 일정에서 합니다.
   DAILY: '/daily', // 업무 보고
-  VISITS: '/visits', // 방문 현황
+  VISITS: '/visits', // 영업 현황
   SALES: '/sales', // 매출 분석
+  QUOTES: '/quotes', // 견적 현황
   CONTRACTS: '/contracts',
   ORDERS: '/orders',
   DOCUMENTS: '/documents',

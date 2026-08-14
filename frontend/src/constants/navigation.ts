@@ -12,6 +12,7 @@ import {
   DocumentsIcon,
   type IconProps,
   OrdersIcon,
+  QuoteIcon,
   SalesReportIcon,
   SettingsIcon,
   TeamDashboardIcon,
@@ -55,8 +56,8 @@ export const NAV_SECTIONS: NavSection[] = [
     id: 'account',
     title: '고객',
     items: [
-      { to: ROUTES.CUSTOMERS, label: '고객·회사', icon: CustomersIcon },
-      { to: ROUTES.COMPLAINTS, label: '고객 불만 관리', icon: ComplaintIcon },
+      { to: ROUTES.CUSTOMERS, label: '고객현황', icon: CustomersIcon },
+      { to: ROUTES.COMPLAINTS, label: '고객불만관리', icon: ComplaintIcon },
     ],
   },
   {
@@ -64,17 +65,18 @@ export const NAV_SECTIONS: NavSection[] = [
     title: '영업',
     items: [
       { to: ROUTES.CALENDAR, label: '캘린더', icon: CalendarIcon },
-      { to: ROUTES.DAILY, label: '업무 보고', icon: DailyReportIcon },
-      { to: ROUTES.VISITS, label: '방문 현황', icon: VisitIcon },
-      { to: ROUTES.SALES, label: '매출 분석', icon: SalesReportIcon },
+      { to: ROUTES.DAILY, label: '업무보고', icon: DailyReportIcon },
+      { to: ROUTES.SALES, label: '매출분석', icon: SalesReportIcon },
     ],
   },
   {
     id: 'deals',
-    title: '계약·발주',
+    title: '딜상세관리',
     items: [
-      { to: ROUTES.CONTRACTS, label: '계약 현황', icon: ContractIcon },
-      { to: ROUTES.ORDERS, label: '발주 관리', icon: OrdersIcon },
+      { to: ROUTES.VISITS, label: '영업현황', icon: VisitIcon },
+      { to: ROUTES.QUOTES, label: '견적현황', icon: QuoteIcon },
+      { to: ROUTES.CONTRACTS, label: '계약현황', icon: ContractIcon },
+      { to: ROUTES.ORDERS, label: '발주현황', icon: OrdersIcon },
     ],
   },
   {

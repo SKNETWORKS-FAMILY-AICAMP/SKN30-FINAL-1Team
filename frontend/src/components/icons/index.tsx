@@ -105,6 +105,15 @@ export function SalesReportIcon(props: IconProps) {
   )
 }
 
+export function QuoteIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M6 3h9l4 4v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" />
+      <path d="M9 8h4M9 12h6M9 16h6" />
+    </Icon>
+  )
+}
+
 export function ContractIcon(props: IconProps) {
   return (
     <Icon {...props}>

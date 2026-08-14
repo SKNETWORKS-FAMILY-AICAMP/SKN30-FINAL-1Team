@@ -2,16 +2,16 @@
 import type { DailyReport, ReportKind } from '@/content/types'
 import { addDays, fmtDay, fmtMonth, parseISO, startOfWeek, weekRangeLabel } from '@/utils/date'
 
-export const PERIODS = ['all', 'daily', 'weekly', 'monthly', 'meeting'] as const
+export const PERIODS = ['all', 'meeting', 'daily', 'weekly', 'monthly'] as const
 
 export type Period = (typeof PERIODS)[number]
 
 export const PERIOD_LABEL: Record<Period, string> = {
   all: '전체',
+  meeting: '미팅보고서',
   daily: '일일업무',
   weekly: '주간업무',
   monthly: '월간업무',
-  meeting: '미팅보고서',
 }
 
 /**
@@ -20,10 +20,10 @@ export const PERIOD_LABEL: Record<Period, string> = {
  */
 export const PERIOD_KIND: Record<Period, ReportKind | null> = {
   all: null,
+  meeting: null,
   daily: '일일',
   weekly: '주간',
   monthly: '월간',
-  meeting: null,
 }
 
 /** 업무 보고(일일·주간·월간)를 목록에 넣는 탭인지 */
