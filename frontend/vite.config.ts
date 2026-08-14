@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 
 const stylesDir = path.resolve(import.meta.dirname, 'src/styles')
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [react()],
 
   resolve: {
@@ -13,6 +13,12 @@ export default defineConfig({
   },
 
   css: {
+    modules: {
+      // 개발 중에는 DevTools 에서 어느 컴포넌트의 어떤 클래스인지 바로 보이게 하고,
+      // 빌드 결과물에는 짧은 해시만 남긴다.
+      generateScopedName: command === 'serve' ? '[folder]__[local]' : '[hash:base64:6]',
+    },
+
     preprocessorOptions: {
       scss: {
         loadPaths: [stylesDir],
@@ -28,4 +34,4 @@ export default defineConfig({
       },
     },
   },
-})
+}))
