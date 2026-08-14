@@ -4,6 +4,7 @@ import type { FC } from 'react'
 
 import {
   CalendarIcon,
+  ComplaintIcon,
   ContractIcon,
   CustomersIcon,
   DailyReportIcon,
@@ -52,7 +53,10 @@ export const NAV_SECTIONS: NavSection[] = [
   {
     id: 'account',
     title: '고객',
-    items: [{ to: ROUTES.CUSTOMERS, label: '고객·회사', icon: CustomersIcon }],
+    items: [
+      { to: ROUTES.CUSTOMERS, label: '고객·회사', icon: CustomersIcon },
+      { to: ROUTES.COMPLAINTS, label: '고객 불만 관리', icon: ComplaintIcon },
+    ],
   },
   {
     id: 'sales',
