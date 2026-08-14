@@ -15,7 +15,6 @@ import {
   QuoteIcon,
   SalesReportIcon,
   SettingsIcon,
-  TeamDashboardIcon,
   TeamIcon,
   VisitIcon,
 } from '@/components/icons'
@@ -42,15 +41,6 @@ export const NAV_SECTIONS: NavSection[] = [
     id: 'dashboard',
     ariaLabel: '대시보드',
     items: [{ to: ROUTES.DASHBOARD, label: '대시보드', icon: DashboardIcon }],
-  },
-  {
-    id: 'manager',
-    title: '팀장',
-    managerOnly: true,
-    items: [
-      { to: ROUTES.MANAGER, label: '팀 대시보드', icon: TeamDashboardIcon },
-      { to: ROUTES.TEAM, label: '팀 관리', icon: TeamIcon },
-    ],
   },
   {
     id: 'account',
@@ -83,6 +73,14 @@ export const NAV_SECTIONS: NavSection[] = [
     id: 'documents',
     ariaLabel: '자료실',
     items: [{ to: ROUTES.DOCUMENTS, label: '자료실', icon: DocumentsIcon }],
+  },
+  {
+    // 팀 실적 조회는 Topbar 의 보기 범위 스위처가 맡습니다. 여기 남는 것은
+    // 화면 전체가 팀장 것인 '팀 관리' 하나뿐입니다.
+    id: 'manager',
+    ariaLabel: '팀 관리',
+    managerOnly: true,
+    items: [{ to: ROUTES.TEAM, label: '팀 관리', icon: TeamIcon }],
   },
   {
     id: 'settings',

@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
 
+import ManagerRoute from '@/auth/ManagerRoute'
 import ProtectedRoute from '@/auth/ProtectedRoute'
 import SessionProvider from '@/auth/SessionProvider'
 import AppShell from '@/components/layout/AppShell'
@@ -15,6 +16,7 @@ import { MeetingCompose, MeetingDetail } from '@/pages/Meetings'
 import NotFound from '@/pages/NotFound'
 import Orders, { OrderDetail, OrderNew } from '@/pages/Orders'
 import Sales from '@/pages/Sales'
+import Team from '@/pages/Team'
 
 export default function App() {
   return (
@@ -28,6 +30,12 @@ export default function App() {
             <Route element={<AppShell />}>
               <Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
               <Route path={ROUTES.CUSTOMERS} element={<Customers />} />
+
+              {/* 팀장만 들어갈 수 있는 화면. 팀원이 주소를 직접 치면 대시보드로 돌아갑니다. */}
+              <Route element={<ManagerRoute />}>
+                <Route path={ROUTES.TEAM} element={<Team />} />
+              </Route>
+
               <Route path={ROUTES.CALENDAR} element={<Calendar />} />
 
               {/* 미팅보고서는 일정 하나를 기록하는 화면이라 목록이 없습니다.

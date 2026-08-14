@@ -33,15 +33,6 @@ export function DashboardIcon(props: IconProps) {
   )
 }
 
-export function TeamDashboardIcon(props: IconProps) {
-  return (
-    <Icon {...props}>
-      <path d="M3 3v18h18" />
-      <path d="M7 15l3.5-4 3 2.5L20 7" />
-    </Icon>
-  )
-}
-
 export function TeamIcon(props: IconProps) {
   return (
     <Icon {...props}>

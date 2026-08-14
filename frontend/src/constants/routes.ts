@@ -7,7 +7,6 @@ import type { ReportKind } from '@/content/types'
 export const ROUTES = {
   LOGIN: '/login', // 셸 밖. 내비게이션에 넣지 않습니다.
   DASHBOARD: '/',
-  MANAGER: '/manager', // 팀 대시보드 (팀장 전용)
   TEAM: '/team', // 팀 관리 (팀장 전용)
   CUSTOMERS: '/customers',
   COMPLAINTS: '/complaints', // 고객 불만 관리
