@@ -1,4 +1,4 @@
-import type { ReportKind } from '@/content/types'
+import type { ReportKind } from '@/types'
 
 // 화면 경로. 내비게이션 라벨은 navigation.ts 가 갖습니다.
 //
@@ -10,6 +10,7 @@ export const ROUTES = {
   TEAM: '/team', // 팀 관리 (팀장 전용)
   CUSTOMERS: '/customers',
   COMPLAINTS: '/complaints', // 고객 불만 관리
+  NOTIFICATIONS: '/notifications', // 알림. 진입은 헤더 벨에서 합니다.
   CALENDAR: '/calendar',
   MEETINGS: '/meetings', // 미팅보고서. 진입은 대시보드 일정에서 합니다.
   DAILY: '/daily', // 업무 보고
@@ -19,7 +20,12 @@ export const ROUTES = {
   CONTRACTS: '/contracts',
   ORDERS: '/orders',
   DOCUMENTS: '/documents',
-  SETTINGS: '/settings',
+  // 마이페이지. 진입은 사이드바 하단 이름과 헤더 아바타에서 합니다.
+  // 바꿀 수 있는 설정이 없어 '설정' 대신 내 정보·약관을 보는 화면 하나만 둡니다.
+  MYPAGE: '/mypage',
+  TERMS: '/mypage/terms', // 이용약관
+  PRIVACY: '/mypage/privacy', // 개인정보처리방침
+  LEGAL: '/mypage/legal', // 법적고지
 } as const
 
 export type Route = (typeof ROUTES)[keyof typeof ROUTES]
@@ -54,11 +60,11 @@ export const meetingComposePath = (agendaId?: string) =>
 /** 확정한 미팅보고서 상세 */
 export const meetingReportPath = (id: string) => `${ROUTES.MEETINGS}/${id}`
 
+/** 영업 보드. 목록과 같은 데이터를 단계별 칸으로 봅니다. */
+export const visitBoardPath = () => `${ROUTES.VISITS}/board`
+
 /** 계약 상세. 계약번호(FM-CT-2026-0039)를 그대로 씁니다. */
 export const contractPath = (no: string) => `${ROUTES.CONTRACTS}/${no}`
-
-/** 계약 보드. 목록과 같은 데이터를 단계별 칸으로 봅니다. */
-export const contractBoardPath = () => `${ROUTES.CONTRACTS}/board`
 
 /** 계약 추가 화면. stageId 를 주면 그 단계로 시작합니다. */
 export const contractNewPath = (stageId?: string) =>

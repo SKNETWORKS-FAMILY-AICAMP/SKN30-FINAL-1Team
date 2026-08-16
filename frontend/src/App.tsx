@@ -6,17 +6,23 @@ import SessionProvider from '@/auth/SessionProvider'
 import AppShell from '@/components/layout/AppShell'
 import { ROUTES } from '@/constants/routes'
 import Calendar from '@/pages/Calendar'
-import Contracts, { ContractBoard, ContractDetail, ContractNew } from '@/pages/Contracts'
+import Complaints from '@/pages/Complaints'
+import Contracts, { ContractDetail, ContractNew } from '@/pages/Contracts'
 import Customers from '@/pages/Customers'
 import Daily, { DailyCompose, DailyDetail } from '@/pages/Daily'
 import Dashboard from '@/pages/Dashboard'
 import Documents from '@/pages/Documents'
+import LegalDoc from '@/pages/Legal'
 import Login from '@/pages/Login'
 import { MeetingCompose, MeetingDetail } from '@/pages/Meetings'
+import MyPage from '@/pages/MyPage'
 import NotFound from '@/pages/NotFound'
+import Notifications from '@/pages/Notifications'
 import Orders, { OrderDetail, OrderNew } from '@/pages/Orders'
+import Quotes from '@/pages/Quotes'
 import Sales from '@/pages/Sales'
 import Team from '@/pages/Team'
+import Visits, { VisitBoard } from '@/pages/Visits'
 
 export default function App() {
   return (
@@ -30,11 +36,15 @@ export default function App() {
             <Route element={<AppShell />}>
               <Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
               <Route path={ROUTES.CUSTOMERS} element={<Customers />} />
+              <Route path={ROUTES.COMPLAINTS} element={<Complaints />} />
 
               {/* 팀장만 들어갈 수 있는 화면. 팀원이 주소를 직접 치면 대시보드로 돌아갑니다. */}
               <Route element={<ManagerRoute />}>
                 <Route path={ROUTES.TEAM} element={<Team />} />
               </Route>
+
+              {/* 알림은 사이드바에 없습니다. 진입은 헤더 벨에서만 합니다. */}
+              <Route path={ROUTES.NOTIFICATIONS} element={<Notifications />} />
 
               <Route path={ROUTES.CALENDAR} element={<Calendar />} />
 
@@ -58,11 +68,18 @@ export default function App() {
               <Route path={ROUTES.SALES} element={<Sales />} />
               <Route path={ROUTES.DOCUMENTS} element={<Documents />} />
 
-              {/* 계약은 목록·보드·작성·상세가 한 기능이라 경로를 묶어 둡니다.
+              {/* 영업 현황은 같은 딜을 목록과 보드 두 가지로 봅니다. */}
+              <Route path={ROUTES.VISITS}>
+                <Route index element={<Visits />} />
+                <Route path="board" element={<VisitBoard />} />
+              </Route>
+
+              <Route path={ROUTES.QUOTES} element={<Quotes />} />
+
+              {/* 계약은 목록·작성·상세가 한 기능이라 경로를 묶어 둡니다.
                   고정 경로를 :contractNo 위에 둡니다. */}
               <Route path={ROUTES.CONTRACTS}>
                 <Route index element={<Contracts />} />
-                <Route path="board" element={<ContractBoard />} />
                 <Route path="new" element={<ContractNew />} />
                 <Route path=":contractNo" element={<ContractDetail />} />
               </Route>
@@ -73,6 +90,15 @@ export default function App() {
                 <Route index element={<Orders />} />
                 <Route path="new" element={<OrderNew />} />
                 <Route path=":orderNo" element={<OrderDetail />} />
+              </Route>
+
+              {/* 마이페이지는 사이드바에 없습니다. 진입은 사이드바 하단 이름과
+                  헤더 아바타에서 합니다. 약관 세 화면은 여기서만 들어갑니다. */}
+              <Route path={ROUTES.MYPAGE}>
+                <Route index element={<MyPage />} />
+                <Route path="terms" element={<LegalDoc doc="terms" />} />
+                <Route path="privacy" element={<LegalDoc doc="privacy" />} />
+                <Route path="legal" element={<LegalDoc doc="legal" />} />
               </Route>
 
               {/* 나머지 메뉴는 아직 라우트가 없어 여기로 떨어집니다.

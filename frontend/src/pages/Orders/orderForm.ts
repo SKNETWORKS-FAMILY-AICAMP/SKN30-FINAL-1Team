@@ -1,6 +1,6 @@
 // 발주 입력값을 다루는 규칙입니다. 모달(OrderForm)과 추가 화면(New)이 같은 항목을
 // 받으므로 검사와 변환을 여기 한 곳에 둡니다. 어느 쪽으로 넣든 결과가 같아야 합니다.
-import type { OrderStatus, PurchaseOrder } from '@/content/types'
+import type { OrderStatus, PurchaseOrder } from '@/types'
 import { addDays, iso, TODAY, TODAY_ISO } from '@/utils/date'
 
 import type { OrderDraft } from './useOrderList'
@@ -40,7 +40,7 @@ export function initialState(order?: PurchaseOrder): FormState {
     hospital: order?.hospital ?? '',
     supplier: order?.supplier ?? '',
     contract: order?.contract ?? '',
-    status: order?.status ?? '승인대기',
+    status: order?.status ?? '발주 접수',
     ordered: order?.ordered ?? TODAY_ISO,
     // 새 발주는 납기를 2주 뒤로 잡아 둡니다. 대부분 그 언저리라 고치는 손이 줄어듭니다.
     due: order?.due ?? iso(addDays(TODAY, 14)),

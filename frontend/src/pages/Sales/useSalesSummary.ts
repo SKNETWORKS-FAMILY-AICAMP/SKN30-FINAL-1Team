@@ -4,10 +4,10 @@
 // 오른쪽 목표 패널이 어긋날 수 없습니다.
 import { useMemo } from 'react'
 
-import { confirmedTotal, contractsIn } from '@/content/contracts'
-import { REGIONS } from '@/content/regions'
-import { monthlyTargetByOrg, targetFor, targetForRegion, totalTarget } from '@/content/salesTargets'
-import type { Contract } from '@/content/types'
+import { confirmedTotal, contractsIn } from '@/shared/contracts'
+import { REGIONS } from '@/shared/regions'
+import { monthlyTargetByOrg, targetFor, targetForRegion, totalTarget } from '@/shared/salesTargets'
+import type { Contract } from '@/types'
 
 import { prevRange, resolveRange, type GroupBy, type PeriodType } from './periods'
 
@@ -41,16 +41,21 @@ export interface SalesSummary {
   delta: number
 }
 
-const pct = (part: number, whole: number) => (whole > 0 ? (part / whole) * 100 : 0)
+/** 실적이 0인 기간에도 NaN 이 화면에 뜨지 않게 합니다. */
+export const pct = (part: number, whole: number) => (whole > 0 ? (part / whole) * 100 : 0)
 
 /**
  * 목표가 있는 축은 실적이 0이어도 자리를 지킵니다. 팔지 못한 회사·지역이 표에서
  * 사라지면 안 되기 때문입니다. 상품은 목표가 없으므로 그 기간에 판 것만 나옵니다.
  */
 function keysFor(by: GroupBy): string[] {
+  const orgs = Object.keys(monthlyTargetByOrg)
+  // 첫 세팅에는 목표를 정해 둔 회사가 하나도 없습니다. 축을 세울 근거가 없으므로
+  // 회사도 지역도 만들지 않습니다. 빈 계정에 병원 이름이 떠 있으면 안 됩니다.
+  if (orgs.length === 0) return []
   if (by === 'region') return [...REGIONS]
   if (by === 'product') return []
-  return Object.keys(monthlyTargetByOrg)
+  return orgs
 }
 
 function keyOf(contract: Contract, by: GroupBy): string {

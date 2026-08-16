@@ -53,9 +53,19 @@
   color: var(--blue);
 }
 
-.needsReport {
-  background: var(--orange-tint);
-  color: var(--orange-ink);
+// 배지 줄 오른쪽 끝. 알약들과 색이 경쟁하지 않게 테두리 없는 글자로 두고,
+// 대신 줄 안에서 유일하게 파란 글자라 눌리는 곳이라는 것이 드러납니다.
+.reportLink {
+  margin-left: auto;
+  padding: 2px 0 2px var(--s3);
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 .list {
@@ -63,17 +73,16 @@
 }
 
 .item {
-  --rail-x: 31px; // 체크 열의 중심. 타임라인 레일이 여기 섭니다.
-  --divider-x: 60px; // 시간 열의 왼쪽 가장자리. 오른쪽도 같은 값으로 맞춥니다.
+  --rail-x: 48px; // 완료 버튼의 중심(왼쪽 패딩 20 + 너비 56/2). 레일이 여기 섭니다.
+  --divider-x: 88px; // 시간 열의 왼쪽 가장자리. 구분선이 여기서 시작합니다.
+  --edge-x: var(--s5); // 오른쪽 끝. 카드 안쪽 여백에 맞춰 본문과 구분선을 세웁니다.
 
   position: relative;
   display: grid;
-  grid-template-columns: 28px 52px minmax(0, 1fr);
+  grid-template-columns: 56px 52px minmax(0, 1fr);
   gap: var(--s3);
   margin: 0 calc(var(--s5) * -1);
-  // 오른쪽은 구분선이 끝나는 자리에 맞춥니다. 본문이 선보다 더 나가면
-  // 말줄임이 선 밖에서 잘려 줄이 어긋나 보입니다.
-  padding: var(--s4) var(--divider-x) var(--s4) var(--s5);
+  padding: var(--s4) var(--edge-x) var(--s4) var(--s5);
   cursor: pointer;
   transition: background var(--t-fast);
 
@@ -87,7 +96,7 @@
     content: '';
     position: absolute;
     left: var(--divider-x);
-    right: var(--divider-x);
+    right: var(--edge-x);
     top: 0;
     height: 1px;
     background: var(--line);
@@ -98,24 +107,37 @@
     content: '';
     position: absolute;
     left: var(--rail-x);
+    // 완료 버튼 아래에서 시작합니다. 패딩 + 버튼 높이 + 숨 쉴 틈.
     top: 46px;
     bottom: 0;
     width: 1px;
     background: var(--line);
   }
 
-  &:last-child::before {
+  // 마지막 줄과 미팅 묶음의 끝에서는 레일을 끊습니다.
+  &:last-child::before,
+  &:has(+ .groupStart)::before {
     display: none;
   }
 
-  @include md {
-    --rail-x: 27px;
-    --divider-x: 48px;
+  // 미팅과 업무의 경계. 줄간 구분선을 카드 안쪽 폭 전체로 늘리고 한 톤 진하게
+  // 두어, 소제목 없이도 여기서부터 다른 종류라는 것이 보이게 합니다.
+  // 업무만 있는 날은 앞 형제가 없어 이 선도 그려지지 않습니다.
+  &.groupStart::after {
+    left: 0;
+    right: 0;
+    background: var(--line-2);
+  }
 
-    grid-template-columns: 24px 46px minmax(0, 1fr);
+  @include md {
+    --rail-x: 42px;
+    --divider-x: 76px;
+    --edge-x: var(--s4);
+
+    grid-template-columns: 52px 46px minmax(0, 1fr);
     gap: var(--s2);
     margin: 0 calc(var(--s4) * -1);
-    padding: var(--s4) var(--divider-x) var(--s4) var(--s4);
+    padding: var(--s4) var(--edge-x) var(--s4) var(--s4);
   }
 
   @include sm {
@@ -123,7 +145,7 @@
     // 여백을 되찾습니다.
     --divider-x: var(--s4);
 
-    grid-template-columns: 24px minmax(0, 1fr);
+    grid-template-columns: 52px minmax(0, 1fr);
 
     &::before {
       display: none;
@@ -144,38 +166,74 @@
   }
 }
 
-.check {
-  width: 22px;
-  height: 22px;
+// 완료를 정하는 자리입니다. 레일 맨 앞에 서서 이 줄이 끝났는지도 함께
+// 보여 줍니다. 체크가 들고 나도 레일 중심이 흔들리지 않게 너비를 고정합니다.
+// 톤은 드로어의 완료 버튼과 같습니다. 같은 일을 하는 버튼이기 때문입니다.
+.doneBtn {
+  width: 56px;
+  height: 26px;
   margin-top: 1px;
-  display: grid;
-  place-items: center;
-  // 브라우저 기본 버튼 여백(1px 6px)을 지웁니다. 그대로 두면 내용 상자가
-  // 체크 표시보다 좁아져 표시가 오른쪽으로 2px 밀립니다.
-  padding: 0;
-  border: 1.5px solid var(--line-2);
-  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
   background: var(--surface);
-  color: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
   cursor: pointer;
   transition:
-    background var(--t-fast),
-    border-color var(--t-fast),
-    color var(--t-fast);
+    background var(--t-fast) var(--ease-out),
+    border-color var(--t-fast) var(--ease-out),
+    color var(--t-fast) var(--ease-out);
 
+  // 누르면 어떤 색이 되는지 hover 에서 미리 보여 줍니다.
   &:hover {
-    border-color: var(--blue);
+    border-color: var(--green);
+    color: var(--green-ink);
   }
 
-  &[aria-pressed='true'] {
-    background: var(--blue);
-    border-color: var(--blue);
-    color: #fff;
+  &:active {
+    transform: translateY(1px);
   }
+
+  // 끝난 뒤에는 더 누를 것이 없다는 뜻으로 테두리를 걷고 눕힙니다.
+  &[aria-pressed='true'] {
+    border-color: transparent;
+    background: var(--green-tint);
+    color: var(--green-ink);
+
+    // 되돌릴 수 있다는 것만 알리고 색은 그대로 둡니다.
+    &:hover {
+      border-color: var(--green);
+    }
+  }
+
+  @include md {
+    width: 52px;
+  }
+}
+
+// 사내 업무 줄. 주간 줄의 노란 점과 같은 색으로 두어 위아래가 같은 것을 말하게 합니다.
+.taskTag {
+  @include tag-pill;
+
+  background: var(--orange-tint);
+  color: var(--orange-ink);
 }
 
 .rail {
   text-align: right;
+}
+
+// 업무는 언제까지 하는 일인지가 함께 붙습니다. 시작 시각보다 한 단 낮게 둡니다.
+.until {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 12px;
 }
 
 .time {
@@ -254,8 +312,9 @@
 }
 
 // 끝낸 줄은 훑을 때 바로 걸러져야 합니다. 흐리게만 하면 차이가 약해
-// 줄 전체에 옅은 바탕을 깔아 남은 일과 갈라 놓습니다. 상태·보고서 배지는
-// 흐리지 않습니다. 끝낸 뒤에도 보고서를 썼는지가 남은 할 일이기 때문입니다.
+// 줄 전체에 옅은 바탕을 깔아 남은 일과 갈라 놓습니다.
+// 완료 버튼과 배지 줄은 흐리지 않습니다. 끝냈다는 사실과 보고서를 썼는지가
+// 이 줄에서 마지막까지 남는 정보이기 때문입니다.
 // .who 는 .org 안에 있어 따로 흐리면 두 번 겹칩니다.
 .isDone {
   background: var(--surface-2);

@@ -10,11 +10,11 @@ import type { ReactNode } from 'react'
 import { Link } from 'react-router'
 
 import Drawer from '@/components/Drawer'
-import { KIND_LABEL } from '@/content/agenda'
-import { confirmedTotal } from '@/content/contracts'
-import { relativeDayLabel } from '@/content/customers'
-import { isLate, orderItemLabel } from '@/content/orders'
-import type { AgendaKind, Customer } from '@/content/types'
+import { KIND_LABEL } from '@/shared/agenda'
+import { confirmedTotal } from '@/shared/contracts'
+import { relativeDayLabel } from '@/shared/customers'
+import { isLate, orderItemLabel } from '@/shared/orders'
+import type { AgendaKind, Customer } from '@/types'
 import { contractPath } from '@/constants/routes'
 import { addDays, ddayLabel, fmtDay, parseISO, TODAY } from '@/utils/date'
 import { won } from '@/utils/format'
@@ -264,15 +264,19 @@ export default function CustomerDrawer({ customer, all, onOpen, onClose }: Props
               <div className={styles.stack}>
                 {cs.map((c) => (
                   <Entry
-                    key={c.issue}
+                    key={c.id}
                     title={c.issue}
                     side={c.ago}
-                    sideLate={c.state === '미응답'}
+                    sideLate={c.state === '처리중'}
                     note={c.note}
                     tags={[
                       ...(c.urgent ? [{ text: '긴급', tone: 'risk' as const }] : []),
-                      { text: c.state, tone: c.state === '처리중' ? ('good' as const) : undefined },
-                      { text: c.product },
+                      {
+                        text: c.state,
+                        tone: c.state === '처리완료' ? ('good' as const) : undefined,
+                      },
+                      // 화면에서 등록한 건에는 제품이 없습니다. 빈 배지를 만들지 않습니다.
+                      ...(c.product ? [{ text: c.product }] : []),
                     ]}
                   />
                 ))}
@@ -295,7 +299,7 @@ export default function CustomerDrawer({ customer, all, onOpen, onClose }: Props
                     note={`${it.time} · ${it.dur} · ${it.place}`}
                     tags={[
                       { text: KIND_LABEL[it.kind], kind: it.kind },
-                      { text: it.stage },
+                      ...(it.stage ? [{ text: it.stage }] : []),
                       { text: it.product },
                     ]}
                   />

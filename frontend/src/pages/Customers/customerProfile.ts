@@ -11,10 +11,10 @@
 //
 // 백엔드를 붙이면 이 파일의 이름 맞추기를 customerId 비교로 갈아탑니다.
 // 바깥은 아래 함수 이름만 알고 있어 그때 고칠 곳은 여기뿐입니다.
-import { agendaByDate } from '@/content/agenda'
-import { contracts } from '@/content/contracts'
-import { csRequests, followUps, renewals } from '@/content/counters'
-import { activeOrders } from '@/content/orders'
+import { agendaSnapshot } from '@/shared/agenda'
+import { contracts } from '@/shared/contracts'
+import { csSnapshot, followUps, renewals } from '@/shared/counters'
+import { activeOrders } from '@/shared/orders'
 import type {
   AgendaItem,
   Contract,
@@ -23,10 +23,9 @@ import type {
   FollowUp,
   PurchaseOrder,
   Renewal,
-} from '@/content/types'
+} from '@/types'
 
-/** 일정은 날짜 키로 묶여 있습니다. 사람 기준으로 훑으려면 한 줄로 펴야 합니다. */
-const allAgenda: AgendaItem[] = Object.values(agendaByDate).flat()
+// 일정은 화면에서 추가·삭제되므로 모듈 로드 때 한 번 베껴두면 안 됩니다. 부를 때 읽습니다.
 
 /**
  * 자유 문자열로 적힌 담당자가 이 고객인지 봅니다.
@@ -51,7 +50,7 @@ function matchesWho(entry: { org: string; who: string }, c: Customer): boolean {
 
 /** 이 고객이 담당자로 잡힌 일정. 최근 것이 위로 옵니다. */
 export function meetingsOf(c: Customer): AgendaItem[] {
-  return allAgenda
+  return agendaSnapshot()
     .filter((it) => it.hospital === c.org && isSamePerson(it.contact, c.name))
     .sort((a, b) => b.date.localeCompare(a.date) || b.time.localeCompare(a.time))
 }
@@ -61,9 +60,11 @@ export function followUpsOf(c: Customer): FollowUp[] {
   return followUps.filter((f) => matchesWho(f, c)).sort((a, b) => a.dueOff - b.dueOff)
 }
 
-/** 접수가 최근인 것부터 */
+/** 접수가 최근인 것부터. C/S 도 화면에서 등록되므로 부를 때 읽습니다. */
 export function csRequestsOf(c: Customer): CsRequest[] {
-  return csRequests.filter((r) => matchesWho(r, c)).sort((a, b) => b.agoOff - a.agoOff)
+  return csSnapshot()
+    .filter((r) => matchesWho(r, c))
+    .sort((a, b) => b.agoOff - a.agoOff)
 }
 
 /** 만료가 가까운 것부터 */

@@ -11,7 +11,7 @@ import { ChevronLeftIcon } from '@/components/icons'
 import Modal from '@/components/Modal'
 import ReportFields from '@/components/ReportFields'
 import { meetingReportPath, ROUTES } from '@/constants/routes'
-import { agendaById } from '@/content/agenda'
+import { agendaById } from '@/shared/agenda'
 import { fmtDay, parseISO } from '@/utils/date'
 
 import MeetingFacts from './components/MeetingFacts'
@@ -156,7 +156,7 @@ export default function Compose() {
           <article className={styles.panel}>
             <div className={styles.panelHead}>
               <h2>미팅 정보</h2>
-              <span className={styles.pill}>{item.stage}</span>
+              {item.stage && <span className={styles.pill}>{item.stage}</span>}
             </div>
             <p className={styles.panelNote}>캘린더 일정에서 가져왔습니다.</p>
 
