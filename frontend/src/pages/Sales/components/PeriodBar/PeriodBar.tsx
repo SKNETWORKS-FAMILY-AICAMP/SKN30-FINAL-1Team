@@ -42,28 +42,28 @@ export default function PeriodBar({
       </div>
 
       <div className={styles.nav}>
-        <button
-          type="button"
-          className={styles.iconBtn}
+        <Button
+          variant="outline"
+          iconOnly
           onClick={() => onOffsetChange(offset - 1)}
           aria-label="이전 기간"
         >
           <ChevronLeftIcon width={15} height={15} />
-        </button>
+        </Button>
 
         <p className={styles.label}>
           <strong className="tnum">{range.label}</strong>
           {range.sub && <span className="tnum">{range.sub}</span>}
         </p>
 
-        <button
-          type="button"
-          className={styles.iconBtn}
+        <Button
+          variant="outline"
+          iconOnly
           onClick={() => onOffsetChange(offset + 1)}
           aria-label="다음 기간"
         >
           <ChevronRightIcon width={15} height={15} />
-        </button>
+        </Button>
 
         <Button
           variant="outline"

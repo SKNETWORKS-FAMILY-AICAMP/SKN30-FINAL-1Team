@@ -76,25 +76,10 @@
   }
 }
 
+// 모양은 Button 의 outline 이 정합니다. 안 읽은 표시 점을 걸 자리만 만듭니다.
 .iconBtn {
   position: relative;
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border: 1px solid var(--line);
-  border-radius: var(--r-sm);
-  background: var(--surface);
   color: var(--ink-2);
-  cursor: pointer;
-  transition:
-    background var(--t-fast),
-    border-color var(--t-fast);
-
-  &:hover {
-    background: var(--blue-tint);
-    border-color: rgba(0, 122, 255, 0.28);
-  }
 }
 
 // 안 읽은 알림이 있다는 표시. 숫자는 세어 봐야 할 일이 달라지지 않아 점만 찍습니다.

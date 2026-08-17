@@ -114,25 +114,15 @@ export default function MonthGrid({
     <article className={styles.grid}>
       <header className={styles.head}>
         <div className={styles.nav}>
-          <button
-            type="button"
-            className={styles.iconBtn}
-            onClick={() => changeMonth(-1)}
-            aria-label="이전 달"
-          >
+          <Button variant="outline" iconOnly onClick={() => changeMonth(-1)} aria-label="이전 달">
             <ChevronLeftIcon width={15} height={15} />
-          </button>
+          </Button>
           <h2 className={`${styles.month} tnum`} aria-live="polite">
             {fmtMonth(cursor)}
           </h2>
-          <button
-            type="button"
-            className={styles.iconBtn}
-            onClick={() => changeMonth(1)}
-            aria-label="다음 달"
-          >
+          <Button variant="outline" iconOnly onClick={() => changeMonth(1)} aria-label="다음 달">
             <ChevronRightIcon width={15} height={15} />
-          </button>
+          </Button>
         </div>
 
         <div className={styles.tools}>

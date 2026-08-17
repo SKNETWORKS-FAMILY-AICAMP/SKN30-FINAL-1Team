@@ -39,25 +39,6 @@
   gap: var(--s2);
 }
 
-.iconBtn {
-  display: grid;
-  place-items: center;
-  width: var(--control-h);
-  height: var(--control-h);
-  border: 1px solid var(--line);
-  border-radius: var(--r-sm);
-  background: var(--surface);
-  cursor: pointer;
-  transition:
-    background var(--t-fast),
-    border-color var(--t-fast);
-
-  &:hover {
-    background: var(--blue-tint);
-    border-color: rgba(0, 122, 255, 0.28);
-  }
-}
-
 .more {
   margin-left: var(--s2);
   padding: 7px var(--s3);
@@ -244,7 +225,7 @@
 .reset {
   margin-top: var(--s3);
   padding: 8px var(--s4);
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-2);
   border-radius: var(--r-sm);
   background: var(--surface);
   color: var(--ink-2);

@@ -91,25 +91,25 @@ export default function WeekCalendar({
               <i className={styles.dotDelivery} /> 업무
             </span>
           </span>
-          <button
-            type="button"
-            className={styles.iconBtn}
+          <Button
+            variant="outline"
+            iconOnly
             onClick={() => onWeekChange(weekOffset - 1)}
             aria-label="이전 주"
           >
             <ChevronLeftIcon width={15} height={15} />
-          </button>
+          </Button>
           <Button variant="ghost" onClick={onToday}>
             오늘
           </Button>
-          <button
-            type="button"
-            className={styles.iconBtn}
+          <Button
+            variant="outline"
+            iconOnly
             onClick={() => onWeekChange(weekOffset + 1)}
             aria-label="다음 주"
           >
             <ChevronRightIcon width={15} height={15} />
-          </button>
+          </Button>
         </div>
       </div>
 

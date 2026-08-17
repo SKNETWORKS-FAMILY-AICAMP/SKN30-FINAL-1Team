@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { Link, useLocation } from 'react-router'
 
 import { useCurrentUser } from '@/auth/sessionContext'
+import { buttonClass } from '@/components/Button'
 import { BellIcon, MenuIcon } from '@/components/icons'
 import { useSidebar } from '@/components/layout/AppShell/sidebarContext'
 import { SIDEBAR_ID } from '@/components/layout/Sidebar/Sidebar'
@@ -58,7 +59,7 @@ export default function Topbar() {
 
       {/* 알림은 화면 하나입니다. 벨은 그리로 가는 통로일 뿐이라 점만 얹습니다. */}
       <Link
-        className={styles.iconBtn}
+        className={buttonClass({ variant: 'outline', iconOnly: true }, styles.iconBtn)}
         to={ROUTES.NOTIFICATIONS}
         aria-label={hasUnread ? '알림 (읽지 않음 있음)' : '알림'}
       >

@@ -26,6 +26,14 @@
   display: flex;
   align-items: center;
   gap: var(--s2);
+
+  @include sm {
+    // 오른쪽 도구 줄과 같은 높이로 내려옵니다.
+    button {
+      width: var(--control-h-sm);
+      height: var(--control-h-sm);
+    }
+  }
 }
 
 .month {
@@ -98,31 +106,6 @@
   height: 5px;
   background: var(--orange);
   transform: rotate(45deg);
-}
-
-.iconBtn {
-  display: grid;
-  place-items: center;
-  flex: none;
-  width: 34px;
-  height: 34px;
-
-  @include sm {
-    width: 30px;
-    height: 30px;
-  }
-  border: 1px solid var(--line);
-  border-radius: var(--r-sm);
-  background: var(--surface);
-  cursor: pointer;
-  transition:
-    background var(--t-fast),
-    border-color var(--t-fast);
-
-  &:hover {
-    background: var(--blue-tint);
-    border-color: rgba(0, 122, 255, 0.28);
-  }
 }
 
 .weekdays,

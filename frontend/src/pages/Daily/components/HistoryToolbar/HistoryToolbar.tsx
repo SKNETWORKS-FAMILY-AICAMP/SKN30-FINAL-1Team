@@ -5,6 +5,7 @@
 // 업무 보고에는 고객사가 없고 미팅보고서에는 결재선이 없습니다.
 import { useState } from 'react'
 
+import Button from '@/components/Button'
 import { FilterIcon } from '@/components/icons'
 import Popover from '@/components/Popover'
 import SearchInput from '@/components/SearchInput'
@@ -70,16 +71,16 @@ export default function HistoryToolbar({
         align="end"
         label="이력 필터"
         trigger={
-          <button
-            type="button"
-            className={`${styles.tool} ${filterCount > 0 ? styles.isOn : ''}`}
+          <Button
+            variant="outline"
+            className={filterCount > 0 ? styles.isOn : ''}
             aria-expanded={open}
             onClick={() => setOpen(!open)}
           >
             <FilterIcon width={15} height={15} />
             필터
             {filterCount > 0 && <span className={styles.badge}>{filterCount}</span>}
-          </button>
+          </Button>
         }
       >
         <div className={styles.panel}>

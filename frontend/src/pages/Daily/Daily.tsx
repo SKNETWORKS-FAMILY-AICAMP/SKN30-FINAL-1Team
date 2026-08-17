@@ -227,16 +227,16 @@ export default function Daily() {
           </p>
 
           <div className={styles.weekTools}>
-            <button
-              type="button"
-              className={styles.iconBtn}
+            <Button
+              variant="outline"
+              iconOnly
               onClick={() =>
                 showMonth ? setCursor(addMonths(cursor, -1)) : setWeekOffset(weekOffset - 1)
               }
               aria-label={showMonth ? '이전 달' : '이전 주'}
             >
               <ChevronLeftIcon width={15} height={15} />
-            </button>
+            </Button>
             {/* 문구와 톤을 대시보드 주간 달력과 맞춥니다. 같은 줄을 넘기는 버튼입니다. */}
             <Button
               variant="ghost"
@@ -245,16 +245,16 @@ export default function Daily() {
             >
               {showMonth ? '이번 달' : '오늘'}
             </Button>
-            <button
-              type="button"
-              className={styles.iconBtn}
+            <Button
+              variant="outline"
+              iconOnly
               onClick={() =>
                 showMonth ? setCursor(addMonths(cursor, 1)) : setWeekOffset(weekOffset + 1)
               }
               aria-label={showMonth ? '다음 달' : '다음 주'}
             >
               <ChevronRightIcon width={15} height={15} />
-            </button>
+            </Button>
 
             <button
               type="button"

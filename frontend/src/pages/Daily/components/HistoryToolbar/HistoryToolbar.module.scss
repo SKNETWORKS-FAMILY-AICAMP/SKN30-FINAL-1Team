@@ -14,31 +14,9 @@
   }
 }
 
-.tool {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: var(--control-h);
-  padding: 0 var(--s3);
-  white-space: nowrap;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--r-sm);
-  color: var(--ink-2);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    border-color var(--t-fast) var(--ease-out),
-    color var(--t-fast) var(--ease-out);
-
-  &:hover {
-    border-color: var(--line-2);
-    color: var(--blue);
-  }
-}
-
-.isOn {
+// 필터가 걸려 있는 상태. Button 의 outline 위에 얹으므로 클래스를 겹쳐
+// 우선순위를 한 단계 올립니다(둘 다 클래스 하나면 파일 순서에 따라 지는 수가 있습니다).
+.isOn.isOn {
   border-color: rgba(0, 122, 255, 0.32);
   background: var(--blue-tint);
   color: var(--blue);
@@ -89,7 +67,7 @@
 
 .chip {
   padding: 5px 10px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-2);
   border-radius: var(--r-pill);
   background: var(--surface);
   color: var(--ink-2);
@@ -115,7 +93,7 @@
   width: 100%;
   margin-top: var(--s3);
   padding: 8px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-2);
   border-radius: var(--r-sm);
   background: var(--surface);
   color: var(--ink-2);

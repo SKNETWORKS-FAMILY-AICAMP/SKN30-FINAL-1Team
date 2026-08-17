@@ -22,32 +22,8 @@
   gap: var(--s2);
 }
 
-.tool {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: var(--control-h);
-  padding: 0 var(--s3);
-  white-space: nowrap;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--r-sm);
-  color: var(--ink-2);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    border-color var(--t-fast) var(--ease-out),
-    color var(--t-fast) var(--ease-out);
-
-  &:hover {
-    border-color: var(--line-2);
-    color: var(--blue);
-  }
-}
-
 // 아이콘만으로도 뜻이 통하는 도구. 폰에서는 글자를 접어 한 줄에 담습니다.
-.iconOnly {
+.foldLabel {
   @include sm {
     padding: 0 var(--s2);
 

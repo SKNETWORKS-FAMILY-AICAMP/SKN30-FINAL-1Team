@@ -54,25 +54,6 @@
   }
 }
 
-.iconBtn {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border: 1px solid var(--line);
-  border-radius: var(--r-sm);
-  background: var(--surface);
-  cursor: pointer;
-  transition:
-    background var(--t-fast),
-    border-color var(--t-fast);
-
-  &:hover {
-    background: var(--blue-tint);
-    border-color: rgba(0, 122, 255, 0.28);
-  }
-}
-
 .strip {
   margin-top: var(--s4);
 }

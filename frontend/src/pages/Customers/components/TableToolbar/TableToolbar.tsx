@@ -56,16 +56,15 @@ export default function TableToolbar({
           label="컬럼 설정"
           align={isPhone ? 'start' : 'end'}
           trigger={
-            <button
-              type="button"
-              className={styles.tool}
+            <Button
+              variant="outline"
               aria-expanded={open === 'columns'}
               aria-label="컬럼 설정"
               onClick={() => setOpen(open === 'columns' ? null : 'columns')}
             >
               <ColumnsIcon width={15} height={15} />
               <span>컬럼 설정</span>
-            </button>
+            </Button>
           }
         >
           <ColumnSettings
@@ -76,25 +75,25 @@ export default function TableToolbar({
           />
         </Popover>
 
-        <button
-          type="button"
-          className={`${styles.tool} ${styles.iconOnly}`}
+        <Button
+          variant="outline"
+          className={styles.foldLabel}
           aria-label="가져오기"
           onClick={onImport}
         >
           <UploadIcon width={15} height={15} />
           <span>가져오기</span>
-        </button>
+        </Button>
 
-        <button
-          type="button"
-          className={`${styles.tool} ${styles.iconOnly}`}
+        <Button
+          variant="outline"
+          className={styles.foldLabel}
           aria-label="내보내기"
           onClick={onExport}
         >
           <DownloadIcon width={15} height={15} />
           <span>내보내기</span>
-        </button>
+        </Button>
       </div>
 
       <Button className={styles.create} onClick={onCreate}>

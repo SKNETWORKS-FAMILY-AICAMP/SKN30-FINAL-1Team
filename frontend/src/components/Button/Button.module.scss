@@ -32,6 +32,16 @@
   font-size: 12px;
 }
 
+// 아이콘만 든 정사각 버튼. 글자가 없어 좌우 여백이 필요 없습니다.
+.iconOnly {
+  width: var(--control-h);
+  padding: 0;
+}
+
+.sm.iconOnly {
+  width: var(--control-h-sm);
+}
+
 .primary {
   color: #fff;
   background: var(--blue);
@@ -53,7 +63,7 @@
 }
 
 .ghost {
-  border-color: var(--line);
+  border-color: var(--line-2);
   background: transparent;
   color: var(--ink-2);
 

@@ -37,26 +37,6 @@
   }
 }
 
-.iconBtn {
-  display: grid;
-  place-items: center;
-  width: var(--control-h);
-  height: var(--control-h);
-  flex: none;
-  border: 1px solid var(--line);
-  border-radius: var(--r-sm);
-  background: var(--surface);
-  cursor: pointer;
-  transition:
-    background var(--t-fast),
-    border-color var(--t-fast);
-
-  &:hover {
-    background: var(--blue-tint);
-    border-color: rgba(0, 122, 255, 0.28);
-  }
-}
-
 // 모양은 Button 의 outline 이 정합니다. 여기서는 자리만 잡습니다.
 .reset {
   margin-left: auto;

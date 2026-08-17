@@ -6,6 +6,8 @@ export type ButtonSize = 'md' | 'sm'
 interface ButtonClassOptions {
   variant?: ButtonVariant
   size?: ButtonSize
+  /** 아이콘만 든 정사각 버튼. */
+  iconOnly?: boolean
 }
 
 /**
@@ -14,8 +16,16 @@ interface ButtonClassOptions {
  * 생김새는 같아야 하므로 클래스 조합을 여기 한 곳에서 만듭니다.
  */
 export function buttonClass(
-  { variant = 'primary', size = 'md' }: ButtonClassOptions = {},
+  { variant = 'primary', size = 'md', iconOnly = false }: ButtonClassOptions = {},
   extra?: string,
 ) {
-  return [styles.root, styles[variant], size === 'sm' && styles.sm, extra].filter(Boolean).join(' ')
+  return [
+    styles.root,
+    styles[variant],
+    size === 'sm' && styles.sm,
+    iconOnly && styles.iconOnly,
+    extra,
+  ]
+    .filter(Boolean)
+    .join(' ')
 }
