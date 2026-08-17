@@ -9,6 +9,7 @@ import { fmtDot, parseISO } from '@/utils/date'
 
 import ActivityList from './components/ActivityList'
 import ReportStatusBadge from './components/ReportStatusBadge'
+import { activityLink } from './sources'
 import useDailyReports from './useDailyReports'
 
 import styles from './Detail.module.scss'
@@ -58,7 +59,15 @@ export default function Detail() {
 
         <article className={styles.panel}>
           <h2>포함된 활동</h2>
-          <ActivityList activities={report.activities} readOnly />
+          {/* 무엇을 근거로 썼는지 되짚을 수 있게 원본 보고서로 가는 길을 답니다. */}
+          <ActivityList
+            activities={report.activities}
+            readOnly
+            renderAside={(item) => {
+              const to = activityLink(item)
+              return to ? <Link to={to}>원본 보기</Link> : null
+            }}
+          />
         </article>
 
         <article className={styles.panel}>

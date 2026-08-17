@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 
 import { CheckIcon, PlusIcon, TrashIcon } from '@/components/icons'
 import type { ReportActivity } from '@/types'
@@ -9,6 +9,13 @@ interface Props {
   activities: ReportActivity[]
   /** 읽기 모드면 체크·삭제·추가가 사라지고 포함된 항목만 보입니다. */
   readOnly?: boolean
+  /**
+   * 캘린더에 없는 업무를 직접 적는 칸. 주간·월간은 제출된 보고서만 자료로 쓰므로
+   * 직접 적을 것이 없습니다.
+   */
+  canAdd?: boolean
+  /** 항목 오른쪽에 붙는 상태·바로가기. 원본 보고서가 있는 자료에서 씁니다. */
+  renderAside?: (item: ReportActivity) => ReactNode
   onToggle?: (id: string) => void
   onRemove?: (id: string) => void
   onAdd?: (title: string) => void
@@ -17,6 +24,8 @@ interface Props {
 export default function ActivityList({
   activities,
   readOnly = false,
+  canAdd = true,
+  renderAside,
   onToggle,
   onRemove,
   onAdd,
@@ -68,6 +77,8 @@ export default function ActivityList({
 
               <span className={styles.source}>{item.source}</span>
 
+              {renderAside && <span className={styles.aside}>{renderAside(item)}</span>}
+
               {!readOnly && item.source === '수기' && (
                 <button
                   type="button"
@@ -83,7 +94,7 @@ export default function ActivityList({
         </ul>
       )}
 
-      {!readOnly && (
+      {!readOnly && canAdd && (
         <div className={styles.add}>
           <input
             value={draft}

@@ -34,16 +34,27 @@ export type Route = (typeof ROUTES)[keyof typeof ROUTES]
 const KIND_PARAM: Record<ReportKind, string> = { 일일: 'daily', 주간: 'weekly', 월간: 'monthly' }
 
 /**
- * 업무보고 작성 화면. dateISO 를 주면 그날 보고서를, kind 를 주면 그 종류를 씁니다.
+ * 업무보고 작성 화면. dateISO 를 주면 그 기간 보고서를, kind 를 주면 그 종류를 씁니다.
  * 밀린 날짜를 소급 작성하는 경로도 이 하나를 씁니다.
+ *
+ * pickId 는 미리 골라 둘 자료 하나입니다. 사내 업무 일정에서 넘어올 때 그 업무가
+ * 체크된 채로 열리라고 씁니다. 주지 않으면 종류별 기본 선택 그대로입니다.
  */
-export const dailyComposePath = (dateISO?: string, kind: ReportKind = '일일') => {
+export const dailyComposePath = (dateISO?: string, kind: ReportKind = '일일', pickId?: string) => {
   const query = new URLSearchParams()
   if (dateISO) query.set('date', dateISO)
   if (kind !== '일일') query.set('kind', KIND_PARAM[kind])
+  if (pickId) query.set('pick', pickId)
   const suffix = query.toString()
   return suffix ? `${ROUTES.DAILY}/new?${suffix}` : `${ROUTES.DAILY}/new`
 }
+
+/**
+ * 미팅/업무보고서를 쓰기 전에 기준 날짜와 일정을 고르는 화면.
+ * 미팅보고서는 일정 하나에 붙으므로 빈 폼으로 열 수 없습니다.
+ */
+export const meetingPickPath = (dateISO?: string) =>
+  dateISO ? `${ROUTES.DAILY}/pick?date=${dateISO}` : `${ROUTES.DAILY}/pick`
 
 /** 제출된 보고서 상세 */
 export const dailyReportPath = (id: string) => `${ROUTES.DAILY}/${id}`

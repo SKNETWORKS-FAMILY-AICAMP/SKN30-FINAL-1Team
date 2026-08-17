@@ -25,8 +25,14 @@ export interface ReportTemplate {
   fields: ReportFieldDef[]
 }
 
-/** 활동을 어디서 주워 왔는지. 배지로 나옵니다. */
-export type ActivitySource = '캘린더' | '미팅보고서' | '문서' | '후속' | '수기'
+/**
+ * 활동을 어디서 주워 왔는지. 배지로 나옵니다.
+ *
+ * 보고는 일정/미팅보고서 → 일일 → 주간 → 월간 순으로 쌓입니다. 주간·월간은
+ * 한 단계 아래 보고서를 자료로 삼으므로 그 둘도 출처가 됩니다.
+ */
+export type ActivitySource =
+  '캘린더' | '미팅보고서' | '문서' | '후속' | '수기' | '일일보고서' | '주간보고서'
 
 /** 보고서에 넣을 후보 활동 한 건 */
 export interface ReportActivity {
@@ -36,6 +42,11 @@ export interface ReportActivity {
   desc: string
   /** 체크를 풀면 보고서와 AI 입력에서 함께 빠집니다. */
   included: boolean
+  /**
+   * 이 활동이 나온 원본의 id. 미팅보고서·일일보고서·주간보고서면 그 보고서 id,
+   * 캘린더면 일정 id 입니다. 제출한 뒤에도 무엇을 근거로 썼는지 되짚을 수 있게 남깁니다.
+   */
+  refId?: string
 }
 
 export type AttachmentKind = 'audio' | 'image' | 'pdf'
@@ -55,7 +66,7 @@ export interface ReportAttachment {
 
 export type ReportStatus = '작성중' | '검토 대기' | '확정' | '반려'
 
-/** 보고서 종류. 작성 흐름은 아직 일일만 있고 주간·월간은 이력에서 읽기만 합니다. */
+/** 보고서 종류. 주간은 일일보고서를, 월간은 주간보고서를 자료로 씁니다. */
 export type ReportKind = '일일' | '주간' | '월간'
 
 export interface DailyReportSeed {

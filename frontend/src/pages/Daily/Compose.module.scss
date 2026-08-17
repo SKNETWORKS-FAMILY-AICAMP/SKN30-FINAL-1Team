@@ -51,6 +51,58 @@
   font-size: 12px;
 }
 
+/* 주간·월간이 덮는 기간. 날짜 하나만으로는 어디까지인지 알 수 없습니다. */
+.period {
+  @include tag-pill;
+
+  font-size: 12px;
+}
+
+/* 아직 고를 수 없는 자료. 목록이 아니라 상태 안내라 흐린 톤으로 둡니다. */
+.pending {
+  margin-top: var(--s4);
+  padding-top: var(--s3);
+  border-top: 1px solid var(--line);
+
+  h3 {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s2);
+    margin-top: var(--s2);
+  }
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: var(--s2);
+    flex-wrap: wrap;
+    font-size: 12px;
+  }
+
+  a {
+    color: var(--blue);
+    font-weight: 600;
+    white-space: nowrap;
+
+    &:hover {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+  }
+}
+
+.pendingTitle {
+  flex: 1;
+  min-width: 120px;
+  color: var(--ink-2);
+}
+
 .headActions {
   display: flex;
   gap: var(--s2);
@@ -176,6 +228,11 @@
   margin-top: var(--s1);
   color: var(--muted);
   font-size: 12px;
+}
+
+/* 자료가 없을 때 무엇을 먼저 해야 하는지 가리킵니다. */
+.blankCta {
+  margin-top: var(--s3);
 }
 
 .approverField {

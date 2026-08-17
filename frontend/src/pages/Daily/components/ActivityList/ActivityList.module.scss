@@ -5,13 +5,23 @@
 
 .item {
   display: grid;
-  grid-template-columns: 22px minmax(0, 1fr) auto auto;
+  grid-template-columns: 22px minmax(0, 1fr) auto auto auto;
   align-items: start;
   gap: var(--s3);
   padding: var(--s3) 0;
 
   & + .item {
     border-top: 1px solid var(--line);
+  }
+
+  // 좁은 화면에서는 오른쪽 꼬리(출처·상태·바로가기)를 본문 아래로 접습니다.
+  // 한 줄에 그대로 두면 제목이 두세 글자만 남습니다.
+  @include sm {
+    grid-template-columns: 22px minmax(0, 1fr) auto;
+
+    .aside {
+      grid-column: 2 / -1;
+    }
   }
 }
 
@@ -85,6 +95,25 @@
   margin-top: 2px;
   font-size: 11px;
   white-space: nowrap;
+}
+
+// 원본 보고서의 상태와 그리로 가는 길. 자료마다 붙습니다.
+.aside {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
+  white-space: nowrap;
+
+  a {
+    color: var(--blue);
+    font-size: 12px;
+    font-weight: 600;
+
+    &:hover {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+  }
 }
 
 .remove {

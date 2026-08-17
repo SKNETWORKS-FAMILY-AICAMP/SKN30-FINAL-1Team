@@ -3,3 +3,4 @@
 export { default } from './Daily'
 export { default as DailyCompose } from './Compose'
 export { default as DailyDetail } from './Detail'
+export { default as DailyMeetingPick } from './MeetingPick'

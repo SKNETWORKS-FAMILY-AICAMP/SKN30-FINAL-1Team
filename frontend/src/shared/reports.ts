@@ -1,16 +1,7 @@
 // 업무보고 도메인. 양식·시드는 mocks/ 에서 받고 여기서는 로직·파생만 둡니다.
-import {
-  APPROVERS,
-  dailyTemplate,
-  extraActivitySeed,
-  monthlyTemplate,
-  reportSeed,
-  weeklyTemplate,
-} from '@/mocks'
-import type { DailyReport, ReportActivity, ReportKind, ReportTemplate } from '@/types'
-import { addDays, iso, parseISO, TODAY } from '@/utils/date'
-
-import { agendaFor } from './agenda'
+import { APPROVERS, dailyTemplate, monthlyTemplate, reportSeed, weeklyTemplate } from '@/mocks'
+import type { DailyReport, ReportKind, ReportTemplate } from '@/types'
+import { addDays, iso, TODAY } from '@/utils/date'
 
 export { APPROVERS, dailyTemplate, monthlyTemplate, weeklyTemplate }
 
@@ -20,22 +11,8 @@ export function templateFor(kind: ReportKind): ReportTemplate {
   return dailyTemplate
 }
 
-export function draftActivitiesFor(dateISO: string): ReportActivity[] {
-  const fromCalendar: ReportActivity[] = agendaFor(dateISO).map((item) => ({
-    id: `cal-${item.id}`,
-    source: '캘린더',
-    title: `${item.time} ${item.hospital} ${item.title}`,
-    desc: [item.contact, item.stage].filter(Boolean).join(' · '),
-    // 이미 끝난 일정만 기본으로 켭니다. 안 한 일이 보고서에 실리면 안 됩니다.
-    included: item.done,
-  }))
-
-  // parseISO 로 로컬 자정을 맞춥니다. Date.parse('YYYY-MM-DD') 는 UTC 로 읽어 하루 밀립니다.
-  const offset = Math.round((parseISO(dateISO).getTime() - TODAY.getTime()) / 86_400_000)
-  const extras = (extraActivitySeed[offset] ?? []).map((item) => ({ ...item, included: true }))
-
-  return [...fromCalendar, ...extras]
-}
+// 보고서에 넣을 후보 자료를 모으는 일은 종류마다 다릅니다.
+// pages/Daily/sources.ts 가 종류별로 갈라 갖고 있습니다.
 
 export const reportHistory: DailyReport[] = reportSeed
   .map((seed) => ({ ...seed, date: iso(addDays(TODAY, seed.off)) }))

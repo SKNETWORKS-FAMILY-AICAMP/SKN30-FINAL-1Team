@@ -1,0 +1,160 @@
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  flex-wrap: wrap;
+  margin-bottom: var(--s3);
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+
+  &:hover {
+    color: var(--blue);
+  }
+}
+
+.title {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.dateField {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  margin-left: auto;
+
+  @include sm {
+    margin-left: 0;
+  }
+
+  span {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  input {
+    padding: 6px var(--s2);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    outline: none;
+
+    &:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px var(--blue-ring);
+    }
+  }
+}
+
+.note {
+  margin-bottom: var(--s3);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.rows {
+  @include card;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto auto auto;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s3) var(--s4);
+
+  & + .row {
+    border-top: 1px solid var(--line);
+  }
+
+  // 좁은 화면에서는 한 줄에 다 세울 수 없습니다. 제목이 한 줄을 차지하고
+  // 나머지 표식과 버튼이 그 아래로 내려옵니다.
+  @include md {
+    grid-template-columns: auto auto minmax(0, 1fr);
+
+    .body {
+      grid-column: 1 / -1;
+      order: -1;
+    }
+
+    .action {
+      grid-column: 1 / -1;
+    }
+  }
+}
+
+.kind {
+  @include tag-pill;
+
+  font-size: 11px;
+}
+
+.time {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  strong {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.008em;
+  }
+
+  span {
+    color: var(--muted);
+    font-size: 12px;
+  }
+}
+
+.done,
+.todo {
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.done {
+  color: var(--green-ink);
+}
+
+.todo {
+  color: var(--muted);
+}
+
+.action {
+  white-space: nowrap;
+}
+
+.empty {
+  @include card;
+
+  padding: var(--s8) var(--s4);
+  text-align: center;
+  color: var(--ink-2);
+  font-size: 13px;
+}
+
+.emptyCta {
+  margin-top: var(--s3);
+}

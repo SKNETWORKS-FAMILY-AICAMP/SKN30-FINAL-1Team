@@ -11,7 +11,7 @@ import { reportHistory } from '@/shared/reports'
 import type { DailyReport, ReportKind, ReportStatus } from '@/types'
 import { parseISO, TODAY } from '@/utils/date'
 
-import { periodLabelFor } from './periods'
+import { periodLabelFor, periodStart } from './periods'
 
 let reports: DailyReport[] = reportHistory
 const listeners = new Set<() => void>()
@@ -27,11 +27,15 @@ function subscribe(listener: () => void) {
 }
 
 /**
- * 같은 날짜·같은 종류의 보고는 하나뿐입니다. 새로 쓰면 그 자리를 덮어씁니다.
- * 같은 날 제출된 다른 종류는 그대로 둡니다.
+ * 같은 기간·같은 종류의 보고는 하나뿐입니다. 새로 쓰면 그 자리를 덮어씁니다.
+ * 같은 기간에 제출된 다른 종류는 그대로 둡니다.
+ *
+ * 날짜가 아니라 정규화한 기간 키로 봅니다. 주간보고를 주 중 어느 날에 열든
+ * 그 주의 보고서는 하나여야 합니다.
  */
 function upsert(report: DailyReport) {
-  const rest = reports.filter((r) => r.date !== report.date || r.kind !== report.kind)
+  const key = periodStart(report.kind, report.date)
+  const rest = reports.filter((r) => r.kind !== report.kind || periodStart(r.kind, r.date) !== key)
   publish([report, ...rest].sort((a, b) => b.date.localeCompare(a.date)))
 }
 
@@ -50,14 +54,17 @@ const ID_PREFIX: Record<ReportKind, string> = { 일일: 'dr', 주간: 'wr', 월�
 function toReport(draft: DraftPayload, status: ReportStatus, owner: string): DailyReport {
   const included = draft.activities.filter((a) => a.included).length
   const files = draft.attachments.length
+  // 기간의 첫날로 맞춰 둡니다. 같은 주를 다른 날에 열어도 id 와 date 가 같아야
+  // 이어서 쓰는 것이 되고 새 보고서가 생기지 않습니다.
+  const date = periodStart(draft.kind, draft.date)
   return {
-    id: `${ID_PREFIX[draft.kind]}-${draft.date}`,
+    id: `${ID_PREFIX[draft.kind]}-${date}`,
     owner,
     // 이력은 실제 날짜로 다루지만 타입은 시드와 공유하므로 off 도 채워 둡니다.
-    off: Math.round((parseISO(draft.date).getTime() - TODAY.getTime()) / 86_400_000),
-    date: draft.date,
+    off: Math.round((parseISO(date).getTime() - TODAY.getTime()) / 86_400_000),
+    date,
     kind: draft.kind,
-    period: periodLabelFor(draft.kind, draft.date),
+    period: periodLabelFor(draft.kind, date),
     approver: draft.approver,
     status,
     values: draft.values,
@@ -94,6 +101,18 @@ export default function useDailyReports() {
     [byDate],
   )
 
+  /**
+   * 그 기간의 보고서. 주·월은 아무 날짜나 주어도 같은 하나를 찾습니다.
+   * 작성 화면이 "이미 있는가"를 묻는 자리라 날짜가 아니라 기간으로 봅니다.
+   */
+  const findByPeriod = useCallback(
+    (kind: ReportKind, dateISO: string) => {
+      const key = periodStart(kind, dateISO)
+      return list.find((r) => r.kind === kind && periodStart(r.kind, r.date) === key)
+    },
+    [list],
+  )
+
   const submitReport = useCallback(
     (draft: DraftPayload) => {
       const report = toReport(draft, '검토 대기', profile.name)
@@ -116,6 +135,7 @@ export default function useDailyReports() {
     byDate,
     findReport,
     findByDate,
+    findByPeriod,
     submitReport,
     saveDraft,
   }

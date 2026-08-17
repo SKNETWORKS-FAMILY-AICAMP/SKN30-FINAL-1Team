@@ -47,8 +47,11 @@ export const dailyTemplate: ReportTemplate = {
 }
 
 /**
- * 주간·월간 양식. 지금은 이력에 남은 보고서를 읽을 때 필드 라벨을 얻는 용도뿐입니다.
- * 주간·월간 작성 화면은 아직 없습니다.
+ * 주간·월간 양식.
+ *
+ * 두 양식의 AI 항목은 고른 하위 보고서에서 옮겨 담는 자리입니다. 주간 성과는 일일보고의
+ * 업무 요약에서, 월간 실적은 주간보고의 주간 성과에서 옵니다. 원본에 없는 값(목표 대비)은
+ * 사람이 직접 씁니다.
  */
 export const weeklyTemplate: ReportTemplate = {
   id: 'tpl-sales-w',
@@ -56,9 +59,16 @@ export const weeklyTemplate: ReportTemplate = {
   owner: '김서현 영업팀장',
   updated: iso(addDays(TODAY, -11)),
   fields: [
-    { id: 'result', label: '주간 성과', type: 'textarea', required: true, aiFilled: false },
-    { id: 'plan', label: '다음 주 계획', type: 'textarea', required: true, aiFilled: false },
-    { id: 'risk', label: '리스크', type: 'textarea', required: false, aiFilled: false },
+    {
+      id: 'result',
+      label: '주간 성과',
+      type: 'textarea',
+      required: true,
+      aiFilled: true,
+      hint: '고른 일일보고서의 업무 요약을 모읍니다.',
+    },
+    { id: 'plan', label: '다음 주 계획', type: 'textarea', required: true, aiFilled: true },
+    { id: 'risk', label: '리스크', type: 'textarea', required: false, aiFilled: true },
   ],
 }
 
@@ -68,9 +78,23 @@ export const monthlyTemplate: ReportTemplate = {
   owner: '영업본부장',
   updated: iso(addDays(TODAY, -40)),
   fields: [
-    { id: 'perf', label: '월간 실적', type: 'textarea', required: true, aiFilled: false },
-    { id: 'gap', label: '목표 대비', type: 'textarea', required: true, aiFilled: false },
-    { id: 'focus', label: '다음 달 중점', type: 'textarea', required: false, aiFilled: false },
+    {
+      id: 'perf',
+      label: '월간 실적',
+      type: 'textarea',
+      required: true,
+      aiFilled: true,
+      hint: '고른 주간보고서의 주간 성과를 모읍니다.',
+    },
+    {
+      id: 'gap',
+      label: '목표 대비',
+      type: 'textarea',
+      required: true,
+      aiFilled: false,
+      hint: '주간보고서에 없는 값입니다. 직접 확인해 적으세요.',
+    },
+    { id: 'focus', label: '다음 달 중점', type: 'textarea', required: false, aiFilled: true },
   ],
 }
 
@@ -230,8 +254,8 @@ export const reportSeed: DailyReportSeed[] = [
     attachments: [],
   },
 
-  // 주간·월간은 이력에서 읽기만 합니다. 작성 화면은 아직 없습니다.
-  // 제출일은 기간이 끝난 다음 근무일이라 일일보고와 같은 날에 겹칩니다.
+  // 주간·월간 시드. 제출일은 기간이 끝난 다음 근무일이라 일일보고와 같은 날에 겹칩니다.
+  // (새로 쓰는 보고서는 기간의 첫날로 맞춰 저장합니다. periods.ts 의 periodStart 를 보세요.)
   {
     id: 'wr-1',
     owner: '김지훈',

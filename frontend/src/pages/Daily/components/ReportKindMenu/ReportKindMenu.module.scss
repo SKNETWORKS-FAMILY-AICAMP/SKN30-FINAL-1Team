@@ -1,0 +1,45 @@
+.menu {
+  display: flex;
+  flex-direction: column;
+  min-width: 260px;
+
+  @include sm {
+    min-width: 0;
+    width: min(78vw, 260px);
+  }
+}
+
+/* 한 줄이 곧 그 종류로 가는 버튼입니다. 제목 아래에 무엇을 모으는지 한 줄 답니다. */
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: var(--s2) var(--s3);
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--fill);
+  }
+
+  &:focus-visible {
+    outline: none;
+    background: var(--fill);
+    box-shadow: 0 0 0 2px var(--blue-ring);
+  }
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.008em;
+}
+
+.desc {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}

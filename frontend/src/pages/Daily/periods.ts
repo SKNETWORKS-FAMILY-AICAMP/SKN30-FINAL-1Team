@@ -1,6 +1,16 @@
 // 업무 보고의 기간 탭. ?tab= 값과 화면 문구를 한 곳에서 봅니다.
 import type { DailyReport, ReportKind } from '@/types'
-import { addDays, fmtDay, fmtMonth, parseISO, startOfWeek, weekRangeLabel } from '@/utils/date'
+import {
+  addDays,
+  endOfMonth,
+  fmtDay,
+  fmtMonth,
+  iso,
+  parseISO,
+  startOfMonth,
+  startOfWeek,
+  weekRangeLabel,
+} from '@/utils/date'
 
 export const PERIODS = ['all', 'meeting', 'daily', 'weekly', 'monthly'] as const
 
@@ -40,6 +50,26 @@ export function kindToPeriod(kind: ReportKind): Period {
   if (kind === '주간') return 'weekly'
   if (kind === '월간') return 'monthly'
   return 'daily'
+}
+
+/**
+ * 그 종류가 기간을 세는 단위로 맞춘 기준일. 같은 주·같은 달이면 언제를 찍든 같은 값이
+ * 나오므로 이 값이 곧 중복 방지 키입니다. 보고서의 date 도 이 값으로 저장합니다.
+ *
+ * 주는 일요일에 시작합니다. 화면의 주간 달력과 같은 기준이어야 표시와 저장이 어긋나지 않습니다.
+ */
+export function periodStart(kind: ReportKind, dateISO: string): string {
+  if (kind === '주간') return iso(startOfWeek(parseISO(dateISO)))
+  if (kind === '월간') return iso(startOfMonth(parseISO(dateISO)))
+  return dateISO
+}
+
+/** 기간이 덮는 날짜 범위 [시작, 끝]. 자료를 모을 때 이 범위로 자릅니다. */
+export function periodRange(kind: ReportKind, dateISO: string): [string, string] {
+  const start = periodStart(kind, dateISO)
+  if (kind === '주간') return [start, iso(addDays(parseISO(start), 6))]
+  if (kind === '월간') return [start, iso(endOfMonth(parseISO(start)))]
+  return [start, start]
 }
 
 /**

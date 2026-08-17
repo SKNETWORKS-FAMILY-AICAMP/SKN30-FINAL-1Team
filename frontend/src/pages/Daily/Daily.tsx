@@ -4,13 +4,13 @@
 // 미팅보고서도 여기서 함께 봅니다. 목록에는 두 종류가 섞이므로 rows.ts 가 한 모양으로
 // 정리한 뒤 넘깁니다. 조건(tab·q·status·approver·hospital·range)은 주소에 둡니다.
 import { useCallback, useDeferredValue, useMemo, useState } from 'react'
-import { Link, useSearchParams } from 'react-router'
+import { Link, useNavigate, useSearchParams } from 'react-router'
 
 import Button, { buttonClass } from '@/components/Button'
 import { ChevronLeftIcon, ChevronRightIcon } from '@/components/icons'
 import Tabs from '@/components/Tabs'
 import WeekStrip from '@/components/WeekStrip'
-import { dailyComposePath, ROUTES } from '@/constants/routes'
+import { dailyComposePath, meetingPickPath } from '@/constants/routes'
 import { APPROVERS } from '@/shared/reports'
 import useMeetingReports from '@/pages/Meetings/useMeetingReports'
 import {
@@ -30,6 +30,7 @@ import {
 import HistoryToolbar from './components/HistoryToolbar'
 import MonthCalendar from './components/MonthCalendar'
 import ReportDrawer from './components/ReportDrawer'
+import ReportKindMenu, { type ComposeKind } from './components/ReportKindMenu'
 import ReportStatusBadge from './components/ReportStatusBadge'
 import { countFilters, parseFilters, writeFilters, type HistoryFilters } from './historyFilters'
 import { PERIOD_KIND, PERIOD_LABEL, PERIODS, showsDaily, showsMeetings, toPeriod } from './periods'
@@ -63,8 +64,20 @@ function rangeStartISO(range: HistoryFilters['range']): string | null {
 
 export default function Daily() {
   const [params, setParams] = useSearchParams()
+  const navigate = useNavigate()
   const period = toPeriod(params.get('tab'))
   const kind = PERIOD_KIND[period]
+
+  /**
+   * 이 탭이 이미 정한 종류로 가는 길. '전체' 탭만 무엇을 쓸지 모르므로 그때만
+   * 드롭다운으로 묻습니다. 미팅은 일정 하나에 붙는 기록이라 일정 선택 화면으로 갑니다.
+   */
+  const composeTo =
+    period === 'meeting'
+      ? meetingPickPath(TODAY_ISO)
+      : kind
+        ? dailyComposePath(TODAY_ISO, kind)
+        : null
 
   const { reports } = useDailyReports()
   const { reports: meetings } = useMeetingReports()
@@ -158,6 +171,14 @@ export default function Daily() {
     [params, setParams, filters],
   )
 
+  // 미팅은 일정 하나를 고르는 화면으로, 나머지는 그 종류의 자료를 모으는 작성 화면으로.
+  // 기준 기간은 오늘로 시작합니다. 작성 화면이 종류에 맞는 주·월로 맞춰 읽습니다.
+  const onPickKind = useCallback(
+    (next: ComposeKind) =>
+      navigate(next === '미팅' ? meetingPickPath(TODAY_ISO) : dailyComposePath(TODAY_ISO, next)),
+    [navigate],
+  )
+
   const resetAll = () => {
     const query = new URLSearchParams()
     const tab = params.get('tab')
@@ -205,18 +226,14 @@ export default function Daily() {
           onChange={setPeriod}
         />
 
-        {/* 미팅 기록은 캘린더 일정 하나를 받아 쓰는 것이라 빈 화면으로 열 수 없습니다.
-            그래서 미팅 탭에서는 작성 대신 일정을 고르러 보냅니다. */}
-        {period === 'meeting' ? (
-          <Link className={buttonClass()} to={ROUTES.CALENDAR}>
-            일정에서 미팅 기록하기
-            <ChevronRightIcon />
-          </Link>
-        ) : (
-          <Link className={buttonClass()} to={dailyComposePath(TODAY_ISO, kind ?? '일일')}>
+        {/* 탭이 종류를 이미 골랐으면 한 번 더 묻지 않고 그 화면으로 바로 갑니다. */}
+        {composeTo ? (
+          <Link className={buttonClass()} to={composeTo}>
             보고서 작성하기
             <ChevronRightIcon />
           </Link>
+        ) : (
+          <ReportKindMenu onSelect={onPickKind} />
         )}
       </div>
 

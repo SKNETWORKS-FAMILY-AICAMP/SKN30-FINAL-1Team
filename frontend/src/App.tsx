@@ -9,7 +9,7 @@ import Calendar from '@/pages/Calendar'
 import Complaints from '@/pages/Complaints'
 import Contracts, { ContractDetail, ContractNew } from '@/pages/Contracts'
 import Customers from '@/pages/Customers'
-import Daily, { DailyCompose, DailyDetail } from '@/pages/Daily'
+import Daily, { DailyCompose, DailyDetail, DailyMeetingPick } from '@/pages/Daily'
 import Dashboard from '@/pages/Dashboard'
 import Documents from '@/pages/Documents'
 import LegalDoc from '@/pages/Legal'
@@ -60,6 +60,8 @@ export default function App() {
               <Route path={ROUTES.DAILY}>
                 <Route index element={<Daily />} />
                 <Route path="new" element={<DailyCompose />} />
+                {/* 미팅보고서는 일정 하나에 붙습니다. 어느 일정인지 여기서 고릅니다. */}
+                <Route path="pick" element={<DailyMeetingPick />} />
                 {/* 이력은 목록 화면으로 합쳤습니다. 예전 링크만 받아 넘깁니다. */}
                 <Route path="history" element={<Navigate to={ROUTES.DAILY} replace />} />
                 <Route path=":reportId" element={<DailyDetail />} />
