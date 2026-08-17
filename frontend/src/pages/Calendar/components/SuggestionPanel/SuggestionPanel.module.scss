@@ -8,7 +8,13 @@
   }
 }
 
+// 제목 · 설명(i) · 다시 받기가 한 줄에 섭니다. 설명이 문단으로 깔려 있던
+// 자리를 카드가 가져가, 접자마자 첫 추천이 화면 위로 올라옵니다.
 .head {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+
   h2 {
     font-size: 17px;
     font-weight: 600;
@@ -16,8 +22,79 @@
   }
 }
 
+// 팝오버는 이 안에 뜹니다. 마우스가 판 위로 넘어가도 닫히지 않게
+// 트리거와 판을 같은 영역으로 묶습니다.
+.help {
+  display: flex;
+  margin-right: auto;
+}
+
+.helpBtn {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--muted-2);
+  cursor: pointer;
+  transition: color var(--t-fast);
+
+  &:hover {
+    color: var(--blue);
+  }
+}
+
+.refresh {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--ink-2);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background var(--t-fast),
+    border-color var(--t-fast),
+    color var(--t-fast);
+
+  &:hover:not(:disabled) {
+    border-color: rgba(0, 122, 255, 0.28);
+    background: var(--blue-tint);
+    color: var(--blue);
+  }
+
+  &:disabled {
+    color: var(--muted);
+    cursor: default;
+  }
+}
+
+// 받아 오는 동안 아이콘이 돕니다. 목록이 잠깐 비는 이유를 이 하나가 말합니다.
+.isSpinning svg {
+  animation: spin 900ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .isSpinning svg {
+    animation: none;
+  }
+}
+
 .sub {
-  margin-top: 5px;
   color: var(--muted);
   font-size: 12px;
   line-height: 1.55;

@@ -32,7 +32,7 @@ export function useAgendaReportLink(): (item: AgendaItem) => AgendaReportLink {
         const saved = findByDate(item.date, '일일')
         return saved
           ? { to: dailyReportPath(saved.id), label: '일일업무보고 열기', written: true }
-          : { to: dailyComposePath(item.date, '일일'), label: '일일업무보고 작성', written: false }
+          : { to: dailyComposePath(item.date, '일일'), label: '업무보고 작성', written: false }
       }
 
       const saved = findByAgenda(item.id)

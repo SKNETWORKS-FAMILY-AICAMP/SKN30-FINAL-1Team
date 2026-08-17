@@ -4,6 +4,7 @@
 import { useEffect, useId, useRef } from 'react'
 import { Link } from 'react-router'
 
+import Button, { buttonClass } from '@/components/Button'
 import { ChevronRightIcon, CloseIcon, TrashIcon } from '@/components/icons'
 import StageChip from '@/components/StageChip'
 import { contractPath } from '@/constants/routes'
@@ -104,20 +105,23 @@ export default function ContractDrawer({ contract, stage, onClose, onEdit, onDel
           )}
 
           <div className={styles.actions}>
-            <button type="button" className={styles.action} onClick={onEdit}>
+            <Button variant="outline" className={styles.action} onClick={onEdit}>
               수정
-            </button>
-            <button
-              type="button"
+            </Button>
+            <Button
+              variant="outline"
               className={`${styles.action} ${styles.danger}`}
               onClick={onDelete}
             >
               <TrashIcon width={14} height={14} />
               삭제
-            </button>
+            </Button>
           </div>
 
-          <Link className={styles.cta} to={contractPath(contract.no)}>
+          <Link
+            className={buttonClass({ variant: 'outline' }, styles.cta)}
+            to={contractPath(contract.no)}
+          >
             전체 보기
             <ChevronRightIcon />
           </Link>

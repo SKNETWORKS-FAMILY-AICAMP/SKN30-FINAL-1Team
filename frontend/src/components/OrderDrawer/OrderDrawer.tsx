@@ -6,7 +6,7 @@
 // 들어왔을 때는 돌아갈 목록도 고칠 권한도 없어 아무것도 붙지 않습니다.
 import { Link } from 'react-router'
 
-import Button from '@/components/Button'
+import Button, { buttonClass } from '@/components/Button'
 import Drawer from '@/components/Drawer'
 import { ChevronRightIcon, TrashIcon } from '@/components/icons'
 import { isLate, orderItemLabel, orderTotal } from '@/shared/orders'
@@ -77,7 +77,7 @@ export default function OrderDrawer({ order, onBack, onEdit, onDelete, detailTo,
               </Button>
             )}
             {detailTo && (
-              <Link className={styles.cta} to={detailTo}>
+              <Link className={buttonClass({ variant: 'outline' })} to={detailTo}>
                 전체 보기
                 <ChevronRightIcon />
               </Link>

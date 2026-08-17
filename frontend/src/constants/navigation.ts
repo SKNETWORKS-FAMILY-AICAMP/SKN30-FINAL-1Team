@@ -29,6 +29,8 @@ export interface NavSection {
   id: string
   /** 섹션 캡션. 항목이 하나뿐인 섹션은 캡션 없이 ariaLabel 만 씁니다. */
   title?: string
+  /** 아이콘 레일에서 캡션 자리에 대신 넣는 짧은 이름. 없으면 title 을 그대로 씁니다. */
+  shortTitle?: string
   ariaLabel?: string
   /** 팀장 역할에게만 보이는 섹션 */
   managerOnly?: boolean
@@ -61,6 +63,7 @@ export const NAV_SECTIONS: NavSection[] = [
   {
     id: 'deals',
     title: '딜상세관리',
+    shortTitle: '딜',
     items: [
       { to: ROUTES.VISITS, label: '영업현황', icon: VisitIcon },
       { to: ROUTES.QUOTES, label: '견적현황', icon: QuoteIcon },

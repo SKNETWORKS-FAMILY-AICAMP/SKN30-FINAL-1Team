@@ -1,3 +1,6 @@
+import { useState } from 'react'
+
+import FilterSelect from '@/components/FilterSelect'
 import { ChevronLeftIcon, ChevronRightIcon } from '@/components/icons'
 
 import styles from './Pagination.module.scss'
@@ -24,8 +27,13 @@ export default function Pagination({
   onPage,
   onPageSize,
 }: PaginationProps) {
+  const [sizeOpen, setSizeOpen] = useState(false)
   const from = (page - 1) * pageSize + 1
   const to = Math.min(page * pageSize, total)
+  const sizeOptions = PAGE_SIZES.map((size) => ({
+    value: String(size),
+    label: `${size}${unit}`,
+  }))
 
   return (
     <nav className={styles.root} aria-label="페이지 이동">
@@ -38,17 +46,18 @@ export default function Pagination({
       </p>
 
       <div className={styles.controls}>
-        <label className={styles.size}>
+        <div className={styles.size}>
           페이지당
-          <select value={pageSize} onChange={(event) => onPageSize(Number(event.target.value))}>
-            {PAGE_SIZES.map((size) => (
-              <option key={size} value={size}>
-                {size}
-                {unit}
-              </option>
-            ))}
-          </select>
-        </label>
+          <FilterSelect
+            label="페이지당 표시 수"
+            value={String(pageSize)}
+            options={sizeOptions}
+            open={sizeOpen}
+            compact
+            onOpenChange={setSizeOpen}
+            onChange={(next) => onPageSize(Number(next))}
+          />
+        </div>
 
         <div className={styles.pager}>
           <button

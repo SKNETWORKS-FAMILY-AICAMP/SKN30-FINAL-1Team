@@ -144,23 +144,9 @@
   margin-top: var(--s5);
 }
 
+// 모양은 Button 의 outline 이 정합니다. 두 개가 폭을 반씩 나눠 갖게만 합니다.
 .action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--s1);
   flex: 1;
-  padding: 8px var(--s3);
-  border: 1px solid var(--line-2);
-  border-radius: var(--r-sm);
-  background: var(--surface);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-
-  &:hover {
-    background: var(--fill-2);
-  }
 }
 
 .danger {
@@ -174,18 +160,7 @@
   }
 }
 
+// 모양은 buttonClass 가 정합니다. 여기서는 자리만 잡습니다.
 .cta {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s1);
   margin-top: var(--s4);
-  padding: 8px var(--s4);
-  border: 1px solid var(--line-2);
-  border-radius: var(--r-pill);
-  font-size: 13px;
-  font-weight: 600;
-
-  &:hover {
-    background: var(--fill-2);
-  }
 }

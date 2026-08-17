@@ -1,43 +1,8 @@
-// 목록 서식은 대시보드 공지(NoticeTicker), 탭은 고객불만관리(Complaints) 를 따릅니다.
+// 목록 서식은 대시보드 공지(NoticeTicker) 를 따릅니다. 탭은 공용 Tabs 입니다.
 .page {
   display: flex;
   flex-direction: column;
   gap: var(--s3);
-}
-
-/* ---- 탭 ---- */
-
-.tabs {
-  display: flex;
-  align-items: center;
-  gap: var(--s1);
-}
-
-.tab {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex: 0 0 auto;
-  padding: 7px var(--s3);
-  border: 1px solid transparent;
-  border-radius: var(--r-pill);
-  background: transparent;
-  color: var(--muted);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-
-  &:hover {
-    background: var(--fill);
-    color: var(--ink);
-  }
-}
-
-.isActive {
-  border-color: var(--line-2);
-  background: var(--surface);
-  color: var(--ink);
-  box-shadow: var(--sh-1);
 }
 
 /* ---- 목록 ---- */

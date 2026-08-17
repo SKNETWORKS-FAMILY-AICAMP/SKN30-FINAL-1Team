@@ -1,4 +1,11 @@
-import { useCallback, useMemo, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from 'react'
 
 import { agendaById } from '@/shared/agenda'
 import { aiSuggestions } from '@/shared/suggestions'
@@ -22,6 +29,12 @@ export default function Calendar() {
   const [selectedISO, setSelectedISO] = useState(TODAY_ISO)
   const [previewId, setPreviewId] = useState<string | null>(null)
   const [dismissed, setDismissed] = useState<ReadonlySet<string>>(new Set())
+  /**
+   * 이미 달력에 넣은 추천. 목록에서 사라지는 것은 닫은 것과 같지만, 다시 받을 때
+   * 되살아나면 안 됩니다. 같은 일정을 두 번 넣게 됩니다.
+   */
+  const [accepted, setAccepted] = useState<ReadonlySet<string>>(new Set())
+  const [refreshing, setRefreshing] = useState(false)
   /** 상세를 보고 있는 일정. 칩을 누르면 고치기 전에 먼저 이것부터 폅니다. */
   const [viewingId, setViewingId] = useState<string | null>(null)
   const [editing, setEditing] = useState<CalendarEvent | null>(null)
@@ -56,10 +69,26 @@ export default function Calendar() {
       setCursor(startOfMonth(parseISO(date)))
       setSelectedISO(date)
       setJustAddedId(added.id)
+      setAccepted((prev) => new Set(prev).add(s.id))
       dismiss(s.id)
     },
     [addEvent, dismiss],
   )
+
+  // 목업이라 부를 서버가 없습니다. 닫아 둔 추천을 되살리는 것이 다시 받아 온
+  // 결과이고, 짧은 지연은 이 자리에 붙을 API 호출의 자리입니다.
+  const refreshTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => () => clearTimeout(refreshTimer.current ?? undefined), [])
+
+  const refresh = useCallback(() => {
+    setRefreshing(true)
+    setPreviewId(null)
+    refreshTimer.current = setTimeout(() => {
+      // 이미 넣은 것만 빼고 처음 상태로 돌립니다.
+      setDismissed(new Set(accepted))
+      setRefreshing(false)
+    }, 600)
+  }, [accepted])
 
   /** 끌던 것을 이 날짜에 놓습니다. */
   const drop = useCallback(
@@ -162,6 +191,8 @@ export default function Calendar() {
             onAccept={accept}
             onDismiss={dismiss}
             onGrab={grabSuggestion}
+            onRefresh={refresh}
+            refreshing={refreshing}
           />
         </div>
       </div>

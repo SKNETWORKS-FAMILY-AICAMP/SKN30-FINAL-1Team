@@ -9,7 +9,8 @@
   justify-content: space-between;
   gap: var(--s2);
   min-width: 100px;
-  padding: 9px 10px;
+  height: var(--control-h);
+  padding: 0 10px;
   border: 1px solid var(--line-2);
   border-radius: var(--r-sm);
   background: var(--surface);
@@ -97,9 +98,44 @@
   visibility: hidden;
 }
 
+// 작은 크기. 페이지네이션 줄(30px)에 맞추고, 표 아래라 목록은 위로 엽니다.
+.isCompact {
+  .trigger {
+    gap: 6px;
+    min-width: 0;
+    height: 30px;
+    padding: 0 var(--s2);
+    border-color: var(--line);
+    border-radius: var(--r-xs);
+    color: var(--ink-2);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .menu {
+    top: auto;
+    bottom: calc(100% + var(--s1));
+    animation-name: appear-up;
+  }
+
+  .option {
+    gap: var(--s3);
+    padding: 6px var(--s2);
+    font-size: 12px;
+    font-weight: 600;
+  }
+}
+
 @keyframes appear {
   from {
     opacity: 0;
     transform: translateY(-3px);
+  }
+}
+
+@keyframes appear-up {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
   }
 }

@@ -98,3 +98,17 @@
     background: #ffd79a;
   }
 }
+
+// 표식 자리에 다 세우지 못한 나머지 건수. 점보다 앞서 읽히면 안 되므로
+// 색은 흐리게 두고 크기도 점 높이를 넘지 않게 잡습니다.
+.more {
+  margin-left: 1px;
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 600;
+  color: var(--muted);
+
+  &.isOnBlue {
+    color: #fff;
+  }
+}

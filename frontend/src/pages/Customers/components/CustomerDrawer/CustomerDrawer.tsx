@@ -9,6 +9,7 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router'
 
+import { buttonClass } from '@/components/Button'
 import Drawer from '@/components/Drawer'
 import { KIND_LABEL } from '@/shared/agenda'
 import { confirmedTotal } from '@/shared/contracts'
@@ -176,7 +177,7 @@ export default function CustomerDrawer({ customer, all, onOpen, onClose }: Props
         </>
       }
       footer={
-        <a className={styles.cta} href={`mailto:${customer.email}`}>
+        <a className={buttonClass()} href={`mailto:${customer.email}`}>
           이메일 보내기
         </a>
       }

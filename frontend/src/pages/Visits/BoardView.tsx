@@ -16,8 +16,9 @@ import Button from '@/components/Button'
 import ContractDrawer from '@/components/ContractDrawer'
 import ContractForm from '@/components/ContractForm'
 import FilterSelect from '@/components/FilterSelect'
+import { PlusIcon } from '@/components/icons'
 import Modal from '@/components/Modal'
-import { PlusIcon, SearchIcon } from '@/components/icons'
+import SearchInput from '@/components/SearchInput'
 import usePointerDrag from '@/hooks/usePointerDrag'
 import { useOwnerScope } from '@/scope/scopeContext'
 import { OWNERS } from '@/shared/contracts'
@@ -133,11 +134,6 @@ export default function BoardView() {
     return map
   }, [columns, byColumn, matches])
 
-  const shownCount = useMemo(
-    () => [...shownByColumn.values()].reduce((sum, list) => sum + list.length, 0),
-    [shownByColumn],
-  )
-
   /**
    * 놓은 자리는 화면에 보이는 목록 기준입니다. 필터가 걸려 있으면 그 자리가
    * 전체 목록에서는 다른 번호라, 그 자리에 있던 카드 앞으로 넣습니다.
@@ -181,6 +177,7 @@ export default function BoardView() {
   const editingContract = editingNo ? findContract(editingNo) : undefined
   const deletingContract = deletingNo ? findContract(deletingNo) : undefined
   const addingColumn = addingTo ? columns.find((col) => col.id === addingTo) : undefined
+  const firstColumn = columns[0]
 
   const createColumn = () => {
     const name = newColumnName.trim()
@@ -197,15 +194,13 @@ export default function BoardView() {
       <h1 className="sr-only">영업 현황 보드</h1>
 
       <div className={styles.toolbar}>
-        <label className={styles.search}>
-          <SearchIcon width={16} height={16} />
-          <input
-            value={query}
-            placeholder="고객사·제품·계약번호 검색"
-            aria-label="영업 건 검색"
-            onChange={(event) => setParam('q', event.target.value)}
-          />
-        </label>
+        <SearchInput
+          className={styles.search}
+          value={query}
+          placeholder="고객사·제품·계약번호 검색"
+          label="영업 건 검색"
+          onChange={(next) => setParam('q', next)}
+        />
 
         {showOwner && (
           <FilterSelect
@@ -227,8 +222,15 @@ export default function BoardView() {
           onChange={(value) => setParam('range', value, DEFAULT_RANGE)}
         />
 
-        <span className={styles.count}>{shownCount}건</span>
-        <ViewToggle view="board" />
+        <div className={styles.actions}>
+          <ViewToggle view="board" />
+          {/* 목록 화면과 같은 자리·같은 버튼. 보기를 바꿔도 버튼이 움직이지 않습니다.
+              보드에서는 단계 탭이 없으므로 첫 단계로 들어갑니다. */}
+          <Button onClick={() => firstColumn && setAddingTo(firstColumn.id)}>
+            <PlusIcon width={15} height={15} />
+            영업 건 추가
+          </Button>
+        </div>
       </div>
 
       <div className={styles.board}>

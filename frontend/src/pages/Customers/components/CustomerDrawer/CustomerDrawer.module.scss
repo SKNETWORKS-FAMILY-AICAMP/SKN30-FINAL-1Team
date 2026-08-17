@@ -273,20 +273,3 @@
 }
 
 // Button 의 primary 와 같은 모양입니다. 링크라 태그만 다릅니다.
-.cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 15px;
-  border: 1px solid transparent;
-  border-radius: 12px;
-  background: var(--blue);
-  box-shadow: var(--sh-blue);
-  color: #fff;
-  font-size: 13px;
-  font-weight: 600;
-
-  &:hover {
-    background: var(--blue-press);
-  }
-}

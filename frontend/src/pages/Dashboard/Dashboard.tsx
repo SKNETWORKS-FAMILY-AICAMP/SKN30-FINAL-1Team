@@ -1,5 +1,7 @@
 import { useCallback, useRef, useState } from 'react'
 
+import Button from '@/components/Button'
+import Modal from '@/components/Modal'
 import { directives } from '@/shared/notices'
 import type { AgendaItem, CalendarEvent, Notice } from '@/types'
 import useMediaQuery from '@/hooks/useMediaQuery'
@@ -33,12 +35,16 @@ type OpenDrawer =
 
 export default function Dashboard() {
   // 캘린더와 같은 일정 목록입니다. 여기서 등록한 것이 그쪽에도 그대로 있습니다.
-  const { addEvent } = useCalendarEvents()
+  const { addEvent, updateEvent, removeEvent } = useCalendarEvents()
   const [selectedISO, setSelectedISO] = useState(TODAY_ISO)
   const [weekOffset, setWeekOffset] = useState(0)
   const [doneIds, setDoneIds] = useState<ReadonlySet<string>>(new Set())
   const [flash, setFlash] = useState(false)
   const [open, setOpen] = useState<OpenDrawer | null>(null)
+  /** 고치고 있는 일정. 캘린더와 같은 폼을 씁니다. */
+  const [editing, setEditing] = useState<AgendaItem | null>(null)
+  /** 지우려는 일정. 되돌릴 수 없어 확인 모달을 한 장 더 거칩니다. */
+  const [deleting, setDeleting] = useState<AgendaItem | null>(null)
 
   const agendaRef = useRef<HTMLElement>(null)
   const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
@@ -111,6 +117,8 @@ export default function Dashboard() {
         onToggleDone={toggleDone}
         onOpen={(item) => setOpen({ type: 'record', item })}
         onAddSchedule={() => setOpen({ type: 'addEvent' })}
+        onEdit={setEditing}
+        onDelete={setDeleting}
         flash={flash}
       />
 
@@ -137,6 +145,47 @@ export default function Dashboard() {
             closeDrawer()
           }}
         />
+      )}
+
+      {editing && (
+        // 삭제는 줄 메뉴에서 확인 모달을 거쳐 하므로 이 폼에는 걸지 않습니다.
+        <EventModal
+          draft={editing}
+          onClose={() => setEditing(null)}
+          onSave={(event) => {
+            updateEvent(event)
+            setSelectedISO(event.date)
+            setEditing(null)
+          }}
+        />
+      )}
+
+      {deleting && (
+        <Modal
+          title="일정을 삭제할까요?"
+          description="되돌릴 수 없습니다."
+          onClose={() => setDeleting(null)}
+          footer={
+            <>
+              <Button type="button" variant="outline" onClick={() => setDeleting(null)}>
+                취소
+              </Button>
+              <Button
+                type="button"
+                onClick={() => {
+                  removeEvent(deleting.id)
+                  setDeleting(null)
+                }}
+              >
+                삭제
+              </Button>
+            </>
+          }
+        >
+          <p className={styles.confirm}>
+            {deleting.time} · {deleting.hospital || deleting.title}
+          </p>
+        </Modal>
       )}
 
       {open?.type === 'record' && (

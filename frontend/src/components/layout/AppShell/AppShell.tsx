@@ -4,7 +4,7 @@ import { Outlet, useLocation } from 'react-router'
 import Scrim from '@/components/layout/Scrim'
 import Sidebar from '@/components/layout/Sidebar'
 import Topbar from '@/components/layout/Topbar'
-import { BP_DESKTOP } from '@/constants/breakpoints'
+import { BP_DESKTOP, BP_RAIL_DEFAULT } from '@/constants/breakpoints'
 import useMediaQuery from '@/hooks/useMediaQuery'
 import ScopeProvider from '@/scope/ScopeProvider'
 
@@ -14,13 +14,17 @@ import styles from './AppShell.module.scss'
 
 const COLLAPSED_KEY = 'salesluv.sidebar.collapsed'
 
+// 저장된 선택이 있으면 폭과 무관하게 그것을 따릅니다. 좁은 데스크톱에서도
+// 화살표로 사이드바를 펼쳐 고정할 수 있어야 하므로, 이 구간을 CSS 로 레일에
+// 묶어 두지 않고 초기값만 여기서 정합니다.
 function readCollapsed() {
   try {
-    return localStorage.getItem(COLLAPSED_KEY) === '1'
+    const saved = localStorage.getItem(COLLAPSED_KEY)
+    if (saved !== null) return saved === '1'
   } catch {
-    // 사파리 프라이빗 모드 등에서 localStorage 접근이 막히면 펼친 상태로 시작합니다.
-    return false
+    // 사파리 프라이빗 모드 등에서 localStorage 접근이 막히면 폭으로만 정합니다.
   }
+  return window.matchMedia(`(max-width: ${BP_RAIL_DEFAULT}px)`).matches
 }
 
 export default function AppShell() {

@@ -341,6 +341,24 @@ export function TrashIcon(props: IconProps) {
   )
 }
 
+export function RefreshIcon(props: IconProps) {
+  return (
+    <Icon strokeWidth={1.8} {...props}>
+      <path d="M20 12a8 8 0 1 1-2.6-5.9" />
+      <path d="M20 4v4.5h-4.5" />
+    </Icon>
+  )
+}
+
+export function InfoIcon(props: IconProps) {
+  return (
+    <Icon strokeWidth={1.7} {...props}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 11v5.5M12 7.6h.01" />
+    </Icon>
+  )
+}
+
 export function MailIcon(props: IconProps) {
   return (
     <Icon strokeWidth={1.6} {...props}>

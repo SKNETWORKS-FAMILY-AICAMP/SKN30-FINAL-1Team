@@ -6,8 +6,9 @@
 import { useCallback, useDeferredValue, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 
-import Button from '@/components/Button'
+import Button, { buttonClass } from '@/components/Button'
 import { ChevronLeftIcon, ChevronRightIcon } from '@/components/icons'
+import Tabs from '@/components/Tabs'
 import WeekStrip from '@/components/WeekStrip'
 import { dailyComposePath, ROUTES } from '@/constants/routes'
 import { APPROVERS } from '@/shared/reports'
@@ -196,30 +197,23 @@ export default function Daily() {
       <h1 className="sr-only">업무 보고</h1>
 
       <div className={styles.head}>
-        <div className={styles.tabs} role="tablist" aria-label="업무 보고 기간">
-          {PERIODS.map((item) => (
-            <button
-              key={item}
-              type="button"
-              role="tab"
-              aria-selected={period === item}
-              className={`${styles.tab} ${period === item ? styles.isActive : ''}`}
-              onClick={() => setPeriod(item)}
-            >
-              {PERIOD_LABEL[item]}
-            </button>
-          ))}
-        </div>
+        <Tabs
+          variant="segmented"
+          items={PERIODS.map((item) => ({ value: item, label: PERIOD_LABEL[item] }))}
+          value={period}
+          label="업무 보고 기간"
+          onChange={setPeriod}
+        />
 
         {/* 미팅 기록은 캘린더 일정 하나를 받아 쓰는 것이라 빈 화면으로 열 수 없습니다.
             그래서 미팅 탭에서는 작성 대신 일정을 고르러 보냅니다. */}
         {period === 'meeting' ? (
-          <Link className={styles.cta} to={ROUTES.CALENDAR}>
+          <Link className={buttonClass()} to={ROUTES.CALENDAR}>
             일정에서 미팅 기록하기
             <ChevronRightIcon />
           </Link>
         ) : (
-          <Link className={styles.cta} to={dailyComposePath(TODAY_ISO, kind ?? '일일')}>
+          <Link className={buttonClass()} to={dailyComposePath(TODAY_ISO, kind ?? '일일')}>
             보고서 작성하기
             <ChevronRightIcon />
           </Link>

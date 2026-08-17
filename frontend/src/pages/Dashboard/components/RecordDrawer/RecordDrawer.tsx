@@ -9,10 +9,11 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
 
+import { buttonClass } from '@/components/Button'
 import Drawer from '@/components/Drawer'
 import Popover from '@/components/Popover'
 import { EditIcon, MoreIcon, TrashIcon } from '@/components/icons'
-import StageBar from '@/components/StageBar'
+import StageBar, { stageDotX } from '@/components/StageBar'
 import { endTime, statusScope } from '@/shared/agenda'
 import { contracts } from '@/shared/contracts'
 import { activeOrders, orders } from '@/shared/orders'
@@ -173,7 +174,7 @@ export default function RecordDrawer({ item, done, onClose, onEdit, onDelete }: 
       }
       footer={
         // 완료는 목록 줄의 버튼에서 정합니다. 여기는 읽는 자리라 배지로만 둡니다.
-        <Link className={styles.cta} to={report.to}>
+        <Link className={buttonClass()} to={report.to}>
           {report.label}
         </Link>
       }
@@ -221,7 +222,10 @@ export default function RecordDrawer({ item, done, onClose, onEdit, onDelete }: 
               label="계약 단계별 건수"
             />
             {openStage >= 0 && (
-              <ul className={styles.picks}>
+              <ul
+                className={styles.picks}
+                style={{ '--x': stageDotX(openStage, STAGE_NAMES.length) } as React.CSSProperties}
+              >
                 <li className={styles.picksHead}>
                   <b>{STAGE_NAMES[openStage]}</b> 단계 계약 {contractsAt(openStage).length}건
                 </li>
@@ -255,7 +259,10 @@ export default function RecordDrawer({ item, done, onClose, onEdit, onDelete }: 
               label="발주 단계별 건수"
             />
             {openStep >= 0 && (
-              <ul className={styles.picks}>
+              <ul
+                className={styles.picks}
+                style={{ '--x': stageDotX(openStep, ORDER_STEPS.length) } as React.CSSProperties}
+              >
                 <li className={styles.picksHead}>
                   <b>{ORDER_STEPS[openStep]}</b> 단계 발주 {ordersAt(openStep).length}건
                 </li>

@@ -14,6 +14,8 @@ interface FilterSelectProps {
   value: string
   options: readonly FilterOption[]
   open: boolean
+  /** 페이지네이션처럼 줄 높이가 낮은 곳에서 쓰는 작은 크기. */
+  compact?: boolean
   onOpenChange: (open: boolean) => void
   onChange: (value: string) => void
 }
@@ -23,6 +25,7 @@ export default function FilterSelect({
   value,
   options,
   open,
+  compact = false,
   onOpenChange,
   onChange,
 }: FilterSelectProps) {
@@ -112,7 +115,11 @@ export default function FilterSelect({
   const selected = options[selectedIndex]
 
   return (
-    <div className={styles.root} ref={rootRef} onKeyDown={onKeyDown}>
+    <div
+      className={`${styles.root} ${compact ? styles.isCompact : ''}`}
+      ref={rootRef}
+      onKeyDown={onKeyDown}
+    >
       <button
         ref={triggerRef}
         type="button"

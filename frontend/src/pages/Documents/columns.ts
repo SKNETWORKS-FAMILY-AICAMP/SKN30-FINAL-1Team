@@ -68,6 +68,8 @@ export const DOCUMENT_COLUMNS: DocumentColumn[] = [
     text: (d) => fmtDotShort(parseISO(latestOf(d).uploaded)),
     sortValue: (d) => latestOf(d).uploaded,
   },
+  // 상세를 열지 않고 최신 버전을 바로 받는 칸입니다. 표에서 버튼으로 그립니다.
+  { id: 'download', header: '받기', width: 68, align: 'right', text: () => '' },
 ]
 
 /** 지금 어느 열로 세워 두었는지. null 이면 원래 순서입니다. */

@@ -5,7 +5,7 @@
 import { useMemo } from 'react'
 
 import Button from '@/components/Button'
-import { ArrowUpIcon, DocumentsIcon, SearchIcon, SortIcon } from '@/components/icons'
+import { ArrowUpIcon, DocumentsIcon, DownloadIcon, SearchIcon, SortIcon } from '@/components/icons'
 import { BP_DESKTOP } from '@/constants/breakpoints'
 import type { SalesDocument } from '@/types'
 import useMediaQuery from '@/hooks/useMediaQuery'
@@ -15,6 +15,7 @@ import { fmtDotShort, parseISO } from '@/utils/date'
 
 import { KIND_LABEL, latestOf, TONE_OF } from '../../catalog'
 import { DOCUMENT_COLUMNS, linkLabel, type SortState } from '../../columns'
+import { downloadVersion } from '../../download'
 
 import styles from './DocumentTable.module.scss'
 
@@ -25,6 +26,8 @@ interface Props {
   onOpen: (id: string) => void
   isFiltered: boolean
   onClearFilters: () => void
+  /** 팀원에게는 업로드가 없어 빈 화면의 권유도 함께 빠집니다. */
+  canUpload: boolean
   onUpload: () => void
 }
 
@@ -35,6 +38,7 @@ export default function DocumentTable({
   onOpen,
   isFiltered,
   onClearFilters,
+  canUpload,
   onUpload,
 }: Props) {
   // 한 사람만 보고 있으면 등록자 열은 모든 줄이 같은 값이라 자리만 차지합니다.
@@ -64,7 +68,7 @@ export default function DocumentTable({
             <>
               <DocumentsIcon width={34} height={34} strokeWidth={1.5} />
               <p>아직 올린 자료가 없습니다.</p>
-              <Button onClick={onUpload}>파일 업로드</Button>
+              {canUpload && <Button onClick={onUpload}>파일 업로드</Button>}
             </>
           )}
         </div>
@@ -93,6 +97,17 @@ export default function DocumentTable({
                 <span className="tnum">{sizeLabel(latest.bytes)}</span>
                 <span>{latest.owner}</span>
                 <span className="tnum">{fmtDotShort(parseISO(latest.uploaded))}</span>
+                <button
+                  type="button"
+                  className={styles.miniDownload}
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    downloadVersion(latest)
+                  }}
+                >
+                  <DownloadIcon width={13} height={13} />
+                  받기
+                </button>
               </div>
             </li>
           )
@@ -191,6 +206,19 @@ export default function DocumentTable({
                       </span>
                     ) : col.id === 'link' && doc.link.kind === 'none' ? (
                       <span className={styles.none}>—</span>
+                    ) : col.id === 'download' ? (
+                      // 상세를 열지 않고 최신 버전을 바로 받습니다. 줄 클릭과 겹치므로 멈춰 세웁니다.
+                      <button
+                        type="button"
+                        className={styles.download}
+                        aria-label={`${latestOf(doc).fileName} 내려받기`}
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          downloadVersion(latestOf(doc))
+                        }}
+                      >
+                        <DownloadIcon width={15} height={15} />
+                      </button>
                     ) : (
                       col.text(doc)
                     )}

@@ -28,39 +28,6 @@ $cols: minmax(0, 1fr) 56px 130px 60px;
   letter-spacing: -0.01em;
 }
 
-.tabs {
-  display: flex;
-  gap: var(--s1);
-  padding: 3px;
-  border-radius: var(--r-pill);
-  background: var(--fill-2);
-}
-
-.tab {
-  padding: 5px var(--s3);
-  border: 0;
-  border-radius: var(--r-pill);
-  background: transparent;
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 600;
-  white-space: nowrap;
-  cursor: pointer;
-  transition:
-    background var(--t-fast),
-    color var(--t-fast);
-
-  &:hover {
-    color: var(--ink);
-  }
-}
-
-.isActive {
-  background: var(--surface);
-  color: var(--ink);
-  box-shadow: var(--sh-1);
-}
-
 .columns {
   display: grid;
   grid-template-columns: $cols;

@@ -6,34 +6,26 @@
 import Button from '@/components/Button'
 import Drawer from '@/components/Drawer'
 import { DownloadIcon, TrashIcon, UploadIcon } from '@/components/icons'
-import type { DocumentVersion, SalesDocument } from '@/types'
+import type { SalesDocument } from '@/types'
 import { sizeLabel } from '@/utils/attachment'
 import { fmtDay, parseISO } from '@/utils/date'
 
 import { KIND_LABEL, latestOf } from '../../catalog'
 import { linkLabel } from '../../columns'
+import { downloadVersion } from '../../download'
 
 import styles from './DocumentDrawer.module.scss'
 
 interface Props {
   doc: SalesDocument
   onClose: () => void
+  /** 팀원에게는 새 버전 올리기가 없어 버튼도 함께 사라집니다. */
+  canUpload: boolean
   onNewVersion: () => void
   onDelete: () => void
 }
 
-/** 파일을 내려받습니다. 객체 URL 은 쓰고 바로 반납해야 탭이 닫힐 때까지 남지 않습니다. */
-function download(version: DocumentVersion) {
-  if (!version.blob) return
-  const url = URL.createObjectURL(version.blob)
-  const link = document.createElement('a')
-  link.href = url
-  link.download = version.fileName
-  link.click()
-  URL.revokeObjectURL(url)
-}
-
-export default function DocumentDrawer({ doc, onClose, onNewVersion, onDelete }: Props) {
+export default function DocumentDrawer({ doc, onClose, canUpload, onNewVersion, onDelete }: Props) {
   const latest = latestOf(doc)
 
   const rows: [string, string][] = [
@@ -62,9 +54,11 @@ export default function DocumentDrawer({ doc, onClose, onNewVersion, onDelete }:
       }
       footer={
         <>
-          <Button variant="outline" onClick={onNewVersion}>
-            <UploadIcon width={14} height={14} />새 버전 올리기
-          </Button>
+          {canUpload && (
+            <Button variant="outline" onClick={onNewVersion}>
+              <UploadIcon width={14} height={14} />새 버전 올리기
+            </Button>
+          )}
           <Button variant="outline" className={styles.danger} onClick={onDelete}>
             <TrashIcon width={14} height={14} />
             삭제
@@ -97,7 +91,11 @@ export default function DocumentDrawer({ doc, onClose, onNewVersion, onDelete }:
               <strong className="tnum">v{version.version}</strong>
               <span className={styles.fileName}>{version.fileName}</span>
               {version.blob ? (
-                <button type="button" className={styles.download} onClick={() => download(version)}>
+                <button
+                  type="button"
+                  className={styles.download}
+                  onClick={() => downloadVersion(version)}
+                >
                   <DownloadIcon width={14} height={14} />
                   내려받기
                 </button>

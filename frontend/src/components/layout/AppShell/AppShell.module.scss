@@ -3,23 +3,17 @@
 // 미디어쿼리와 접힘 상태에 따라 값이 바뀌지만 .main 의 margin-left 선언은
 // 하나뿐입니다. 이것이 토큰을 CSS 커스텀 프로퍼티로 두는 실질적인 이유입니다.
 //
-// 아래 네 규칙은 선언 순서가 곧 우선순위입니다. 순서를 바꾸지 마세요.
+// 아래 세 규칙은 선언 순서가 곧 우선순위입니다. 순서를 바꾸지 마세요.
 .shell {
   --sidebar-gutter: var(--sidebar-w);
 
   min-height: 100%;
 }
 
-// 사용자가 직접 접은 아이콘 레일
+// 아이콘 레일. 좁은 데스크톱에서는 AppShell 이 이 상태로 시작하지만,
+// 그 뒤로는 폭과 무관하게 사용자의 선택만 따릅니다.
 .isRail {
   --sidebar-gutter: var(--sidebar-mini);
-}
-
-// 화면이 좁으면 접힘 여부와 무관하게 레일로 강제
-@include rail-range {
-  .shell {
-    --sidebar-gutter: var(--sidebar-mini);
-  }
 }
 
 // 모바일에서는 사이드바가 오프캔버스로 빠져 자리를 차지하지 않습니다.

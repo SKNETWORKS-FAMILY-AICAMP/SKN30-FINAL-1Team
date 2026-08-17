@@ -9,9 +9,11 @@ import { useSearchParams } from 'react-router'
 import Button from '@/components/Button'
 import Drawer from '@/components/Drawer'
 import { ComplaintIcon, PlusIcon, SearchIcon } from '@/components/icons'
+import SearchInput from '@/components/SearchInput'
+import Tabs, { type TabItem } from '@/components/Tabs'
 import { BP_DESKTOP } from '@/constants/breakpoints'
 import { addCsRequest, setCsState, useCsRequests } from '@/shared/counters'
-import type { CsRequest, CsState } from '@/types'
+import type { ColumnTone, CsRequest, CsState } from '@/types'
 import useMediaQuery from '@/hooks/useMediaQuery'
 import { addDays, fmtDay, fmtDotShort, TODAY } from '@/utils/date'
 
@@ -21,6 +23,9 @@ import styles from './Complaints.module.scss'
 
 /** 상태 두 가지. 탭 순서와 배지 색이 여기에 묶여 있습니다. */
 const STATES: CsState[] = ['처리중', '처리완료']
+
+/** 탭 앞 색 점. 목록 배지와 같은 색을 씁니다. */
+const TONE_OF: Record<CsState, ColumnTone> = { 처리중: 'blue', 처리완료: 'green' }
 
 // 표가 화면보다 넓으면 이 폭 그대로, 좁으면 이 폭의 비율로 늘어납니다(table-layout: fixed).
 // 남는 자리는 잘리면 아쉬운 '내용'이 가져가고 상태·날짜는 좁게 붙잡아 둡니다.
@@ -76,6 +81,19 @@ export default function Complaints() {
     [beforeStatus, status],
   )
 
+  const statusTabs = useMemo<TabItem[]>(
+    () => [
+      { value: '', label: '전체', count: beforeStatus.length },
+      ...STATES.map((state) => ({
+        value: state,
+        label: state,
+        count: beforeStatus.filter((c) => c.state === state).length,
+        tone: TONE_OF[state],
+      })),
+    ],
+    [beforeStatus],
+  )
+
   // 객체가 아니라 id 를 들고 목록에서 찾습니다. 상태를 바꾸면 새 객체가 되므로
   // 열어 둔 드로어가 바뀐 값을 그대로 받습니다.
   const open = openId ? complaints.find((c) => c.id === openId) : undefined
@@ -88,15 +106,13 @@ export default function Complaints() {
       <h1 className="sr-only">고객불만관리</h1>
 
       <div className={styles.toolbar}>
-        <label className={styles.search}>
-          <SearchIcon width={16} height={16} />
-          <input
-            value={query}
-            placeholder="제목·회사·담당자·내용 검색"
-            aria-label="고객불만 검색"
-            onChange={(event) => setParam('q', event.target.value)}
-          />
-        </label>
+        <SearchInput
+          className={styles.search}
+          value={query}
+          placeholder="제목·회사·담당자·내용 검색"
+          label="고객불만 검색"
+          onChange={(next) => setParam('q', next)}
+        />
 
         <div className={styles.actions}>
           <Button onClick={() => setAdding(true)}>
@@ -106,24 +122,12 @@ export default function Complaints() {
         </div>
       </div>
 
-      <div className={styles.tabs} role="tablist" aria-label="처리 상태">
-        <Tab
-          label="전체"
-          count={beforeStatus.length}
-          on={status === ''}
-          onSelect={() => setParam('status', '')}
-        />
-        {STATES.map((state) => (
-          <Tab
-            key={state}
-            label={state}
-            count={beforeStatus.filter((c) => c.state === state).length}
-            tone={state}
-            on={status === state}
-            onSelect={() => setParam('status', state)}
-          />
-        ))}
-      </div>
+      <Tabs
+        items={statusTabs}
+        value={status}
+        label="처리 상태"
+        onChange={(next) => setParam('status', next)}
+      />
 
       {rows.length === 0 ? (
         <div className={styles.card}>
@@ -292,35 +296,5 @@ function StateBadge({ state }: { state: CsState }) {
     <i className={`${styles.badge} ${state === '처리완료' ? styles.done : styles.working}`}>
       {state}
     </i>
-  )
-}
-
-interface TabProps {
-  label: string
-  count: number
-  /** 목록 배지와 같은 색 점. '전체' 탭에는 없습니다. */
-  tone?: CsState
-  on: boolean
-  onSelect: () => void
-}
-
-function Tab({ label, count, tone, on, onSelect }: TabProps) {
-  return (
-    <button
-      type="button"
-      role="tab"
-      aria-selected={on}
-      className={[styles.tab, on ? styles.isActive : ''].filter(Boolean).join(' ')}
-      onClick={onSelect}
-    >
-      {tone && (
-        <i
-          className={`${styles.dot} ${tone === '처리완료' ? styles.done : styles.working}`}
-          aria-hidden="true"
-        />
-      )}
-      {label}
-      <span className={`${styles.count} tnum`}>{count}</span>
-    </button>
   )
 }

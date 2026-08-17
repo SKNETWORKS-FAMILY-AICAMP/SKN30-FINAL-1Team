@@ -1,5 +1,7 @@
 // 기간 탭과 앞뒤 이동. 업무 보고 화면의 기간 줄과 같은 형태를 씁니다.
+import Button from '@/components/Button'
 import { ChevronLeftIcon, ChevronRightIcon, DownloadIcon } from '@/components/icons'
+import Tabs from '@/components/Tabs'
 
 import { PERIOD_LABEL, PERIOD_RESET, PERIODS, type PeriodType, type Range } from '../../periods'
 
@@ -25,25 +27,18 @@ export default function PeriodBar({
   return (
     <div className={styles.bar}>
       <div className={styles.top}>
-        <div className={styles.tabs} role="tablist" aria-label="매출 집계 기간">
-          {PERIODS.map((item) => (
-            <button
-              key={item}
-              type="button"
-              role="tab"
-              aria-selected={type === item}
-              className={`${styles.tab} ${type === item ? styles.isActive : ''}`}
-              onClick={() => onTypeChange(item)}
-            >
-              {PERIOD_LABEL[item]}
-            </button>
-          ))}
-        </div>
+        <Tabs
+          variant="segmented"
+          items={PERIODS.map((item) => ({ value: item, label: PERIOD_LABEL[item] }))}
+          value={type}
+          label="매출 집계 기간"
+          onChange={onTypeChange}
+        />
 
-        <button type="button" className={styles.export} onClick={onExport}>
+        <Button variant="outline" onClick={onExport}>
           <DownloadIcon width={15} height={15} />
           CSV 내보내기
-        </button>
+        </Button>
       </div>
 
       <div className={styles.nav}>
@@ -70,14 +65,14 @@ export default function PeriodBar({
           <ChevronRightIcon width={15} height={15} />
         </button>
 
-        <button
-          type="button"
+        <Button
+          variant="outline"
           className={styles.reset}
           onClick={() => onOffsetChange(0)}
           disabled={offset === 0}
         >
           {PERIOD_RESET[type]}
-        </button>
+        </Button>
       </div>
     </div>
   )

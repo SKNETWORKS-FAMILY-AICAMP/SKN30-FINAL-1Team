@@ -89,27 +89,24 @@ export default function ListDrawer({
       {list.rows.length === 0 ? (
         <p className={styles.empty}>{list.empty ?? '표시할 항목이 없습니다.'}</p>
       ) : (
-        <>
-          <p className={`${styles.count} tnum`}>{list.rows.length}건</p>
-          {list.rows.map((row) => {
-            // 발주 줄만 더 들어갈 데가 있어 버튼입니다. 나머지는 여기가 끝입니다.
-            const no = row.orderNo
-            return no && onOpenOrder ? (
-              <button
-                key={row.key}
-                type="button"
-                className={`${styles.row} ${styles.clickable}`}
-                onClick={() => onOpenOrder(no)}
-              >
-                <Row row={row} />
-              </button>
-            ) : (
-              <div key={row.key} className={styles.row}>
-                <Row row={row} />
-              </div>
-            )
-          })}
-        </>
+        list.rows.map((row) => {
+          // 발주 줄만 더 들어갈 데가 있어 버튼입니다. 나머지는 여기가 끝입니다.
+          const no = row.orderNo
+          return no && onOpenOrder ? (
+            <button
+              key={row.key}
+              type="button"
+              className={`${styles.row} ${styles.clickable}`}
+              onClick={() => onOpenOrder(no)}
+            >
+              <Row row={row} />
+            </button>
+          ) : (
+            <div key={row.key} className={styles.row}>
+              <Row row={row} />
+            </div>
+          )
+        })
       )}
     </Drawer>
   )

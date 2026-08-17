@@ -148,12 +148,29 @@
 }
 
 /* ---- 월 매출 목표 ---- */
+// 매출 분석으로 가는 링크입니다. 눌리는 곳이라는 신호는 옆 KPI 타일과 같게 둡니다.
 .goal {
   @include card;
 
   display: flex;
   flex-direction: column;
   padding: var(--s4);
+  color: inherit;
+  transition:
+    border-color var(--t-fast),
+    box-shadow var(--t-fast) var(--ease-out),
+    transform var(--t-fast) var(--ease-spring);
+
+  &:hover {
+    border-color: rgba(0, 122, 255, 0.34);
+    box-shadow:
+      var(--sh-2),
+      0 0 0 3px var(--blue-ring);
+  }
+
+  &:active {
+    transform: scale(0.99);
+  }
 }
 
 // 라벨 줄은 KPI 타일의 .top 과 같은 20px 줄에 세웁니다. 20px 숫자가 줄 높이를

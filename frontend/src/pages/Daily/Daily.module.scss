@@ -8,60 +8,6 @@
   margin-bottom: var(--s4);
 }
 
-.tabs {
-  display: flex;
-  gap: var(--s1);
-  padding: var(--s1);
-  border-radius: var(--r-pill);
-  background: var(--fill-2);
-  max-width: 100%;
-  overflow-x: auto;
-}
-
-.tab {
-  padding: 7px var(--s4);
-  border: 0;
-  border-radius: var(--r-pill);
-  background: transparent;
-  color: var(--muted);
-  font-size: 13px;
-  font-weight: 600;
-  white-space: nowrap;
-  cursor: pointer;
-  transition:
-    background var(--t-fast),
-    color var(--t-fast);
-
-  &:hover {
-    color: var(--ink);
-  }
-}
-
-.isActive {
-  background: var(--surface);
-  color: var(--ink);
-  box-shadow: var(--sh-1);
-}
-
-.cta {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s1);
-  padding: 11px var(--s5);
-  border-radius: var(--r-pill);
-  background: var(--blue);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
-  white-space: nowrap;
-  box-shadow: var(--sh-blue);
-  transition: background var(--t-fast);
-
-  &:hover {
-    background: var(--blue-press);
-  }
-}
-
 /* 제출 이력 — 기본은 한 주, "달력 더보기"를 누르면 같은 자리에 한 달입니다. */
 .week {
   @include card;
@@ -96,8 +42,8 @@
 .iconBtn {
   display: grid;
   place-items: center;
-  width: 34px;
-  height: 34px;
+  width: var(--control-h);
+  height: var(--control-h);
   border: 1px solid var(--line);
   border-radius: var(--r-sm);
   background: var(--surface);

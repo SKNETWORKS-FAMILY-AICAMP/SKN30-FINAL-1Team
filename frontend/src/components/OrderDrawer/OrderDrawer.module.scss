@@ -20,21 +20,6 @@
   }
 }
 
-.cta {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s1);
-  padding: 8px var(--s4);
-  border: 1px solid var(--line-2);
-  border-radius: var(--r-pill);
-  font-size: 13px;
-  font-weight: 600;
-
-  &:hover {
-    background: var(--fill-2);
-  }
-}
-
 .rows {
   display: grid;
   gap: var(--s3);

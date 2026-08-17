@@ -1,0 +1,148 @@
+// 탭 한 줄. 높이는 --control-h 가 정합니다 — 옆에 서는 검색창·필터·버튼과 같은 줄이라
+// 여백으로 높이를 맞추면 글자 크기가 조금만 달라져도 줄이 어긋납니다.
+//
+// 모양이 두 가지입니다.
+//   pill      — 알약 하나하나가 36px 짜리 조작부. 고른 것에 테두리가 생깁니다.
+//   segmented — 회색 통이 36px 이고 알약은 그 안을 채웁니다.
+.root {
+  display: flex;
+  gap: var(--s1);
+  // 탭이 많아지면 줄바꿈 대신 옆으로 흐릅니다. 두 줄이 되면 아래 내용이 밀립니다.
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--muted);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background var(--t-fast) var(--ease-out),
+    color var(--t-fast) var(--ease-out);
+}
+
+/* ---- pill ---- */
+.pill {
+  align-items: center;
+  // 고른 탭의 그림자가 잘리지 않게 아래를 조금 비웁니다.
+  padding-bottom: 2px;
+
+  .tab {
+    height: var(--control-h);
+    padding: 0 var(--s3);
+    border: 1px solid transparent;
+    font-size: 13px;
+
+    &:hover {
+      background: var(--fill);
+      color: var(--ink);
+    }
+  }
+
+  .isActive {
+    border-color: var(--line-2);
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: var(--sh-1);
+  }
+}
+
+/* ---- segmented ---- */
+// 옆에 서는 버튼과 같은 --r-sm 을 씁니다. 안쪽 칸은 통의 곡선과 나란하도록
+// 테두리·여백만큼 뺀 값으로 깎습니다.
+.segmented {
+  // 안쪽 칸이 통 높이를 저절로 채우도록 stretch 로 둡니다.
+  align-items: stretch;
+  gap: 2px;
+  height: var(--control-h);
+  padding: 2px;
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-sm);
+  background: var(--fill);
+
+  .tab {
+    padding: 0 var(--s3);
+    border: 0;
+    border-radius: calc(var(--r-sm) - 2px);
+    font-size: 13px;
+    text-decoration: none;
+
+    &:hover {
+      color: var(--ink);
+    }
+  }
+
+  .isActive {
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: var(--sh-1);
+  }
+}
+
+/* ---- sm — 툴바가 아니라 카드 제목 옆에 서는 보조 탭 ---- */
+.sm {
+  &.pill .tab {
+    height: var(--control-h-sm);
+    padding: 0 var(--s2);
+    font-size: 12px;
+  }
+
+  &.segmented {
+    height: var(--control-h-sm);
+  }
+
+  &.segmented .tab {
+    padding: 0 var(--s3);
+    font-size: 12px;
+  }
+}
+
+.count {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.isActive .count {
+  color: var(--blue);
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--tone);
+}
+
+.gray {
+  --tone: var(--muted);
+}
+.blue {
+  --tone: var(--blue);
+}
+.purple {
+  --tone: var(--purple);
+}
+.orange {
+  --tone: var(--orange);
+}
+.green {
+  --tone: var(--green);
+}
+.red {
+  --tone: var(--red);
+}

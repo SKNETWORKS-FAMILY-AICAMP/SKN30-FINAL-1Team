@@ -1,8 +1,9 @@
 import { useState } from 'react'
 
 import Button from '@/components/Button'
-import { ColumnsIcon, DownloadIcon, PlusIcon, SearchIcon, UploadIcon } from '@/components/icons'
+import { ColumnsIcon, DownloadIcon, PlusIcon, UploadIcon } from '@/components/icons'
 import Popover from '@/components/Popover'
+import SearchInput from '@/components/SearchInput'
 import { BP_PHONE } from '@/constants/breakpoints'
 import useMediaQuery from '@/hooks/useMediaQuery'
 
@@ -40,16 +41,13 @@ export default function TableToolbar({
 
   return (
     <div className={styles.root}>
-      <div className={styles.search}>
-        <SearchIcon width={16} height={16} />
-        <input
-          type="search"
-          value={query}
-          placeholder="이름, 회사, 직함, 메모 검색"
-          onChange={(event) => onQueryChange(event.target.value)}
-          aria-label="고객 검색"
-        />
-      </div>
+      <SearchInput
+        className={styles.search}
+        value={query}
+        placeholder="이름, 회사, 직함, 메모 검색"
+        label="고객 검색"
+        onChange={onQueryChange}
+      />
 
       <div className={styles.tools}>
         <Popover

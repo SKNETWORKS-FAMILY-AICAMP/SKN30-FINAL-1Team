@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router'
 
 import { BellIcon, CloseIcon } from '@/components/icons'
+import Tabs from '@/components/Tabs'
 import { postedLabel } from '@/shared/notices'
 import { markRead, removeNotification, useNotifications } from '@/shared/notifications'
 
@@ -21,10 +22,15 @@ export default function Notifications() {
 
   return (
     <section className={styles.page}>
-      <div className={styles.tabs} role="tablist" aria-label="알림 종류">
-        <Tab label="전체" on={!unreadOnly} onSelect={() => setUnreadOnly(false)} />
-        <Tab label="읽지 않음" on={unreadOnly} onSelect={() => setUnreadOnly(true)} />
-      </div>
+      <Tabs
+        items={[
+          { value: 'all', label: '전체' },
+          { value: 'unread', label: '읽지 않음' },
+        ]}
+        value={unreadOnly ? 'unread' : 'all'}
+        label="알림 종류"
+        onChange={(next) => setUnreadOnly(next === 'unread')}
+      />
 
       <div className={styles.card}>
         {rows.length === 0 ? (
@@ -65,25 +71,5 @@ export default function Notifications() {
         )}
       </div>
     </section>
-  )
-}
-
-interface TabProps {
-  label: string
-  on: boolean
-  onSelect: () => void
-}
-
-function Tab({ label, on, onSelect }: TabProps) {
-  return (
-    <button
-      type="button"
-      role="tab"
-      aria-selected={on}
-      className={`${styles.tab} ${on ? styles.isActive : ''}`}
-      onClick={onSelect}
-    >
-      {label}
-    </button>
   )
 }

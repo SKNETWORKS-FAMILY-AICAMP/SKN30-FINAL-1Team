@@ -117,12 +117,41 @@
 
 // 조작 요소가 아니라 캡션입니다. 아래 항목들이 여기 속한 것으로 읽히도록
 // Finder 사이드바 헤딩처럼 레일 가장자리로 내어 씁니다.
+//
+// 높이를 고정합니다. 레일이든 펼침이든 이 상자가 같은 자리를 차지해야
+// 마우스를 올릴 때 아래 메뉴들이 움직이지 않습니다.
 .sectionTitle {
-  padding: 4px 11px 6px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 11px;
+  overflow: hidden;
+  white-space: nowrap;
   color: var(--muted);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.04em;
+}
+
+// 레일용 짧은 이름. 흐름에서 빼내 레일 폭 한가운데에 세웁니다. 폭을 레일 값으로
+// 고정해 두면 사이드바가 넓어지는 동안에도 글자가 옆으로 끌려가지 않습니다.
+.sectionTitleShort {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: calc(var(--sidebar-mini) - var(--s3) * 2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sectionTitleFull,
+.sectionTitleShort {
+  transition: opacity var(--t-fast) var(--ease-out);
 }
 
 .navBtn {
@@ -236,7 +265,6 @@
 
 .navText,
 .brandName,
-.sectionTitle,
 .footCopy {
   white-space: nowrap;
   overflow: hidden;
@@ -254,18 +282,21 @@
 
   .navText,
   .brandName,
-  .sectionTitle,
   .footCopy {
     opacity: 0;
     pointer-events: none;
   }
 
-  // 흐려진 캡션도 자리는 차지해 아이콘 그룹 사이에 구멍을 냅니다.
-  // 아래 경계선이 이미 그룹을 나누므로 상자까지 접습니다.
-  .sectionTitle {
-    height: 0;
-    padding: 0;
-    overflow: hidden;
+  // 캡션은 감추는 대신 짧은 이름으로 바꿔 답니다. 상자를 접었다가 펼칠 때
+  // 되살리면 그만큼 아래 메뉴가 통째로 밀려 내려가고, 그렇다고 비워 두면
+  // 레일에 뜻 없는 여백만 남습니다.
+  .sectionTitleFull {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .sectionTitleShort {
+    opacity: 1;
   }
 
   .brand {
@@ -324,16 +355,15 @@
 
     .navText,
     .brandName,
-    .sectionTitle,
+    .sectionTitleFull,
     .footCopy {
       opacity: 1;
       pointer-events: auto;
       transition-delay: 130ms;
     }
 
-    .sectionTitle {
-      height: auto;
-      padding: 4px 11px 6px;
+    .sectionTitleShort {
+      opacity: 0;
     }
 
     .brand {
@@ -373,27 +403,15 @@
   }
 }
 
+// 레일 여부는 폭이 아니라 사용자의 선택(.isRail)만 정합니다. 좁은 데스크톱에서
+// 접힌 채로 시작하는 것은 AppShell 의 초기값이 맡습니다. 덕분에 어느 폭에서든
+// 화살표를 누르면 그 상태로 고정됩니다.
 @include desktop {
   .isRail {
     @include rail-look;
 
     .railToggle svg {
       transform: rotate(180deg);
-    }
-  }
-}
-
-// 좁은 데스크톱에서는 접힘 여부와 무관하게 레일입니다. 이 블록이 뒤에 오므로
-// .isRail 과 같은 명시도라도 이쪽이 이깁니다.
-@include rail-range {
-  .sidebar {
-    @include rail-look;
-
-    // 이 구간에서는 접기 상태를 바꿀 수 없으므로 펼쳐도 토글을 내놓지 않습니다.
-    // 믹스인의 hover 규칙과 명시도가 같아 뒤에 오는 이쪽이 이깁니다.
-    &:hover .railToggle,
-    &:focus-within .railToggle {
-      display: none;
     }
   }
 }

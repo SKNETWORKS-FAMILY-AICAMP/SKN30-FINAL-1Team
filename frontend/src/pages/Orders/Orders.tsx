@@ -13,6 +13,7 @@ import { OrdersIcon, PlusIcon, SearchIcon } from '@/components/icons'
 import Modal from '@/components/Modal'
 import OrderDrawer from '@/components/OrderDrawer'
 import Pagination from '@/components/Pagination'
+import SearchInput from '@/components/SearchInput'
 import StageChip from '@/components/StageChip'
 import StageTabs from '@/components/StageTabs'
 import { orderNewPath, orderPath } from '@/constants/routes'
@@ -161,15 +162,13 @@ export default function Orders() {
       <h1 className="sr-only">발주 관리</h1>
 
       <div className={styles.toolbar}>
-        <label className={styles.search}>
-          <SearchIcon width={16} height={16} />
-          <input
-            value={query}
-            placeholder="고객사·품목·발주번호 검색"
-            aria-label="발주 검색"
-            onChange={(event) => setParam('q', event.target.value)}
-          />
-        </label>
+        <SearchInput
+          className={styles.search}
+          value={query}
+          placeholder="고객사·품목·발주번호 검색"
+          label="발주 검색"
+          onChange={(next) => setParam('q', next)}
+        />
 
         <FilterSelect
           label="공급처"

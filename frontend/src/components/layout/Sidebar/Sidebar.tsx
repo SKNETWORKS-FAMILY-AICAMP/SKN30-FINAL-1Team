@@ -71,7 +71,16 @@ export default function Sidebar() {
             role="group"
             aria-label={section.title ?? section.ariaLabel}
           >
-            {section.title && <p className={styles.sectionTitle}>{section.title}</p>}
+            {/* 레일에서는 짧은 이름이 같은 자리에 대신 들어갑니다. 상자 크기는
+                양쪽이 같아 펼쳐도 아래 메뉴가 움직이지 않습니다. */}
+            {section.title && (
+              <p className={styles.sectionTitle}>
+                <span className={styles.sectionTitleFull}>{section.title}</span>
+                <span className={styles.sectionTitleShort} aria-hidden="true">
+                  {section.shortTitle ?? section.title}
+                </span>
+              </p>
+            )}
 
             {section.items.map(({ to, label, icon: Icon }) => (
               <NavLink

@@ -111,6 +111,36 @@
   color: var(--muted);
 }
 
+/* ---- 받기 칸 ---- */
+
+// 줄 안에 있어 평소에는 조용히 있다가 짚었을 때 눈에 들어옵니다.
+.download {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid transparent;
+  border-radius: var(--r-xs);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition:
+    background var(--t-fast) var(--ease-out),
+    border-color var(--t-fast) var(--ease-out),
+    color var(--t-fast) var(--ease-out);
+
+  &:hover {
+    background: var(--blue-tint);
+    border-color: rgba(0, 122, 255, 0.28);
+    color: var(--blue);
+  }
+
+  &:active {
+    transform: none;
+  }
+}
+
 /* ---- 헤더 ---- */
 
 .sortButton,
@@ -240,4 +270,24 @@
   margin-top: var(--s2);
   color: var(--muted);
   font-size: 12px;
+}
+
+// 카드에서는 아이콘만으로는 작아서 글자를 붙이고 오른쪽 끝으로 보냅니다.
+.miniDownload {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  padding: 4px var(--s2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-xs);
+  background: transparent;
+  color: var(--ink-2);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:active {
+    transform: none;
+  }
 }

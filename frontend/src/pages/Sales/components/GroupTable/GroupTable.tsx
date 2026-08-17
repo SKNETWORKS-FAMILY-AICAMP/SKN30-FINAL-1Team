@@ -4,6 +4,7 @@
 import { useState } from 'react'
 
 import { ChevronDownIcon } from '@/components/icons'
+import Tabs from '@/components/Tabs'
 import type { Contract } from '@/types'
 import { fmtDotShort, parseISO } from '@/utils/date'
 import { wonFull } from '@/utils/format'
@@ -79,20 +80,14 @@ export default function GroupTable({ by, onByChange, summary }: GroupTableProps)
     <section className={styles.panel} aria-label="계약 리스트">
       <header className={styles.head}>
         <h2 className={styles.title}>계약 리스트</h2>
-        <div className={styles.tabs} role="tablist" aria-label="계약 묶는 기준">
-          {GROUP_BYS.map((item) => (
-            <button
-              key={item}
-              type="button"
-              role="tab"
-              aria-selected={by === item}
-              className={`${styles.tab} ${by === item ? styles.isActive : ''}`}
-              onClick={() => switchBy(item)}
-            >
-              {GROUP_LABEL[item]}
-            </button>
-          ))}
-        </div>
+        <Tabs
+          variant="segmented"
+          size="sm"
+          items={GROUP_BYS.map((item) => ({ value: item, label: GROUP_LABEL[item] }))}
+          value={by}
+          label="계약 묶는 기준"
+          onChange={switchBy}
+        />
       </header>
 
       <div className={styles.columns}>

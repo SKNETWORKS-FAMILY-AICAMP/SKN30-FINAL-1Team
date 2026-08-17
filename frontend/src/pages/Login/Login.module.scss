@@ -200,12 +200,14 @@
   }
 }
 
+// 주 버튼(.mainBtn)과 같은 높이·모서리로 세로줄을 맞춥니다.
 .input {
   width: 100%;
+  height: 44px;
   border: 1px solid var(--line-2);
-  border-radius: 12px;
+  border-radius: var(--r-sm);
   background: var(--surface);
-  padding: 12px 14px;
+  padding: 0 14px;
   transition:
     border-color var(--t-fast),
     box-shadow var(--t-fast);
@@ -217,9 +219,10 @@
   }
 }
 
+// 로그인 화면의 주 버튼은 다른 조작부와 나란히 서지 않아 한 단계 크게 둡니다.
 .mainBtn {
   width: 100%;
-  padding: 14px;
+  height: 44px;
   margin-top: 4px;
 }
 

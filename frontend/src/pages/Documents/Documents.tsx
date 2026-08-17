@@ -9,9 +9,10 @@ import { useSearchParams } from 'react-router'
 import { useCurrentUser } from '@/auth/sessionContext'
 import Button from '@/components/Button'
 import FilterSelect from '@/components/FilterSelect'
-import { SearchIcon, UploadIcon } from '@/components/icons'
+import { UploadIcon } from '@/components/icons'
 import Modal from '@/components/Modal'
 import Pagination from '@/components/Pagination'
+import SearchInput from '@/components/SearchInput'
 import type { DocumentCategory, SalesDocument } from '@/types'
 import { useOwnerScope } from '@/scope/scopeContext'
 import { addDays, iso, TODAY } from '@/utils/date'
@@ -39,7 +40,8 @@ const DEFAULT_RANGE = '12'
 
 export default function Documents() {
   const { documents, findDocument, addDocument, addVersion, removeDocument } = useDocuments()
-  const { profile } = useCurrentUser()
+  // 자료를 올리는 것은 팀장 몫입니다. 팀원은 받아 보기만 합니다.
+  const { profile, isManager } = useCurrentUser()
   // 자료는 최신 버전의 등록자를 그 자료의 담당으로 봅니다.
   const { matchesOwner, showOwner, owners } = useOwnerScope()
 
@@ -184,15 +186,13 @@ export default function Documents() {
       <h1 className="sr-only">자료실</h1>
 
       <div className={styles.toolbar}>
-        <label className={styles.search}>
-          <SearchIcon width={16} height={16} />
-          <input
-            value={query}
-            placeholder="파일명·설명·태그 검색"
-            aria-label="자료 검색"
-            onChange={(event) => setParam('q', event.target.value)}
-          />
-        </label>
+        <SearchInput
+          className={styles.search}
+          value={query}
+          placeholder="파일명·설명·태그 검색"
+          label="자료 검색"
+          onChange={(next) => setParam('q', next)}
+        />
 
         {showOwner && (
           <FilterSelect
@@ -214,12 +214,14 @@ export default function Documents() {
           onChange={(value) => setParam('range', value, DEFAULT_RANGE)}
         />
 
-        <div className={styles.actions}>
-          <Button onClick={() => setUploading('new')}>
-            <UploadIcon width={15} height={15} />
-            파일 업로드
-          </Button>
-        </div>
+        {isManager && (
+          <div className={styles.actions}>
+            <Button onClick={() => setUploading('new')}>
+              <UploadIcon width={15} height={15} />
+              파일 업로드
+            </Button>
+          </div>
+        )}
       </div>
 
       <CategoryTabs
@@ -236,6 +238,7 @@ export default function Documents() {
         onOpen={setOpenId}
         isFiltered={isFiltered}
         onClearFilters={clearFilters}
+        canUpload={isManager}
         onUpload={() => setUploading('new')}
       />
 
@@ -258,6 +261,7 @@ export default function Documents() {
         <DocumentDrawer
           doc={openDoc}
           onClose={() => setOpenId(null)}
+          canUpload={isManager}
           onNewVersion={() => setUploading(openDoc.id)}
           onDelete={() => {
             setDeletingId(openDoc.id)

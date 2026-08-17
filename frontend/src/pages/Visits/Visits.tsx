@@ -14,6 +14,7 @@ import FilterSelect from '@/components/FilterSelect'
 import { ContractIcon, PlusIcon, SearchIcon } from '@/components/icons'
 import Modal from '@/components/Modal'
 import Pagination from '@/components/Pagination'
+import SearchInput from '@/components/SearchInput'
 import StageChip from '@/components/StageChip'
 import StageTabs from '@/components/StageTabs'
 import { useOwnerScope } from '@/scope/scopeContext'
@@ -168,15 +169,13 @@ export default function Visits() {
       <h1 className="sr-only">영업 현황</h1>
 
       <div className={styles.toolbar}>
-        <label className={styles.search}>
-          <SearchIcon width={16} height={16} />
-          <input
-            value={query}
-            placeholder="고객사·제품·계약번호 검색"
-            aria-label="영업 건 검색"
-            onChange={(event) => setParam('q', event.target.value)}
-          />
-        </label>
+        <SearchInput
+          className={styles.search}
+          value={query}
+          placeholder="고객사·제품·계약번호 검색"
+          label="영업 건 검색"
+          onChange={(next) => setParam('q', next)}
+        />
 
         {showOwner && (
           <FilterSelect

@@ -1,8 +1,16 @@
-import { forwardRef } from 'react'
+import { forwardRef, useState } from 'react'
 import { Link } from 'react-router'
 
 import Button from '@/components/Button'
-import { CalendarIcon, CheckIcon } from '@/components/icons'
+import {
+  CalendarIcon,
+  CheckIcon,
+  DailyReportIcon,
+  EditIcon,
+  MoreIcon,
+  TrashIcon,
+} from '@/components/icons'
+import Popover from '@/components/Popover'
 import { endTime, statusScope, useAgendaFor } from '@/shared/agenda'
 import { useAgendaReportLink } from '@/shared/agendaReport'
 import type { AgendaItem } from '@/types'
@@ -17,6 +25,10 @@ interface Props {
   onToggleDone: (id: string) => void
   onOpen: (item: AgendaItem) => void
   onAddSchedule: () => void
+  /** 줄 메뉴의 '수정'. 일정 폼을 엽니다. */
+  onEdit: (item: AgendaItem) => void
+  /** 줄 메뉴의 '삭제'. 지우기 전 한 번 더 묻는 것은 호출부가 맡습니다. */
+  onDelete: (item: AgendaItem) => void
   /** 오늘 방문 회사 타일이 이 카드로 스크롤할 때 잠깐 켜집니다. */
   flash?: boolean
 }
@@ -25,10 +37,12 @@ const DAY = 86_400_000
 const RELATIVE: Record<string, string> = { '-1': '어제', '0': '오늘', '1': '내일' }
 
 const DayAgenda = forwardRef<HTMLElement, Props>(function DayAgenda(
-  { dateISO, doneIds, onToggleDone, onOpen, onAddSchedule, flash },
+  { dateISO, doneIds, onToggleDone, onOpen, onAddSchedule, onEdit, onDelete, flash },
   ref,
 ) {
   const list = useAgendaFor(dateISO)
+  /** 메뉴를 펴 둔 줄. 한 번에 한 줄만 폅니다. */
+  const [menuId, setMenuId] = useState<string | null>(null)
   // 고객을 만나는 일과 사내에서 처리하는 일은 준비하는 것이 다릅니다. 미팅을
   // 먼저 훑고 그 아래에서 업무를 봅니다. 주간 줄의 파란 점·노란 점과 같은 구분입니다.
   const meetings = list.filter((it) => it.kind !== 'internal')
@@ -85,17 +99,59 @@ const DayAgenda = forwardRef<HTMLElement, Props>(function DayAgenda(
                 {it.stage}
               </i>
             )}
-            {/* 끝냈다는 것은 왼쪽 버튼이 이미 말합니다. 여기서는 보고서를
-                썼는지만 덧붙이는데, 그 자리를 배지 대신 링크가 맡습니다.
-                '작성' 이라고 서 있는 것 자체가 아직 안 썼다는 뜻입니다.
-                줄 전체는 상세를 열므로 링크에서 그 전파를 끊습니다. */}
-            <Link
-              className={styles.reportLink}
-              to={report.to}
-              onClick={(event) => event.stopPropagation()}
-            >
-              {report.label}
-            </Link>
+            {/* 이 줄에 대고 할 수 있는 일을 배지 줄 끝의 '...' 하나로 모읍니다.
+                보고서·수정·삭제가 각자 버튼으로 서면 줄마다 세 개가 늘어서
+                정작 읽어야 할 회사와 제목보다 먼저 보입니다.
+                줄 전체는 상세를 열므로 메뉴 안의 클릭은 여기서 끊습니다. */}
+            <div className={styles.menuWrap} onClick={(event) => event.stopPropagation()}>
+              <Popover
+                open={menuId === it.id}
+                onClose={() => setMenuId(null)}
+                align="end"
+                compact
+                label={`${it.title} 일정 메뉴`}
+                trigger={
+                  <button
+                    type="button"
+                    className={styles.menuBtn}
+                    aria-label={`${it.title} 일정 메뉴`}
+                    aria-expanded={menuId === it.id}
+                    onClick={() => setMenuId((prev) => (prev === it.id ? null : it.id))}
+                  >
+                    <MoreIcon width={17} height={17} />
+                  </button>
+                }
+              >
+                <div className={styles.menu}>
+                  {/* '작성' 이라고 서 있으면 아직 안 쓴 것, '열기' 면 이미 쓴 것입니다. */}
+                  <Link to={report.to} onClick={() => setMenuId(null)}>
+                    <DailyReportIcon width={15} height={15} />
+                    {report.label}
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuId(null)
+                      onEdit(it)
+                    }}
+                  >
+                    <EditIcon width={15} height={15} />
+                    수정
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.danger}
+                    onClick={() => {
+                      setMenuId(null)
+                      onDelete(it)
+                    }}
+                  >
+                    <TrashIcon width={15} height={15} />
+                    삭제
+                  </button>
+                </div>
+              </Popover>
+            </div>
           </div>
 
           {/* 마우스는 줄 전체를 누르지만 키보드는 잡을 곳이 있어야 합니다.

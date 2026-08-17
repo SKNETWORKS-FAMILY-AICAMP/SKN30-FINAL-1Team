@@ -14,34 +14,10 @@
   flex-wrap: wrap;
 }
 
+// 네 필드를 한 번에 훑는 검색이라 넉넉하게 둡니다. 등록 버튼 자리만 남기고 다 씁니다.
 .search {
-  display: flex;
-  align-items: center;
-  gap: var(--s2);
-  // 네 필드를 한 번에 훑는 검색이라 넉넉하게 둡니다. 등록 버튼 자리만 남기고 다 씁니다.
   flex: 1 1 320px;
   max-width: 640px;
-  padding: 0 var(--s3);
-  border: 1px solid var(--line-2);
-  border-radius: var(--r-sm);
-  background: var(--surface);
-  color: var(--muted);
-
-  &:focus-within {
-    border-color: var(--blue);
-    box-shadow: 0 0 0 3px var(--blue-ring);
-  }
-
-  input {
-    flex: 1;
-    min-width: 0;
-    padding: 9px 0;
-    border: 0;
-    background: transparent;
-    color: var(--ink);
-    font-size: 13px;
-    outline: none;
-  }
 }
 
 .actions {
@@ -56,58 +32,6 @@
     width: 100%;
     justify-content: flex-end;
   }
-}
-
-/* ---- 상태 탭 ---- */
-
-.tabs {
-  display: flex;
-  align-items: center;
-  gap: var(--s1);
-}
-
-.tab {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex: 0 0 auto;
-  padding: 7px var(--s3);
-  border: 1px solid transparent;
-  border-radius: var(--r-pill);
-  background: transparent;
-  color: var(--muted);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-
-  &:hover {
-    background: var(--fill);
-    color: var(--ink);
-  }
-}
-
-.isActive {
-  border-color: var(--line-2);
-  background: var(--surface);
-  color: var(--ink);
-  box-shadow: var(--sh-1);
-}
-
-.count {
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 600;
-}
-
-.isActive .count {
-  color: var(--blue);
-}
-
-// 목록 배지와 같은 색을 점으로 줄여 답니다. 배지 규칙보다 뒤에서 색을 덮어씁니다.
-.dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
 }
 
 /* ---- 표 ---- */
@@ -220,14 +144,6 @@
 .risk {
   background: var(--orange-tint);
   color: var(--orange-ink);
-}
-
-.dot.working {
-  background: var(--blue);
-}
-
-.dot.done {
-  background: var(--green-ink);
 }
 
 /* ---- 빈 상태 ---- */

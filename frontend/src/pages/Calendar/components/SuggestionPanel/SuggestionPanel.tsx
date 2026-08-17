@@ -1,5 +1,8 @@
+import { useState } from 'react'
+
 import Button from '@/components/Button'
-import { CloseIcon } from '@/components/icons'
+import { CloseIcon, InfoIcon, RefreshIcon } from '@/components/icons'
+import Popover from '@/components/Popover'
 import { KIND_LABEL } from '@/shared/agenda'
 import type { AiSuggestion } from '@/types'
 import { fmtDay, parseISO } from '@/utils/date'
@@ -16,6 +19,10 @@ interface Props {
   onAccept: (suggestion: AiSuggestion) => void
   onDismiss: (id: string) => void
   onGrab: (pointer: ReactPointerEvent, suggestion: AiSuggestion) => void
+  /** 추천을 다시 받아 옵니다. */
+  onRefresh: () => void
+  /** 다시 받아 오는 중. 아이콘이 돌고 버튼은 잠깁니다. */
+  refreshing?: boolean
 }
 
 export default function SuggestionPanel({
@@ -25,18 +32,65 @@ export default function SuggestionPanel({
   onAccept,
   onDismiss,
   onGrab,
+  onRefresh,
+  refreshing = false,
 }: Props) {
+  // 무엇을 보고 고른 추천인지는 한 번 읽으면 그만입니다. 카드보다 먼저 자리를
+  // 차지하지 않도록 물음표 하나로 접어 두고 눌렀을 때만 폅니다.
+  const [helpOpen, setHelpOpen] = useState(false)
+
   return (
     <aside className={styles.panel} aria-label="AI 추천 일정">
       <header className={styles.head}>
         <h2>AI 추천 일정</h2>
-        <p className={styles.sub}>
-          후속 조치 기한과 계약 만료일을 보고 고른 일정입니다. 카드를 끌어 원하는 날짜에 놓거나,
-          추천한 날짜에 그대로 넣으세요.
-        </p>
+
+        <div
+          className={styles.help}
+          onMouseEnter={() => setHelpOpen(true)}
+          onMouseLeave={() => setHelpOpen(false)}
+        >
+          <Popover
+            open={helpOpen}
+            onClose={() => setHelpOpen(false)}
+            label="AI 추천 기준"
+            trigger={
+              <button
+                type="button"
+                className={styles.helpBtn}
+                aria-label="AI 추천 기준 설명"
+                aria-expanded={helpOpen}
+                onClick={() => setHelpOpen((v) => !v)}
+                onFocus={() => setHelpOpen(true)}
+                onBlur={() => setHelpOpen(false)}
+              >
+                <InfoIcon width={15} height={15} />
+              </button>
+            }
+          >
+            <p className={styles.sub}>
+              후속 조치 기한과 계약 만료일을 보고 고른 일정입니다. 카드를 끌어 원하는 날짜에 놓거나,
+              추천한 날짜에 그대로 넣으세요.
+            </p>
+          </Popover>
+        </div>
+
+        <button
+          type="button"
+          className={`${styles.refresh} ${refreshing ? styles.isSpinning : ''}`}
+          onClick={onRefresh}
+          disabled={refreshing}
+          aria-label="AI 추천 새로고침"
+        >
+          <RefreshIcon width={15} height={15} />
+          새로고침
+        </button>
       </header>
 
-      {suggestions.length === 0 ? (
+      {refreshing ? (
+        <div className={styles.empty}>
+          <p>추천을 새로 받는 중입니다.</p>
+        </div>
+      ) : suggestions.length === 0 ? (
         <div className={styles.empty}>
           <p>지금은 추천할 일정이 없습니다.</p>
           <p className={styles.emptyHint}>고객 활동이 쌓이면 다시 제안합니다.</p>

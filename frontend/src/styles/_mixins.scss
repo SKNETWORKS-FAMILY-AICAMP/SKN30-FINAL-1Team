@@ -32,13 +32,6 @@
   }
 }
 
-// 사이드바가 아이콘 레일로 강제되는 구간
-@mixin rail-range {
-  @media (min-width: #{$bp-md + 1px}) and (max-width: $bp-xl) {
-    @content;
-  }
-}
-
 // demo/layout_v3.html §4 의 .card. 대시보드 섹션이 공유하는 표면입니다.
 @mixin card {
   background: var(--surface);
@@ -88,6 +81,14 @@
       border-color: var(--blue);
       box-shadow: 0 0 0 3px var(--blue-ring);
     }
+  }
+
+  // 한 줄짜리 입력은 같은 폼의 버튼과 높이를 맞춥니다.
+  // textarea 는 여러 줄이라 위아래 여백을 그대로 둡니다.
+  input,
+  select {
+    height: var(--control-h);
+    padding-block: 0;
   }
 
   textarea {

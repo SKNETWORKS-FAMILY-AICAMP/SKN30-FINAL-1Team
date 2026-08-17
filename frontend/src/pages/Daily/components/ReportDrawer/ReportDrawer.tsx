@@ -5,6 +5,7 @@
 import { useEffect, useId, useRef } from 'react'
 import { Link } from 'react-router'
 
+import { buttonClass } from '@/components/Button'
 import { ChevronRightIcon, CloseIcon } from '@/components/icons'
 import { dailyComposePath } from '@/constants/routes'
 import { agendaFor } from '@/shared/agenda'
@@ -91,7 +92,10 @@ export default function ReportDrawer({ dateISO, rows, kind, onClose }: Props) {
               </p>
 
               {!isFuture && (
-                <Link className={styles.cta} to={dailyComposePath(dateISO, kind)}>
+                <Link
+                  className={buttonClass({ variant: 'outline' }, styles.cta)}
+                  to={dailyComposePath(dateISO, kind)}
+                >
                   이 날짜로 {kind}보고서 작성하기
                   <ChevronRightIcon />
                 </Link>
@@ -116,7 +120,7 @@ export default function ReportDrawer({ dateISO, rows, kind, onClose }: Props) {
 
                 <p className={styles.counts}>{row.meta}</p>
 
-                <Link className={styles.cta} to={row.to}>
+                <Link className={buttonClass({ variant: 'outline' }, styles.cta)} to={row.to}>
                   전체 보기
                   <ChevronRightIcon />
                 </Link>

@@ -1,4 +1,7 @@
+import { Link } from 'react-router'
+
 import { ArrowDownIcon } from '@/components/icons'
+import { ROUTES } from '@/constants/routes'
 import { agendaFor, useAgenda } from '@/shared/agenda'
 import { csSnapshot, followUps, renewals, salesGoal, useCsRequests } from '@/shared/counters'
 import { monthlyTotal } from '@/shared/salesTargets'
@@ -134,9 +137,12 @@ export default function SummaryBand({ onJumpToToday, onOpenList }: Props) {
         onOpen={() => onOpenList('renewal')}
       />
 
-      <article
+      {/* 목표 대비 어디쯤인지까지가 이 타일의 몫이고, 무엇이 그 숫자를 만들었는지는
+          매출 분석에 있습니다. 그래서 이 타일만 드로어 대신 그 화면으로 넘깁니다. */}
+      <Link
+        to={ROUTES.SALES}
         className={[styles.goal, over && styles.over].filter(Boolean).join(' ')}
-        aria-label={`${month}월 매출 목표${over ? ' — 목표 달성' : ''}`}
+        aria-label={`${month}월 매출 목표${over ? ' — 목표 달성' : ''}. 매출 분석 열기`}
       >
         <div className={styles.goalHead}>
           <span>{month}월 매출 목표</span>
@@ -176,7 +182,7 @@ export default function SummaryBand({ onJumpToToday, onOpenList }: Props) {
             {surplus > 0 ? `목표 초과 +${won(surplus)}` : `마감 ${ddayLabel(daysLeft)}`}
           </span>
         </div>
-      </article>
+      </Link>
     </div>
   )
 }

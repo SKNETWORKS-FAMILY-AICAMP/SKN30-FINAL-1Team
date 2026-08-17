@@ -5,8 +5,9 @@
 // 업무 보고에는 고객사가 없고 미팅보고서에는 결재선이 없습니다.
 import { useState } from 'react'
 
-import { FilterIcon, SearchIcon } from '@/components/icons'
+import { FilterIcon } from '@/components/icons'
 import Popover from '@/components/Popover'
+import SearchInput from '@/components/SearchInput'
 
 import {
   countFilters,
@@ -55,16 +56,13 @@ export default function HistoryToolbar({
 
   return (
     <div className={styles.root}>
-      <div className={styles.search}>
-        <SearchIcon width={16} height={16} />
-        <input
-          type="search"
-          value={query}
-          placeholder="보고서 검색"
-          aria-label="보고서 검색"
-          onChange={(event) => onQueryChange(event.target.value)}
-        />
-      </div>
+      <SearchInput
+        className={styles.search}
+        value={query}
+        placeholder="보고서 검색"
+        label="보고서 검색"
+        onChange={onQueryChange}
+      />
 
       <Popover
         open={open}

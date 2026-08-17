@@ -78,21 +78,58 @@
   font-weight: 700;
 }
 
-// 고른 단계에 걸린 건들. 테두리 대신 옅은 면으로 깔아 막대에 딸린 것으로 읽히게 합니다.
+// 고른 단계에 걸린 건들. 면을 깔지 않고 테두리만 두른 말풍선입니다. 꼬리가 누른
+// 점을 가리켜, 어느 칸에서 나온 목록인지가 색이 아니라 위치로 먼저 읽힙니다.
+// 안쪽 여백은 줄이 스스로 갖습니다. 그래야 머리말과 각 줄의 왼쪽 끝이 한 선에 섭니다.
 .picks {
+  position: relative;
   margin-top: var(--s3);
-  padding: var(--s2);
+  border: 1px solid var(--line);
   border-radius: var(--r-md);
-  background: var(--fill-2);
   list-style: none;
+  animation: picksIn var(--t) var(--ease-out);
+
+  // 꼬리. 마름모의 위 두 변만 남겨 상자 테두리를 잇고, 안쪽은 드로어 바탕색으로
+  // 메워 그 아래 깔린 상자의 윗선을 지웁니다. --x 는 누른 점의 가로 위치입니다.
+  //
+  // 양 끝 칸은 점이 상자 모서리 위에 서서, 꼬리가 둥근 모서리를 파고들어 테두리가
+  // 끊겨 보입니다. 곧은 변이 남는 데까지만 밀어 넣습니다.
+  &::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: clamp(18px, var(--x, 50%), calc(100% - 18px));
+    width: 8px;
+    height: 8px;
+    border: 1px solid var(--line);
+    border-width: 1px 0 0 1px;
+    border-radius: 3px 0 0;
+    background: var(--surface);
+    transform: translateX(-50%) rotate(45deg);
+  }
+}
+
+// 눌린 칸에서 목록이 내려온 것으로 읽히게 짧게 펼칩니다.
+@keyframes picksIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .picks {
+    animation: none;
+  }
 }
 
 // 어느 칸을 눌러서 나온 목록인지. 이 줄이 없으면 아래 건들이 어디 소속인지 알 수 없습니다.
+// 아래 건들과는 선 없이 글자 크기와 색으로만 갈라 놓습니다.
 .picksHead {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: var(--s2) var(--s3);
+  padding: var(--s2) var(--s3) var(--s1);
   color: var(--muted);
   font-size: 11px;
   font-weight: 600;
@@ -105,37 +142,57 @@
   // 막대의 파란 점을 그대로 옮겨 와 눌린 칸과 이어 붙입니다.
   &::before {
     content: '';
-    width: 8px;
-    height: 8px;
+    flex: none;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
     background: var(--blue);
   }
 }
 
+// 제목과 그 아래 보조 문구를 왼쪽에, 금액·납기를 오른쪽에 세웁니다. 한 줄에 몰아
+// 넣으면 좁은 폭에서 접혀 금액이 제목 아래로 떨어집니다.
 .pick {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--s2);
-  padding: var(--s3);
-  border-radius: var(--r-sm);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1px var(--s3);
+  padding: var(--s2) var(--s3);
   font-size: 12px;
   transition: background var(--t-fast) var(--ease-out);
 
+  // 바탕이 비어 있어 흰 면으로는 올린 줄이 드러나지 않습니다. 옅은 회색으로 덮습니다.
   &:hover {
-    background: var(--surface);
+    background: var(--fill-2);
+  }
+
+  &:hover b {
+    color: var(--blue);
   }
 
   b {
     font-weight: 700;
+    transition: color var(--t-fast) var(--ease-out);
   }
+
+  .sub {
+    grid-column: 1;
+  }
+}
+
+// 마지막 줄의 hover 면은 상자 모서리를 따라 깎습니다. 꼬리를 잘라내지 않으려고
+// 상자에 overflow 를 걸지 않았습니다.
+.picks li:last-child .pick {
+  border-radius: 0 0 calc(var(--r-md) - 1px) calc(var(--r-md) - 1px);
 }
 
 // 금액·납기는 줄 오른쪽 끝에 세워 여러 줄을 눈으로 견주게 합니다.
 .amount {
-  margin-left: auto;
+  grid-column: 2;
+  grid-row: 1 / -1;
   color: var(--ink-2);
   font-weight: 600;
+  white-space: nowrap;
 }
 
 // 접힌 히스토리의 나머지 건수. 셀 것이 더 있다는 것만 알립니다.
@@ -198,25 +255,6 @@
     color: var(--ink-2);
     font-size: 13px;
     line-height: 1.6;
-  }
-}
-
-// Button 의 primary 와 같은 모양입니다. 링크라 태그만 다릅니다.
-.cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 15px;
-  border: 1px solid transparent;
-  border-radius: 12px;
-  background: var(--blue);
-  box-shadow: var(--sh-blue);
-  color: #fff;
-  font-size: 13px;
-  font-weight: 600;
-
-  &:hover {
-    background: var(--blue-press);
   }
 }
 

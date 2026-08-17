@@ -12,3 +12,9 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+// 삭제 확인 모달에서 어느 일정을 지우는지 한 줄로 되짚어 줍니다.
+.confirm {
+  color: var(--ink-2);
+  font-size: 13px;
+}

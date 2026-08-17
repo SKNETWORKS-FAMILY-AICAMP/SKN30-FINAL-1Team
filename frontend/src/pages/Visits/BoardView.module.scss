@@ -12,38 +12,22 @@
 }
 
 .search {
+  flex: 1 1 260px;
+  max-width: 360px;
+}
+
+// 보기 전환과 추가 버튼은 목록 화면과 같은 자리(오른쪽 끝)에 둡니다.
+.actions {
   display: flex;
   align-items: center;
   gap: var(--s2);
-  flex: 1 1 260px;
-  max-width: 360px;
-  padding: 0 var(--s3);
-  border: 1px solid var(--line-2);
-  border-radius: var(--r-sm);
-  background: var(--surface);
-  color: var(--muted);
-
-  &:focus-within {
-    border-color: var(--blue);
-    box-shadow: 0 0 0 3px var(--blue-ring);
-  }
-
-  input {
-    flex: 1;
-    min-width: 0;
-    padding: 9px 0;
-    border: 0;
-    background: transparent;
-    color: var(--ink);
-    font-size: 13px;
-    outline: none;
-  }
-}
-
-.count {
   margin-left: auto;
-  color: var(--muted);
-  font-size: 12px;
+
+  @include sm {
+    margin-left: 0;
+    width: 100%;
+    justify-content: flex-end;
+  }
 }
 
 // 컬럼은 가로로 흐르고 각 컬럼 안에서 세로로 스크롤합니다.

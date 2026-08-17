@@ -72,11 +72,13 @@
   color: var(--blue);
 }
 
+// 표식이 없는 날도 칸 높이가 같아야 해서 최소 높이를 잡습니다. 넘치는 건수를
+// 글자로 덧붙이는 화면이 있어 높이를 고정하지는 않습니다.
 .marks {
   display: flex;
   align-items: center;
   gap: 3px;
-  height: 8px;
+  min-height: 8px;
 }
 
 .isToday {

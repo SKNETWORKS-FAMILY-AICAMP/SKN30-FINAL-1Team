@@ -51,9 +51,9 @@
     gap: var(--s2);
     margin-left: auto;
 
-    // 화살표와 같은 30px 한 줄로 맞춥니다.
+    // 화살표와 같은 한 줄로 맞춥니다.
     button {
-      height: 30px;
+      height: var(--control-h-sm);
       padding: 0 var(--s3);
     }
   }
@@ -83,7 +83,6 @@
 
   @include sm {
     display: inline-flex;
-    border-radius: var(--r-sm);
   }
 }
 
