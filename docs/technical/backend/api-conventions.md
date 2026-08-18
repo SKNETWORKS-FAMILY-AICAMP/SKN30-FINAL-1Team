@@ -291,6 +291,7 @@ GET /api/activities?owner_member_id=9f64618b-8ed8-4aed-9560-78b25228dbe5&owner_m
 | 일정 완료 | `POST /api/activities/{activity_id}/complete`, `POST /api/activities/{activity_id}/reopen` | 본문 없음; 완료 시각은 서버가 정함 |
 | 보고서 | `GET/POST /api/reports`, `GET/PATCH/DELETE /api/reports/{report_id}` | 목록은 `q,report_kind,status_code,start_date,end_date,author_member_id,skip,limit` |
 | 보고서 제출 | `POST /api/reports/{report_id}/submit` | `expected_status_code` 비교; `draft`만 제출 가능 |
+| 공지·지시 | `GET /api/notices`, `GET /api/notices/{notice_id}` | 목록은 `scope,q,published_from,published_to,skip,limit` |
 
 ### 일정 완료 처리
 
@@ -310,6 +311,15 @@ GET /api/activities?owner_member_id=9f64618b-8ed8-4aed-9560-78b25228dbe5&owner_m
 - `meeting`은 근거가 되는 `source_activity_id`가 필요하다.
 - `activity_ids`로 묶는 일정은 같은 팀에서 조회 가능한 일정만 허용하며 아니면 `404 activity_not_found`다.
 - 검토(`approved`, `rejected`)와 `reviewed_by_member_id` 설정은 팀장 기능이라 이번 범위에 없다.
+### 공지와 개인 지시의 조회 범위
+
+- `notice.recipient_member_id`가 NULL이면 팀 공지, 값이 있으면 그 사람에게 온 개인 지시다.
+- 응답의 `scope`가 `team`과 `personal`을 구분해 주므로 프론트가 `recipient_member_id`로 다시 판정하지 않는다.
+- 담당자 범위와 무관하다. 팀 공지는 같은 팀 전체가 보고 개인 지시는 수신자 본인만 본다.
+- `scope`를 생략하면 팀 공지와 본인 수신 지시를 함께 조회한다.
+- 다른 사람에게 온 지시는 팀장에게도 보이지 않는다.
+- `image_storage_key`는 내부 저장소 주소라 응답하지 않고 `image_alt`만 내보낸다.
+- 각 `scope`의 전체 건수는 페이지 응답의 `total`로 얻는다.
 
 ### 영업 딜의 화면 필터와 상태 전이
 
