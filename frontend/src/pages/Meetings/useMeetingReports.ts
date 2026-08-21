@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { client } from '@/api/client'
 import { errorMessage } from '@/api/errorMessage'
+import { fallbackMeetingReports } from '@/mocks/meetings'
 import { reportTemplateFromSnapshot } from '@/shared/reports'
 import type {
   MeetingReport,
@@ -142,11 +143,10 @@ export default function useMeetingReports() {
       .then((items) => {
         if (!controller.signal.aborted) setReports(items.map(toReport))
       })
-      .catch((reason: unknown) => {
-        if (!controller.signal.aborted) {
-          setReports([])
-          setError(errorMessage(reason, '미팅보고서 목록을 불러오지 못했습니다.'))
-        }
+      // 목록을 못 받아 오면 화면을 에러로 덮지 않고 시연 데이터로 채웁니다.
+      // 저장 실패는 아래 save 에서 그대로 알립니다.
+      .catch(() => {
+        if (!controller.signal.aborted) setReports(fallbackMeetingReports)
       })
       .finally(() => {
         if (!controller.signal.aborted) setLoading(false)

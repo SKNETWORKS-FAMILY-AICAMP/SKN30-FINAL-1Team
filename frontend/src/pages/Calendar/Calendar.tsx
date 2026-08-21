@@ -77,11 +77,11 @@ export default function Calendar() {
     [start],
   )
 
+  // 닫는 일은 모달이 합니다. 등록한 뒤 결과를 보여 줄 자리가 있어야 해서입니다.
   const create = useCallback(
     async (event: CalendarEvent) => {
       const added = await addEvent(event)
       setJustAddedId(added.id)
-      setCreating(null)
     },
     [addEvent],
   )
@@ -89,7 +89,6 @@ export default function Calendar() {
   const save = useCallback(
     async (event: CalendarEvent) => {
       await updateEvent(event)
-      setEditing(null)
     },
     [updateEvent],
   )

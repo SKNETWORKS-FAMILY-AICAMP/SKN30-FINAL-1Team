@@ -74,6 +74,15 @@ export const meetingReportPath = (id: string) => `${ROUTES.MEETINGS}/${id}`
 /** 영업 보드. 목록과 같은 데이터를 단계별 칸으로 봅니다. */
 export const dealBoardPath = () => `${ROUTES.DEALS}/board`
 
+/**
+ * 견적 추가. 작성 폼이 목록 위에 뜨는 모달이라 목록 경로에 표를 달아 엽니다.
+ * 화면 하나를 따로 두는 발주(orderNewPath)와 다른 점입니다.
+ */
+export const quoteNewPath = () => `${ROUTES.QUOTES}?new=1`
+
+/** 계약 추가. 견적과 같은 방식입니다. */
+export const contractCreatePath = () => `${ROUTES.CONTRACTS}?new=1`
+
 /** 계약 상세. 계약번호(FM-CT-2026-0039)를 그대로 씁니다. */
 export const contractPath = (no: string) => `${ROUTES.CONTRACTS}/${no}`
 

@@ -194,11 +194,11 @@ export default function Dashboard() {
             } satisfies CalendarEvent
           }
           onClose={closeDrawer}
+          // 닫는 일은 모달이 합니다. 등록한 뒤 결과를 보여 줄 자리가 있어야 해서입니다.
           onSave={(event) => {
             const { id: _id, ...draft } = event
             void addEvent(draft).catch(() => undefined)
             setSelectedISO(draft.date)
-            closeDrawer()
           }}
         />
       )}
@@ -210,7 +210,6 @@ export default function Dashboard() {
           onSave={(event) => {
             void updateEvent(event).catch(() => undefined)
             setSelectedISO(event.date)
-            setEditing(null)
           }}
         />
       )}

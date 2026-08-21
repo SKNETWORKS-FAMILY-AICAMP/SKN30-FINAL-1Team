@@ -28,10 +28,19 @@ export default function Modal({
   const bodyRef = useRef<HTMLDivElement>(null)
   const titleId = useId()
 
+  // 닫기 함수는 호출부에서 매 렌더 새로 만들어지는 일이 흔합니다. 그것을 아래
+  // 효과의 의존성으로 두면 글자 하나 칠 때마다 효과가 풀렸다 다시 걸리고,
+  // 정리 단계의 focus() 가 조합 중인 한글을 끊어 'ㅌㄷㄹ' 처럼 자모가 흩어집니다.
+  // 그래서 최신 함수는 ref 로만 들고, 효과는 열고 닫을 때 한 번씩만 돕니다.
+  const onCloseRef = useRef(onClose)
+  useEffect(() => {
+    onCloseRef.current = onClose
+  })
+
   // AppShell 의 드로어와 같은 처리입니다. Escape 로 닫고 뒤 배경은 스크롤을 멈춥니다.
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose()
+      if (event.key === 'Escape') onCloseRef.current()
     }
     document.addEventListener('keydown', onKeyDown)
 
@@ -44,7 +53,7 @@ export default function Modal({
       document.body.style.overflow = previousOverflow
       previouslyFocused?.focus()
     }
-  }, [onClose])
+  }, [])
 
   // 열리면 첫 입력으로 바로 타이핑할 수 있게 포커스를 옮깁니다.
   useEffect(() => {

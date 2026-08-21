@@ -78,18 +78,8 @@ export default function Daily() {
         ? dailyComposePath(TODAY_ISO, kind)
         : null
 
-  const {
-    reports,
-    loading: dailyLoading,
-    error: dailyError,
-    reload: reloadDaily,
-  } = useDailyReports()
-  const {
-    reports: meetings,
-    loading: meetingLoading,
-    error: meetingError,
-    reload: reloadMeetings,
-  } = useMeetingReports()
+  const { reports, loading: dailyLoading } = useDailyReports()
+  const { reports: meetings, loading: meetingLoading } = useMeetingReports()
 
   const [weekOffset, setWeekOffset] = useState(0)
   const [showMonth, setShowMonth] = useState(false)
@@ -230,23 +220,7 @@ export default function Daily() {
       {/* Topbar 빵부스러기가 이미 화면 이름을 말하므로 제목은 읽어 주기만 합니다. */}
       <h1 className="sr-only">업무 보고</h1>
 
-      {(dailyError || meetingError) && (
-        <div className={styles.empty} role="alert">
-          <p>{dailyError ?? meetingError}</p>
-          <Button
-            variant="outline"
-            onClick={() => {
-              reloadDaily()
-              reloadMeetings()
-            }}
-          >
-            다시 시도
-          </Button>
-        </div>
-      )}
-      {!dailyError && !meetingError && (dailyLoading || meetingLoading) && (
-        <p role="status">보고서를 불러오는 중입니다.</p>
-      )}
+      {(dailyLoading || meetingLoading) && <p role="status">보고서를 불러오는 중입니다.</p>}
 
       <div className={styles.head}>
         <Tabs

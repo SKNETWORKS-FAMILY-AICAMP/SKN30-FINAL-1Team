@@ -16,6 +16,7 @@ import { addDays, fmtDot, fmtDotShort, iso, parseISO, TODAY, TODAY_ISO } from '@
 import { won } from '@/utils/format'
 
 import { QUOTE_COLUMNS } from './columns'
+import QuoteForm from './components/QuoteForm'
 
 import styles from '@/pages/listPage.module.scss'
 
@@ -31,6 +32,17 @@ const DEFAULT_RANGE = '6'
 export default function Quotes() {
   const [openId, setOpenId] = useState<string | null>(null)
   const [params, setParams] = useSearchParams()
+
+  // 일정 등록에서 '견적서 작성 화면으로 이동' 을 고르면 이 표를 달고 옵니다.
+  // 목록만 띄우면 다시 추가를 눌러야 하므로, 작성 폼까지 열어 둡니다.
+  const createOpen = params.get('new') === '1'
+  const closeCreate = () => {
+    const next = new URLSearchParams(params)
+    next.delete('new')
+    // 뒤로 가기가 방금 닫은 폼을 다시 열지 않게 기록을 남기지 않습니다.
+    setParams(next, { replace: true })
+  }
+
   const requestedPipelineId = params.get('pipeline') ?? ''
   const {
     pipelines,
@@ -345,6 +357,9 @@ export default function Quotes() {
           onClose={() => setOpenId(null)}
         />
       )}
+
+      {createOpen && <QuoteForm onClose={closeCreate} onSubmit={closeCreate} />}
+
     </section>
   )
 }

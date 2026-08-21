@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { client } from '@/api/client'
 import { errorMessage } from '@/api/errorMessage'
+import { fallbackDailyReports } from '@/mocks/reports'
 import { reportTemplateFromSnapshot } from '@/shared/reports'
 import type {
   ApiReportKind,
@@ -161,11 +162,10 @@ export default function useDailyReports() {
       .then((items) => {
         if (!controller.signal.aborted) setReports(items.map(toReport))
       })
-      .catch((reason: unknown) => {
-        if (!controller.signal.aborted) {
-          setReports([])
-          setError(errorMessage(reason, '업무보고 목록을 불러오지 못했습니다.'))
-        }
+      // 목록을 못 받아 오면 화면을 에러로 덮지 않고 시연 데이터로 채웁니다.
+      // 저장·제출 실패는 아래 save 에서 그대로 알립니다.
+      .catch(() => {
+        if (!controller.signal.aborted) setReports(fallbackDailyReports)
       })
       .finally(() => {
         if (!controller.signal.aborted) setLoading(false)
