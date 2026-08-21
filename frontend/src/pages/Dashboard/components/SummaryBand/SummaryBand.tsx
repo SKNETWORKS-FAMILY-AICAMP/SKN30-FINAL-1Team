@@ -2,57 +2,22 @@ import { Link } from 'react-router'
 
 import { ArrowDownIcon } from '@/components/icons'
 import { ROUTES } from '@/constants/routes'
+import type { SalesDeal } from '@/pages/Deals/useSalesDeals'
 import { agendaFor, useAgenda } from '@/shared/agenda'
-import { csSnapshot, followUps, renewals, salesGoal, useCsRequests } from '@/shared/counters'
+import { followUps, salesGoal } from '@/shared/counters'
 import { monthlyTotal } from '@/shared/salesTargets'
-import { ddayLabel, endOfMonth, TODAY, TODAY_ISO } from '@/utils/date'
+import type { SupportRequestResponse } from '@/types'
+import { addDays, ddayLabel, endOfMonth, iso, startOfMonth, TODAY, TODAY_ISO } from '@/utils/date'
 import { won } from '@/utils/format'
 
 import type { KpiListKey } from '../../drawerLists'
 
 import styles from './SummaryBand.module.scss'
 
-/**
- * KPI 숫자는 전부 src/content 의 목록에서 파생됩니다.
- *
- * 상수로 박아 두면 타일과 그 뒤의 목록이 어긋날 수 있습니다. 타일을 누르면 여는
- * 드로어가 여기서 센 것과 같은 목록을 그대로 펼칩니다(drawerLists.ts).
- */
-function deriveCounters() {
-  const todayList = agendaFor(TODAY_ISO)
-  const external = todayList.filter((it) => it.kind !== 'internal')
-  const orgs = new Set(external.map((it) => it.hospital))
-  const cs = csSnapshot()
-
-  return {
-    visits: {
-      count: orgs.size,
-      sub: `오늘 일정 ${todayList.length}건`,
-    },
-    followUp: {
-      count: followUps.length,
-      late: followUps.filter((f) => f.dueOff < 0).length,
-      sub: `이번 주 마감 ${followUps.filter((f) => f.dueOff >= 0 && f.dueOff <= 7).length}건`,
-    },
-    cs: {
-      count: cs.length,
-      urgent: cs.filter((c) => c.urgent).length,
-      sub: `처리중 ${cs.filter((c) => c.state === '처리중').length}건`,
-    },
-    renewal: {
-      count: renewals.length,
-      sub:
-        renewals.length > 1
-          ? `${renewals[0].org} 외 ${renewals.length - 1}곳`
-          : (renewals[0]?.org ?? '—'),
-    },
-  }
-}
-
 interface TileProps {
   label: string
   delta?: { text: string; tone?: 'warn' | 'danger' }
-  value: number
+  value: number | string
   sub: string
   onOpen: () => void
 }
@@ -77,63 +42,88 @@ function Tile({ label, delta, value, sub, onOpen }: TileProps) {
 }
 
 interface Props {
+  requests: SupportRequestResponse[]
+  deals: SalesDeal[]
   onJumpToToday: () => void
   onOpenList: (key: KpiListKey) => void
 }
 
-export default function SummaryBand({ onJumpToToday, onOpenList }: Props) {
-  // 일정이 늘거나 줄면 '오늘 방문 회사' 타일이 따라 움직여야 합니다.
+export default function SummaryBand({ requests, deals, onJumpToToday, onOpenList }: Props) {
   useAgenda()
-  // 고객불만관리에서 등록하거나 상태를 바꾸면 C/S 타일이 따라 움직입니다.
-  useCsRequests()
-  const c = deriveCounters()
-  // 목표는 조직이 회사별로 정해 둔 값의 합이고, 첫 세팅에는 아직 아무도 정하지 않아 0 입니다.
+  const todayList = agendaFor(TODAY_ISO)
+  const external = todayList.filter((item) => item.kind !== 'internal')
+  const visits = new Set(external.map((item) => item.hospital).filter(Boolean)).size
+  const urgent = requests.filter((request) => request.is_urgent).length
+  const working = requests.filter((request) => request.status_code === 'in_progress').length
+  const renewalEnd = iso(addDays(TODAY, 30))
+  const renewals = deals.filter(
+    (deal) =>
+      deal.contractEndsOn !== null &&
+      deal.status !== '취소' &&
+      deal.contractEndsOn >= TODAY_ISO &&
+      deal.contractEndsOn <= renewalEnd,
+  )
+  const monthStart = iso(startOfMonth(TODAY))
+  const monthEnd = iso(endOfMonth(TODAY))
+  const achieved = deals.reduce((sum, deal) => {
+    const date = deal.contractSignedOn ?? deal.closedOn
+    return deal.status === '확정' && date && date >= monthStart && date <= monthEnd
+      ? sum + deal.amount
+      : sum
+  }, 0)
+  const lateFollowUps = followUps.filter((item) => item.dueOff < 0).length
+  const weekFollowUps = followUps.filter((item) => item.dueOff >= 0 && item.dueOff <= 7).length
+  // 목표는 조직이 회사별로 정해 둔 값의 합이고, 아직 아무도 정하지 않았으면 0 입니다.
   const target = monthlyTotal
   const hasTarget = target > 0
   const month = TODAY.getMonth() + 1
   // 이 달 말일까지 남은 일수. 말일이면 0 이고 ddayLabel 이 '오늘'로 읽습니다.
   const daysLeft = endOfMonth(TODAY).getDate() - TODAY.getDate()
-  const percent = hasTarget ? (salesGoal.achieved / target) * 100 : 0
-  const over = hasTarget && salesGoal.achieved >= target
+  const percent = hasTarget ? (achieved / target) * 100 : 0
+  const over = hasTarget && achieved >= target
   // 목표를 넘기면 트랙이 100%가 아니라 달성률 전체를 담습니다. 그래야 막대가 잘리지 않고
   // 100% 눈금이 트랙 안쪽에 남아 "얼마나 넘었는지"가 길이로 읽힙니다.
   const trackMax = Math.max(percent, 100)
-  const surplus = hasTarget ? salesGoal.achieved - target : 0
+  const surplus = hasTarget ? achieved - target : 0
 
   return (
     <div className={styles.summary}>
-      {/* 이 타일만 드로어를 열지 않습니다. 답이 이미 페이지 안에 있어
-          아젠다로 내려보내면 됩니다. */}
       <button type="button" className={`${styles.kpi} ${styles.jump}`} onClick={onJumpToToday}>
         <span className={styles.top}>
           <span>오늘 방문 회사</span>
         </span>
-        <strong className="tnum">{c.visits.count}</strong>
+        <strong className="tnum">{visits}</strong>
         <span className={styles.foot}>
-          <small>{c.visits.sub}</small>
+          <small>오늘 일정 {todayList.length}건</small>
           <ArrowDownIcon className={styles.cue} width={14} height={14} />
         </span>
       </button>
 
       <Tile
         label="미완료 후속업무"
-        delta={{ text: `${c.followUp.late} 지연`, tone: 'warn' }}
-        value={c.followUp.count}
-        sub={c.followUp.sub}
+        delta={{ text: `${lateFollowUps} 지연`, tone: 'warn' }}
+        value={followUps.length}
+        sub={`이번 주 마감 ${weekFollowUps}건`}
         onOpen={() => onOpenList('followUp')}
       />
       <Tile
         label="C/S 대응요청"
-        delta={{ text: `긴급 ${c.cs.urgent}건`, tone: 'danger' }}
-        value={c.cs.count}
-        sub={c.cs.sub}
+        delta={{ text: `긴급 ${urgent}건`, tone: 'danger' }}
+        value={requests.length}
+        sub={`처리중 ${working}건`}
         onOpen={() => onOpenList('cs')}
       />
       <Tile
         label="계약갱신 예정"
         delta={{ text: '30일 이내', tone: 'warn' }}
-        value={c.renewal.count}
-        sub={c.renewal.sub}
+        value={renewals.length}
+        sub={
+          renewals.length === 0
+            ? '—'
+            : renewals.length === 1
+              ? renewals[0].org
+              : `${renewals[0].org} 외 ${renewals.length - 1}곳`
+        }
         onOpen={() => onOpenList('renewal')}
       />
 
@@ -154,7 +144,7 @@ export default function SummaryBand({ onJumpToToday, onOpenList }: Props) {
         <p className={`${styles.goalValue} tnum`}>
           {hasTarget ? (
             <>
-              {won(salesGoal.achieved)} <em>/ {won(target)}</em>
+              {won(achieved)} <em>/ {won(target)}</em>
             </>
           ) : (
             <em>목표 미설정</em>

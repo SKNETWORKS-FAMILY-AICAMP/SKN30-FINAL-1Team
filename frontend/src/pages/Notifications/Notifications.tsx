@@ -1,7 +1,7 @@
 // 알림 화면. 헤더 벨로만 들어옵니다.
 //
 // 줄 하나가 알림 하나이고, 누르면 읽음으로 바꾼 뒤 그 알림이 가리키는 화면으로 보냅니다.
-// 목록은 shared/notifications.ts 한 곳에 있어, 여기서 읽거나 지우면 헤더 벨의 점도 함께 바뀝니다.
+// 목록은 shared/notifications.ts 한 곳에 있습니다.
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 

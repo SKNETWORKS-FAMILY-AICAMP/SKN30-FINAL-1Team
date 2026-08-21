@@ -2,25 +2,31 @@ import { type FormEvent, useState } from 'react'
 import { isAxiosError } from 'axios'
 import { Navigate } from 'react-router'
 
+import { errorMessage } from '@/api/errorMessage'
 import { useSession } from '@/auth/sessionContext'
 import Button from '@/components/Button'
 import { ROUTES } from '@/constants/routes'
 
 import styles from './Login.module.scss'
 
+/**
+ * 로그인 실패는 어떤 이유든 이 화면이 직접 알립니다.
+ *
+ * 예전에는 연결 실패를 ConnectionAlert 모달에 넘기려고 null 을 돌려줬는데,
+ * 그 결과 모달이 안 뜨는 상황에서 아무 안내도 남지 않았습니다. 로그인 폼은
+ * 자기 실패를 스스로 설명합니다.
+ */
 function loginErrorMessage(error: unknown): string {
-  if (isAxiosError(error)) {
-    if (error.response?.status === 401) return '로그인 아이디 또는 비밀번호를 확인해 주세요.'
-    if (error.response?.status === 429)
-      return '로그인 시도가 너무 많습니다. 잠시 후 다시 시도해 주세요.'
+  if (isAxiosError(error) && error.response === undefined) {
+    return '서버에 연결할 수 없습니다. 백엔드 서버 상태를 확인해 주세요.'
   }
-  return '로그인할 수 없습니다. 잠시 후 다시 시도해 주세요.'
+  return errorMessage(error, '로그인할 수 없습니다. 잠시 후 다시 시도해 주세요.')
 }
 
 export default function Login() {
   const { session, login } = useSession()
 
-  const [loginId, setLoginId] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -32,12 +38,14 @@ export default function Login() {
   // 대시보드뿐이라 나머지로 되돌아가 봐야 404 를 만나기 때문입니다.
   if (session) return <Navigate to={ROUTES.DASHBOARD} replace />
 
+  const message = error
+
   const onSubmit = async (event: FormEvent) => {
     event.preventDefault()
     setSubmitting(true)
     setError(null)
     try {
-      await login(loginId.trim(), password)
+      await login(email.trim(), password)
     } catch (cause) {
       setError(loginErrorMessage(cause))
     } finally {
@@ -84,21 +92,21 @@ export default function Login() {
       <div className={styles.panel}>
         <p className={styles.eyebrow}>Welcome back</p>
         <h2>현장으로 돌아가기</h2>
-        <p className={styles.lead}>SalesLuv 데모 계정으로 주요 영업 흐름을 확인하세요.</p>
+        <p className={styles.lead}>SalesLuv 백엔드 계정으로 로그인하세요.</p>
 
         <form onSubmit={onSubmit}>
           <div className={styles.field}>
-            <label htmlFor="login-id">로그인 아이디</label>
+            <label htmlFor="email">이메일</label>
             <input
               className={styles.input}
-              id="login-id"
-              type="text"
-              autoComplete="username"
-              value={loginId}
-              onChange={(e) => setLoginId(e.target.value)}
+              id="email"
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               disabled={submitting}
-              aria-invalid={error !== null}
-              aria-describedby={error ? 'login-error' : undefined}
+              aria-invalid={message !== null}
+              aria-describedby={message ? 'login-error' : undefined}
               required
             />
           </div>
@@ -112,14 +120,14 @@ export default function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={submitting}
-              aria-invalid={error !== null}
-              aria-describedby={error ? 'login-error' : undefined}
+              aria-invalid={message !== null}
+              aria-describedby={message ? 'login-error' : undefined}
               required
             />
           </div>
-          {error && (
+          {message && (
             <p id="login-error" className={styles.error} role="alert">
-              {error}
+              {message}
             </p>
           )}
           <Button className={styles.mainBtn} type="submit" disabled={submitting}>
@@ -127,9 +135,7 @@ export default function Login() {
           </Button>
         </form>
 
-        <p className={styles.footnote}>
-          시연용 합성 데이터입니다. 실제 개인정보는 포함되어 있지 않습니다.
-        </p>
+        <p className={styles.footnote}>인증과 업무 데이터는 백엔드에서 조회합니다.</p>
       </div>
     </section>
   )

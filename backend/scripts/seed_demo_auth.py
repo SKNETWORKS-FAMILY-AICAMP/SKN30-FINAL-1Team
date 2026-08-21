@@ -1,5 +1,13 @@
-"""공유 개발 DB에 두 합성 팀, 기본 설정과 로그인 계정 여섯 개를 반복 가능하게 넣는다."""
+"""공유 개발 DB에 합성 팀 하나, 기본 설정과 구성원 두 명을 반복 가능하게 넣는다.
 
+member.id 는 곧 auth.users.id 이므로 구성원 UUID 를 코드에 상수로 둘 수 없다.
+Supabase Dashboard 에서 만든 사용자의 UID 를 인자로 받는다. 이 스크립트는
+이메일·비밀번호를 다루지 않으며 자격증명은 Dashboard 에서만 관리한다.
+
+    uv run python -m scripts.seed_demo_auth --manager <UUID> --member <UUID>
+"""
+
+import argparse
 import asyncio
 from datetime import UTC, datetime
 from hashlib import md5
@@ -7,10 +15,9 @@ from uuid import UUID
 
 from sqlalchemy import and_, or_, select
 from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import settings
-from app.core.security import hash_password
 from app.db.session import get_sessionmaker
 from app.models.configuration import (
     ActivityActionTag,
@@ -22,14 +29,26 @@ from app.models.configuration import (
 from app.models.sales import SalesPipeline, SalesPipelineStage
 from app.models.workspace import Member, Team
 
-FILLED_TEAM_ID = UUID("6d0f1b76-6b1a-4b72-9ba3-1df477a62d78")
-EMPTY_TEAM_ID = UUID("dc153ea5-9ba6-4b96-a4df-845a44798003")
-FILLED_MANAGER_ID = UUID("a6a7a7f6-7141-4b94-9355-bde585f44d1a")
-FILLED_MEMBER_ID = UUID("86d40aa1-0a5b-4a23-912f-e039c392c60a")
-FILLED_MEMBER2_ID = UUID("318a44b7-6726-5054-9b67-469a43b3dd6f")
-EMPTY_MANAGER_ID = UUID("7a489d16-0e50-4061-9c23-8756fb79e3ed")
-EMPTY_MEMBER_ID = UUID("cc1b70c1-71bb-421b-9ce4-66464ee17018")
-EMPTY_MEMBER2_ID = UUID("56ef16f5-19c0-5778-a429-2a71edf18de0")
+TEAM_ID = UUID("6d0f1b76-6b1a-4b72-9ba3-1df477a62d78")
+TEAM_NAME = "SalesLuv 데모팀"
+
+# 각 항목이 Supabase 사용자 한 명과 1:1로 대응한다.
+MEMBER_ACCOUNTS = (
+    {
+        "key": "manager",
+        "flag": "--manager",
+        "display_name": "김서현",
+        "role_code": "manager",
+        "job_title": "영업팀장",
+    },
+    {
+        "key": "member",
+        "flag": "--member",
+        "display_name": "김지훈",
+        "role_code": "member",
+        "job_title": "영업 담당자",
+    },
+)
 
 
 def rows(columns, values):
@@ -301,175 +320,140 @@ async def seed_team_configuration(session: AsyncSession, team_id: UUID) -> None:
             )
 
 
-async def seed_demo_auth() -> None:
-    (
-        filled_manager_login_id,
-        filled_member_login_id,
-        filled_member2_login_id,
-        empty_manager_login_id,
-        empty_member_login_id,
-        empty_member2_login_id,
-    ) = (
-        settings.demo_filled_manager_login_id.strip().lower(),
-        settings.demo_filled_member_login_id.strip().lower(),
-        settings.demo_filled_member2_login_id.strip().lower(),
-        settings.demo_empty_manager_login_id.strip().lower(),
-        settings.demo_empty_member_login_id.strip().lower(),
-        settings.demo_empty_member2_login_id.strip().lower(),
-    )
-    login_ids = (
-        filled_manager_login_id,
-        filled_member_login_id,
-        filled_member2_login_id,
-        empty_manager_login_id,
-        empty_member_login_id,
-        empty_member2_login_id,
-    )
-    password = settings.demo_password.get_secret_value()
+class _DryRun(Exception):
+    """dry-run 에서 트랜잭션을 되돌리기 위한 내부 신호."""
 
-    if not all(login_ids) or not password:
-        raise SystemExit("backend/.env의 DEMO_* 인증 값을 먼저 채워주세요.")
-    if len(set(login_ids)) != len(login_ids):
-        raise SystemExit("여섯 데모 계정의 로그인 ID는 서로 달라야 합니다.")
-    if any(len(login_id) > 254 for login_id in login_ids):
-        raise SystemExit("데모 계정 로그인 ID는 254자 이하여야 합니다.")
-    if not 1 <= len(password) <= 256:
-        raise SystemExit("DEMO_PASSWORD는 1자 이상 256자 이하여야 합니다.")
 
-    password_hashes = [await asyncio.to_thread(hash_password, password) for _ in login_ids]
+async def seed_demo_auth(member_ids: dict[str, UUID], *, dry_run: bool = False) -> None:
+    try:
+        async with get_sessionmaker()() as session, session.begin():
+            await _seed(session, member_ids)
+            if dry_run:
+                raise _DryRun
+    except _DryRun:
+        print("--dry-run 이므로 아무것도 저장하지 않았습니다.")
+        return
+    except IntegrityError as error:
+        flags = [f"  {account['flag']} {member_ids[account['key']]}" for account in MEMBER_ACCOUNTS]
+        raise SystemExit(
+            "구성원을 넣지 못했습니다. auth.users 에 없는 UUID 이거나 참조가 어긋납니다. "
+            "Supabase Dashboard 에서 사용자를 먼저 확인하세요." + "\n" + "\n".join(flags)
+        ) from error
 
-    async with get_sessionmaker()() as session, session.begin():
-        teams = (
-            (FILLED_TEAM_ID, "SalesLuv 데모팀"),
-            (EMPTY_TEAM_ID, "SalesLuv 첫 세팅팀"),
+    print(f"개발 DB에 합성 팀 '{TEAM_NAME}', 기본 설정과 구성원 2명을 준비했습니다.")
+
+
+async def _seed(session: AsyncSession, member_ids: dict[str, UUID]) -> None:
+    existing_teams = (
+        await session.execute(
+            select(Team.id, Team.name).where(Team.id == TEAM_ID).with_for_update()
         )
-        expected_team_names = dict(teams)
-        existing_teams = await session.execute(
-            select(Team.id, Team.name)
-            .where(Team.id.in_(expected_team_names.keys()))
+    ).all()
+    if any(name != TEAM_NAME for _team_id, name in existing_teams):
+        raise SystemExit("기존 팀과 데모 팀 ID 또는 이름이 충돌합니다.")
+
+    team_insert = insert(Team).values(id=TEAM_ID, name=TEAM_NAME)
+    upserted_team_id = (
+        await session.execute(
+            team_insert.on_conflict_do_update(
+                index_elements=[Team.id],
+                set_={"name": team_insert.excluded.name},
+                where=Team.name == TEAM_NAME,
+            ).returning(Team.id)
+        )
+    ).scalar_one_or_none()
+    if upserted_team_id is None:
+        raise SystemExit("기존 팀과 데모 팀 ID 또는 이름이 충돌합니다.")
+
+    await seed_team_configuration(session, TEAM_ID)
+
+    # 다른 팀의 구성원을 이 팀으로 끌어오지 않는다.
+    existing_members = (
+        await session.execute(
+            select(Member.id, Member.team_id)
+            .where(Member.id.in_(member_ids.values()))
             .with_for_update()
         )
-        if any(expected_team_names[team_id] != name for team_id, name in existing_teams):
-            raise SystemExit("기존 팀과 데모 팀 ID 또는 이름이 충돌합니다.")
+    ).all()
+    if any(team_id != TEAM_ID for _member_id, team_id in existing_members):
+        raise SystemExit("기존 구성원과 데모 계정의 ID 또는 팀이 충돌합니다.")
 
-        for team_id, name in teams:
-            team_insert = insert(Team).values(id=team_id, name=name)
-            upserted_team_id = (
-                await session.execute(
-                    team_insert.on_conflict_do_update(
-                        index_elements=[Team.id],
-                        set_={"name": team_insert.excluded.name},
-                        where=Team.name == name,
-                    ).returning(Team.id)
-                )
-            ).scalar_one_or_none()
-            if upserted_team_id is None:
-                raise SystemExit("기존 팀과 데모 팀 ID 또는 이름이 충돌합니다.")
-
-        for team_id, _name in teams:
-            await seed_team_configuration(session, team_id)
-
-        accounts = (
-            {
-                "id": FILLED_MANAGER_ID,
-                "team_id": FILLED_TEAM_ID,
-                "login_id": filled_manager_login_id,
-                "password_hash": password_hashes[0],
-                "display_name": "김서현",
-                "role_code": "manager",
-                "job_title": "영업팀장",
-            },
-            {
-                "id": FILLED_MEMBER_ID,
-                "team_id": FILLED_TEAM_ID,
-                "login_id": filled_member_login_id,
-                "password_hash": password_hashes[1],
-                "display_name": "김지훈",
-                "role_code": "member",
-                "job_title": "영업 담당자",
-            },
-            {
-                "id": FILLED_MEMBER2_ID,
-                "team_id": FILLED_TEAM_ID,
-                "login_id": filled_member2_login_id,
-                "password_hash": password_hashes[2],
-                "display_name": "이수민",
-                "role_code": "member",
-                "job_title": "영업 담당자",
-            },
-            {
-                "id": EMPTY_MANAGER_ID,
-                "team_id": EMPTY_TEAM_ID,
-                "login_id": empty_manager_login_id,
-                "password_hash": password_hashes[3],
-                "display_name": "김서현",
-                "role_code": "manager",
-                "job_title": "영업팀장",
-            },
-            {
-                "id": EMPTY_MEMBER_ID,
-                "team_id": EMPTY_TEAM_ID,
-                "login_id": empty_member_login_id,
-                "password_hash": password_hashes[4],
-                "display_name": "김지훈",
-                "role_code": "member",
-                "job_title": "영업 담당자",
-            },
-            {
-                "id": EMPTY_MEMBER2_ID,
-                "team_id": EMPTY_TEAM_ID,
-                "login_id": empty_member2_login_id,
-                "password_hash": password_hashes[5],
-                "display_name": "이수민",
-                "role_code": "member",
-                "job_title": "영업 담당자",
-            },
+    for account in MEMBER_ACCOUNTS:
+        member_insert = insert(Member).values(
+            id=member_ids[account["key"]],
+            team_id=TEAM_ID,
+            display_name=account["display_name"],
+            role_code=account["role_code"],
+            job_title=account["job_title"],
+            active=True,
         )
-        expected_by_id = {
-            account["id"]: (account["login_id"], account["team_id"]) for account in accounts
-        }
-        expected_by_login = {
-            login_id: member_id for member_id, (login_id, _team_id) in expected_by_id.items()
-        }
-        existing = await session.execute(
-            select(Member.id, Member.login_id, Member.team_id)
-            .where(
-                or_(
-                    Member.id.in_(expected_by_id),
-                    Member.login_id.in_(expected_by_login),
-                )
+        await session.execute(
+            member_insert.on_conflict_do_update(
+                index_elements=[Member.id],
+                set_={
+                    "team_id": member_insert.excluded.team_id,
+                    "display_name": member_insert.excluded.display_name,
+                    "role_code": member_insert.excluded.role_code,
+                    "job_title": member_insert.excluded.job_title,
+                    "active": member_insert.excluded.active,
+                },
             )
-            .with_for_update()
         )
-        for member_id, login_id, team_id in existing:
-            expected_member = expected_by_id.get(member_id)
-            expected_member_id = expected_by_login.get(login_id)
-            if (
-                expected_member is None
-                or team_id != expected_member[1]
-                or (expected_member_id is not None and expected_member_id != member_id)
-            ):
-                raise SystemExit("기존 회원과 데모 계정 ID, 로그인 ID 또는 팀이 충돌합니다.")
 
-        for account in accounts:
-            member_insert = insert(Member).values(active=True, **account)
-            await session.execute(
-                member_insert.on_conflict_do_update(
-                    index_elements=[Member.id],
-                    set_={
-                        "team_id": member_insert.excluded.team_id,
-                        "login_id": member_insert.excluded.login_id,
-                        "password_hash": member_insert.excluded.password_hash,
-                        "display_name": member_insert.excluded.display_name,
-                        "role_code": member_insert.excluded.role_code,
-                        "job_title": member_insert.excluded.job_title,
-                        "active": member_insert.excluded.active,
-                    },
-                )
-            )
 
-    print("개발 DB의 합성 팀 2개, 기본 설정과 로그인 계정 6개를 준비했습니다.")
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description=(
+            "Supabase Dashboard 에서 만든 사용자 UID 를 받아 데모 팀과 구성원을 넣습니다. "
+            "UID 는 자격증명이 아니지만 저장소나 .env 에 두지 않습니다."
+        )
+    )
+    for account in MEMBER_ACCOUNTS:
+        parser.add_argument(
+            account["flag"],
+            required=True,
+            metavar="UUID",
+            help=f"{account['display_name']} ({account['role_code']}) 의 Supabase 사용자 UID",
+        )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="넣을 내용을 출력만 하고 저장하지 않습니다.",
+    )
+    return parser.parse_args(argv)
+
+
+def member_ids_from_args(args: argparse.Namespace) -> dict[str, UUID]:
+    """DB 를 건드리기 전에 형식과 중복을 모두 거른다."""
+    member_ids: dict[str, UUID] = {}
+    for account in MEMBER_ACCOUNTS:
+        raw = getattr(args, account["key"])
+        try:
+            member_ids[account["key"]] = UUID(raw)
+        except (ValueError, AttributeError, TypeError) as error:
+            raise SystemExit(f"{account['flag']} 값이 UUID 형식이 아닙니다: {raw}") from error
+
+    if len(set(member_ids.values())) != len(member_ids):
+        raise SystemExit(
+            "서로 다른 역할에 같은 UUID 를 줄 수 없습니다. "
+            "Dashboard 에서 계정별 UID 를 다시 확인하세요."
+        )
+    return member_ids
+
+
+def main(argv: list[str] | None = None) -> None:
+    args = parse_args(argv)
+    member_ids = member_ids_from_args(args)
+
+    print(f"팀 {TEAM_NAME} ({TEAM_ID})")
+    for account in MEMBER_ACCOUNTS:
+        print(
+            f"  {account['display_name']} / {account['role_code']} / "
+            f"{account['job_title']} <- {member_ids[account['key']]}"
+        )
+
+    asyncio.run(seed_demo_auth(member_ids, dry_run=args.dry_run))
 
 
 if __name__ == "__main__":
-    asyncio.run(seed_demo_auth())
+    main()

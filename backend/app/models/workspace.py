@@ -18,10 +18,10 @@ class Team(Base):
 class Member(Base):
     __tablename__ = "member"
 
+    # auth.users.id 와 같은 값. auth 스키마는 ORM 에 매핑하지 않으므로
+    # 여기에는 대응하는 ForeignKey 를 두지 않는다. 물리 FK 는 DB 에 있다.
     id: Mapped[UUID] = mapped_column(primary_key=True)
     team_id: Mapped[UUID] = mapped_column(ForeignKey("public.team.id"))
-    login_id: Mapped[str]
-    password_hash: Mapped[str]
     display_name: Mapped[str]
     role_code: Mapped[str]
     job_title: Mapped[str | None]
