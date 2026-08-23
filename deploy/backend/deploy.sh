@@ -291,6 +291,16 @@ read_backend_upstream_port() {
     ' "${upstream_file}"
 }
 
+rewrite_backend_upstream_port() {
+    local upstream_file="$1"
+    local expected_port="$2"
+    local next_port="$3"
+
+    sed -E \
+        "s#^([[:space:]]*server[[:space:]]+127\\.0\\.0\\.1:)${expected_port}([[:space:]]*;.*)\$#\\1${next_port}\\2#" \
+        "${upstream_file}"
+}
+
 validated_backend_upstream_port() {
     local nginx_configuration
     local upstream_port
@@ -449,9 +459,9 @@ switch_backend_upstream() {
     )"; then
         return 1
     fi
-    if ! sed -E \
-        "s#^([[:space:]]*server[[:space:]]+127\\.0\\.0\\.1:)${expected_port}([[:space:]]*;.*)$#\\1${next_port}\\2#" \
-        "${NGINX_UPSTREAM_FILE}" >"${TEMP_UPSTREAM_FILE}"; then
+    if ! rewrite_backend_upstream_port \
+        "${NGINX_UPSTREAM_FILE}" "${expected_port}" "${next_port}" \
+        >"${TEMP_UPSTREAM_FILE}"; then
         return 1
     fi
     if [[ "$(read_backend_upstream_port "${TEMP_UPSTREAM_FILE}")" != "${next_port}" ]]; then

@@ -136,6 +136,15 @@ upstream_file="$(write_environment upstream $'upstream salesluv_backend {\n    s
 [[ "$(other_backend_port 8000)" == "18000" ]] \
     || fail "inactive backend port was not selected"
 
+rewritten_upstream_file="${TEST_TMP_DIR}/rewritten-upstream.conf"
+if ! rewrite_backend_upstream_port \
+    "${upstream_file}" "${BACKEND_PORT_A}" "${BACKEND_PORT_B}" \
+    >"${rewritten_upstream_file}"; then
+    fail "Nginx upstream port rewrite failed"
+fi
+[[ "$(read_backend_upstream_port "${rewritten_upstream_file}")" == "18000" ]] \
+    || fail "Nginx upstream port was not rewritten from 8000 to 18000"
+
 docker() {
     if [[ "${DOCKER_TEST_STATE}" == "missing" ]]; then
         return 0
