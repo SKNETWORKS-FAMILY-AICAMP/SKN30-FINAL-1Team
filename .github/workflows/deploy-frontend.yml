@@ -490,7 +490,7 @@ jobs:
             --region "${AWS_REGION}" \
             --bucket "${FRONTEND_BUCKET}" \
             --key "${marker_key}" \
-            --body "fileb://${empty_marker_body}" >/dev/null
+            --body "${empty_marker_body}" >/dev/null
 
           aws s3api list-objects-v2 \
             --region "${AWS_REGION}" \
