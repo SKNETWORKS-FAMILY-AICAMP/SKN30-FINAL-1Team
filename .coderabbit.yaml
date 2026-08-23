@@ -1,0 +1,129 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+# ================================================================ #
+#                    🐰 CodeRabbit 설정 파일                        #
+#                 SalesLuv (SKN30-FINAL-1Team)                     #
+# ================================================================ #
+
+language: "ko-KR"
+early_access: false
+
+tone_instructions: >
+  1. 단순히 문제를 지적하는 데 그치지 말고, 왜 문제인지 원인까지 설명해주세요.
+  2. 더 나은 코드를 작성할 수 있도록 관련 레퍼런스나 공식 문서를 함께 제안해주세요.
+  3. 잘된 부분은 가볍고 유쾌하게 칭찬해주세요.
+  4. 전반적으로 함께 성장하는 동료 개발자처럼 피드백해주세요.
+
+# ================================================================ #
+#                        리뷰 상세 설정                              #
+# ================================================================ #
+reviews:
+  profile: "chill"
+  request_changes_workflow: false
+
+  high_level_summary: true
+  changed_files_summary: true
+  review_status: true
+  collapse_walkthrough: true
+  sequence_diagrams: true
+  poem: true
+
+  # -------------------------------------------------------------- #
+  #                        리뷰 제외 경로                            #
+  # -------------------------------------------------------------- #
+  path_filters:
+    - "!data/**"                  # 영업 샘플·정제 문서 (xlsx/pdf 원본)
+    - "!docs/references/**"       # 외부 제공 자료
+    - "!frontend/dist/**"         # 빌드 산출물
+    - "!**/*.lock"                # uv.lock
+    - "!**/package-lock.json"
+
+  # -------------------------------------------------------------- #
+  #                       경로별 리뷰 지침                           #
+  # -------------------------------------------------------------- #
+  path_instructions:
+    - path: "backend/**"
+      instructions: |
+        FastAPI + SQLAlchemy 2(async) + Supabase PostgreSQL 백엔드입니다. 다음을 확인해주세요:
+        1. Supabase 키·JWT 시크릿·DB URL 등 비밀값이 하드코딩되지 않고 app/core/config.py 의 settings 를 거치는지
+        2. 라우터가 app/api/deps.py 의 DbSession·get_current_member 를 재사용하는지,
+           권한 판단을 Supabase user_metadata 가 아니라 public.member 기준으로 하는지
+        3. 요청·응답 스키마가 app/schemas/ 의 Pydantic 모델로 정의되고 입력 검증이 명확한지
+        4. 업로드·전사·외부 API 입력에 크기·형식 검증이 있는지 (tests/test_upload_guard.py 참고)
+        5. ruff(line-length 100, select = E,W,F,I,UP,B) 를 통과할 코드인지, 변경에 대응하는 pytest 가 있는지
+
+    - path: "frontend/**"
+      instructions: |
+        React 19 + Vite + TypeScript + SCSS 프론트엔드입니다. 다음을 확인해주세요:
+        1. API 호출이 src/api/client.ts 를 통하고, 에러 메시지는 src/api/errorMessage.ts 를 재사용하는지
+        2. 컴포넌트/페이지가 관심사 분리를 지키고 상태·부수효과가 한곳에 모여 있는지
+        3. any 남용 없이 src/types/ 의 타입을 쓰는지, 접근성(라벨·키보드 조작)이 지켜지는지
+        4. oxlint·prettier·tsc -b 를 통과할 코드인지
+
+    - path: "backend/sql/**"
+      instructions: |
+        스키마 마이그레이션입니다. 기존 데이터에 파괴적인 변경(컬럼 삭제·타입 변경)이 있는지,
+        되돌릴 방법이 있는지, 애플리케이션 모델(app/models/)과 어긋나지 않는지 확인해주세요.
+
+    - path: ".github/workflows/**"
+      instructions: |
+        GitHub Actions 워크플로입니다. 시크릿이 로그로 노출되지 않는지,
+        permissions 가 최소 권한인지, 배포 트리거 조건이 의도한 브랜치·경로인지 확인해주세요.
+
+    - path: "docs/**"
+      instructions: |
+        프로젝트 문서입니다. 설계 결정이 근거와 함께 기록되었는지,
+        기술 스택·구조 변경 시 README.md 및 docs/project-structure.md 와 함께 갱신되었는지 확인해주세요.
+
+  # -------------------------------------------------------------- #
+  #                      PR 병합 전 검증                             #
+  # -------------------------------------------------------------- #
+  pre_merge_checks:
+    description:
+      mode: warning
+      requirements: |
+        PR 본문은 다음 구조를 따라야 합니다:
+        - 📌 배경 (왜 이 작업을 하는지)
+        - ✅ 수정 내역 (무엇을 바꿨는지)
+        - 📸 스크린샷 (UI 변경이 있는 경우)
+
+    custom_checks:
+      - name: "한글 Conventional Commits 형식"
+        mode: warning
+        instructions: |
+          모든 커밋 메시지가 다음 형식을 따르는지 확인하세요:
+          '<type>[(scope)][!]: <한글 요약>' (예: feat: 미팅 보고서 초안 생성을 추가)
+          허용 타입: feat, fix, docs, refactor, test, perf, build, ci, chore
+          영문 요약이거나 type prefix 가 없는 커밋이 있으면 경고하세요.
+
+      - name: "비밀값·실데이터 유입 점검"
+        mode: warning
+        instructions: |
+          .env 값, API 키, 토큰, 비밀번호가 코드·문서·워크플로에 하드코딩되었는지 확인하세요.
+          실제 고객·영업 데이터나 개인정보가 포함된 파일이 추가되었다면 경고하세요.
+
+  # -------------------------------------------------------------- #
+  #                        자동 리뷰 설정                            #
+  # -------------------------------------------------------------- #
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
+    drafts: false
+    base_branches:
+      - develop
+      - main
+
+# ================================================================ #
+#                          채팅 설정                                 #
+# ================================================================ #
+chat:
+  auto_reply: true
+
+# ================================================================ #
+#                        지식 베이스 설정                             #
+# ================================================================ #
+knowledge_base:
+  web_search:
+    enabled: true
+  code_guidelines:
+    enabled: true   # AGENTS.md / .agent-rules 팀 규칙 반영
