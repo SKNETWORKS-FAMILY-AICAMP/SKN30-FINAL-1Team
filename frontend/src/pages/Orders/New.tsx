@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
 
 import Button from '@/components/Button'
+import ErrorToast from '@/components/ErrorToast'
 import { ChevronLeftIcon } from '@/components/icons'
 import { ROUTES } from '@/constants/routes'
 
@@ -95,27 +96,20 @@ export default function New() {
           <p>발주번호는 저장할 때 자동으로 매깁니다.</p>
         </div>
 
-        {error ? (
-          <div role="alert">
-            <p>{error}</p>
-            <Button type="button" variant="outline" onClick={reload}>
-              다시 시도
-            </Button>
-          </div>
-        ) : (
-          <OrderFields
-            form={form}
-            errors={errors}
-            salesDeals={salesDeals}
-            statuses={statuses}
-            products={products}
-            suppliers={suppliers}
-            optionsLoading={loading}
-            disabled={isCreating}
-            onChange={set}
-            onItemsChange={setItems}
-          />
-        )}
+        <ErrorToast message={error} onRetry={reload} />
+
+        <OrderFields
+          form={form}
+          errors={errors}
+          salesDeals={salesDeals}
+          statuses={statuses}
+          products={products}
+          suppliers={suppliers}
+          optionsLoading={loading}
+          disabled={isCreating}
+          onChange={set}
+          onItemsChange={setItems}
+        />
 
         {submitError && <p role="alert">{submitError}</p>}
 

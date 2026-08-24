@@ -7,7 +7,8 @@
 // 보내되 그 업무가 미리 체크된 채로 열리게 합니다.
 import { Link, useSearchParams } from 'react-router'
 
-import Button, { buttonClass } from '@/components/Button'
+import { buttonClass } from '@/components/Button'
+import ErrorToast from '@/components/ErrorToast'
 import { ChevronLeftIcon, ChevronRightIcon } from '@/components/icons'
 import Skeleton from '@/components/Skeleton'
 import { dailyComposePath, dailyReportPath, ROUTES } from '@/constants/routes'
@@ -107,21 +108,14 @@ export default function MeetingPick() {
         {fmtDot(parseISO(dateISO))}의 미팅과 사내 업무입니다. 기록할 일정을 고르세요.
       </p>
 
-      {(agendaError || meetingError || dailyError) && (
-        <div className={styles.empty} role="alert">
-          <p>{agendaError ?? meetingError ?? dailyError}</p>
-          <Button
-            variant="outline"
-            onClick={() => {
-              reloadAgenda()
-              reloadMeetings()
-              reloadDaily()
-            }}
-          >
-            다시 시도
-          </Button>
-        </div>
-      )}
+      <ErrorToast
+        message={agendaError ?? meetingError ?? dailyError}
+        onRetry={() => {
+          reloadAgenda()
+          reloadMeetings()
+          reloadDaily()
+        }}
+      />
       {!agendaError &&
         !meetingError &&
         !dailyError &&

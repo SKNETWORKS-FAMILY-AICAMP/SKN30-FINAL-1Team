@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router'
 
 import Button from '@/components/Button'
 import Drawer from '@/components/Drawer'
+import ErrorToast from '@/components/ErrorToast'
 import { ComplaintIcon, PlusIcon, SearchIcon } from '@/components/icons'
 import SearchInput from '@/components/SearchInput'
 import { InlineLoader, ListPageSkeleton, SkeletonDetail } from '@/components/Skeleton'
@@ -179,14 +180,9 @@ export default function Complaints() {
         <InlineLoader label="고객불만 목록을 새로고침하는 중입니다." />
       )}
 
-      {error ? (
-        <div className={styles.loadState} role="alert">
-          <p>{error}</p>
-          <Button variant="outline" onClick={reload}>
-            다시 시도
-          </Button>
-        </div>
-      ) : rows.length === 0 ? (
+      <ErrorToast message={error} onRetry={reload} />
+
+      {rows.length === 0 ? (
         <div className={styles.card}>
           <div className={styles.empty}>
             {isFiltered ? (

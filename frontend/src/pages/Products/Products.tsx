@@ -2,6 +2,7 @@ import { useDeferredValue, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router'
 
 import Button from '@/components/Button'
+import ErrorToast from '@/components/ErrorToast'
 import { PlusIcon, ProductIcon, SearchIcon } from '@/components/icons'
 import SearchInput from '@/components/SearchInput'
 import { InlineLoader, ListPageSkeleton } from '@/components/Skeleton'
@@ -86,14 +87,9 @@ export default function Products() {
         <InlineLoader label="상품 목록을 새로고침하는 중입니다." />
       )}
 
-      {error ? (
-        <div className={styles.loadState} role="alert">
-          <p>{error}</p>
-          <Button variant="outline" onClick={reload}>
-            다시 시도
-          </Button>
-        </div>
-      ) : rows.length === 0 ? (
+      <ErrorToast message={error} onRetry={reload} />
+
+      {rows.length === 0 ? (
         <div className={styles.card}>
           <div className={styles.empty}>
             {query.trim() !== '' ? (

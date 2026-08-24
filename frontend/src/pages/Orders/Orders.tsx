@@ -9,6 +9,7 @@ import { useNavigate, useSearchParams } from 'react-router'
 import { useCurrentUser } from '@/auth/sessionContext'
 import Button from '@/components/Button'
 import DataTable, { compareBy, type SortState } from '@/components/DataTable'
+import ErrorToast from '@/components/ErrorToast'
 import FilterSelect from '@/components/FilterSelect'
 import { OrdersIcon, PlusIcon, SearchIcon } from '@/components/icons'
 import Modal from '@/components/Modal'
@@ -257,72 +258,65 @@ export default function Orders() {
         <InlineLoader label="목록을 새로고침하는 중입니다." />
       )}
 
-      {error ? (
-        <div role="alert">
-          <p>{error}</p>
-          <Button variant="outline" onClick={reload}>
-            다시 시도
-          </Button>
-        </div>
-      ) : (
-        <DataTable
-          rows={pageRows}
-          columns={columns}
-          rowKey={(order) => order.id}
-          handleColumn="hospital"
-          sort={sort}
-          onSort={onSort}
-          onOpen={(order) => setOpenId(order.id)}
-          caption="발주 목록. 헤더를 눌러 정렬할 수 있습니다."
-          renderCell={(id, order) => {
-            if (id === 'status') return statusChip(order)
-            if (id !== 'due' || !isLate(order)) return undefined
-            return (
-              <span className={styles.late}>
-                {fmtDotShort(parseISO(order.due))}
-                <i>{lateLabel(order)}</i>
-              </span>
-            )
-          }}
-          mini={(order) => ({
-            title: order.hospital,
-            badge: statusChip(order),
-            sub: orderItemLabel(order),
-            meta: [
-              <span key="m1" className="tnum">
-                {won(orderTotal(order))}
-              </span>,
-              <span key="m2" className="tnum">
-                납기 {fmtDotShort(parseISO(order.due))}
-              </span>,
-              isLate(order) ? (
-                <i key="m3" className={styles.lateOnly}>
-                  {lateLabel(order)}
-                </i>
-              ) : (
-                order.supplier
-              ),
-            ],
-          })}
-          empty={
-            isFiltered ? (
-              <>
-                <SearchIcon width={34} height={34} strokeWidth={1.5} />
-                <p>조건에 맞는 발주가 없습니다.</p>
-                <Button variant="outline" onClick={clearFilters}>
-                  검색·필터 초기화
-                </Button>
-              </>
+      <ErrorToast message={error} onRetry={reload} />
+
+      <DataTable
+        rows={pageRows}
+        columns={columns}
+        rowKey={(order) => order.id}
+        handleColumn="hospital"
+        sort={sort}
+        onSort={onSort}
+        onOpen={(order) => setOpenId(order.id)}
+        caption="발주 목록. 헤더를 눌러 정렬할 수 있습니다."
+        renderCell={(id, order) => {
+          if (id === 'status') return statusChip(order)
+          if (id !== 'due' || !isLate(order)) return undefined
+          return (
+            <span className={styles.late}>
+              {fmtDotShort(parseISO(order.due))}
+              <i>{lateLabel(order)}</i>
+            </span>
+          )
+        }}
+        mini={(order) => ({
+          title: order.hospital,
+          badge: statusChip(order),
+          sub: orderItemLabel(order),
+          meta: [
+            <span key="m1" className="tnum">
+              {won(orderTotal(order))}
+            </span>,
+            <span key="m2" className="tnum">
+              납기 {fmtDotShort(parseISO(order.due))}
+            </span>,
+            isLate(order) ? (
+              <i key="m3" className={styles.lateOnly}>
+                {lateLabel(order)}
+              </i>
             ) : (
-              <>
-                <OrdersIcon width={34} height={34} strokeWidth={1.5} />
-                <p>아직 등록한 발주가 없습니다.</p>
-                <Button onClick={() => navigate(orderNewPath())}>발주 추가</Button>
-              </>
-            )
-          }
-        />
-      )}
+              order.supplier
+            ),
+          ],
+        })}
+        empty={
+          isFiltered ? (
+            <>
+              <SearchIcon width={34} height={34} strokeWidth={1.5} />
+              <p>조건에 맞는 발주가 없습니다.</p>
+              <Button variant="outline" onClick={clearFilters}>
+                검색·필터 초기화
+              </Button>
+            </>
+          ) : (
+            <>
+              <OrdersIcon width={34} height={34} strokeWidth={1.5} />
+              <p>아직 등록한 발주가 없습니다.</p>
+              <Button onClick={() => navigate(orderNewPath())}>발주 추가</Button>
+            </>
+          )
+        }
+      />
 
       {matched.length > 0 && (
         <Pagination

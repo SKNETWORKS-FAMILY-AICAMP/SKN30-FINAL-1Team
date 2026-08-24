@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router'
 import { useCurrentUser } from '@/auth/sessionContext'
 import Button from '@/components/Button'
 import DataTable, { compareBy, type SortState } from '@/components/DataTable'
+import ErrorToast from '@/components/ErrorToast'
 import FilterSelect from '@/components/FilterSelect'
 import { QuoteIcon, SearchIcon } from '@/components/icons'
 import Pagination from '@/components/Pagination'
@@ -266,83 +267,76 @@ export default function Quotes() {
         <InlineLoader label="목록을 새로고침하는 중입니다." />
       )}
 
-      {error ? (
-        <div role="alert">
-          <p>{error}</p>
-          <Button variant="outline" onClick={reload}>
-            다시 시도
-          </Button>
-        </div>
-      ) : (
-        <DataTable
-          rows={pageRows}
-          columns={columns}
-          rowKey={(quote) => quote.id}
-          handleColumn="org"
-          sort={sort}
-          onSort={onSort}
-          onOpen={(quote) => setOpenId(quote.id)}
-          caption="견적 목록. 헤더를 눌러 정렬할 수 있습니다."
-          renderCell={(id, quote) => {
-            if (id === 'stage') {
-              const found = stageOf(quote)
-              return <StageChip tone={found.tone}>{found.name}</StageChip>
-            }
-            if (id !== 'validUntil' || !quote.quoteValidUntil || quote.quoteValidUntil >= TODAY_ISO)
-              return undefined
-            return (
-              <span className={styles.late}>
-                {fmtDotShort(parseISO(quote.quoteValidUntil))}
-                <i>만료</i>
-              </span>
-            )
-          }}
-          mini={(quote) => {
+      <ErrorToast message={error} onRetry={reload} />
+
+      <DataTable
+        rows={pageRows}
+        columns={columns}
+        rowKey={(quote) => quote.id}
+        handleColumn="org"
+        sort={sort}
+        onSort={onSort}
+        onOpen={(quote) => setOpenId(quote.id)}
+        caption="견적 목록. 헤더를 눌러 정렬할 수 있습니다."
+        renderCell={(id, quote) => {
+          if (id === 'stage') {
             const found = stageOf(quote)
-            const expired = !!quote.quoteValidUntil && quote.quoteValidUntil < TODAY_ISO
-            return {
-              title: quote.org,
-              badge: <StageChip tone={found.tone}>{found.name}</StageChip>,
-              sub: quote.product + ' · ' + quote.kind,
-              meta: [
-                <span key="m1" className="tnum">
-                  {won(quote.amount)}
-                </span>,
-                <span key="m2" className="tnum">
-                  {quote.quoteIssuedOn ? fmtDot(parseISO(quote.quoteIssuedOn)) : '견적일 미정'}
-                </span>,
-                expired ? (
-                  <i key="m3" className={styles.lateOnly}>
-                    만료
-                  </i>
-                ) : quote.quoteValidUntil ? (
-                  <span key="m4" className="tnum">
-                    ~{fmtDotShort(parseISO(quote.quoteValidUntil))}
-                  </span>
-                ) : (
-                  <span key="m5">유효기한 미정</span>
-                ),
-              ],
-            }
-          }}
-          empty={
-            isFiltered ? (
-              <>
-                <SearchIcon width={34} height={34} strokeWidth={1.5} />
-                <p>조건에 맞는 견적이 없습니다.</p>
-                <Button variant="outline" onClick={clearFilters}>
-                  검색·필터 초기화
-                </Button>
-              </>
-            ) : (
-              <>
-                <QuoteIcon width={34} height={34} strokeWidth={1.5} />
-                <p>현재 견적 단계인 영업 딜이 없습니다.</p>
-              </>
-            )
+            return <StageChip tone={found.tone}>{found.name}</StageChip>
           }
-        />
-      )}
+          if (id !== 'validUntil' || !quote.quoteValidUntil || quote.quoteValidUntil >= TODAY_ISO)
+            return undefined
+          return (
+            <span className={styles.late}>
+              {fmtDotShort(parseISO(quote.quoteValidUntil))}
+              <i>만료</i>
+            </span>
+          )
+        }}
+        mini={(quote) => {
+          const found = stageOf(quote)
+          const expired = !!quote.quoteValidUntil && quote.quoteValidUntil < TODAY_ISO
+          return {
+            title: quote.org,
+            badge: <StageChip tone={found.tone}>{found.name}</StageChip>,
+            sub: quote.product + ' · ' + quote.kind,
+            meta: [
+              <span key="m1" className="tnum">
+                {won(quote.amount)}
+              </span>,
+              <span key="m2" className="tnum">
+                {quote.quoteIssuedOn ? fmtDot(parseISO(quote.quoteIssuedOn)) : '견적일 미정'}
+              </span>,
+              expired ? (
+                <i key="m3" className={styles.lateOnly}>
+                  만료
+                </i>
+              ) : quote.quoteValidUntil ? (
+                <span key="m4" className="tnum">
+                  ~{fmtDotShort(parseISO(quote.quoteValidUntil))}
+                </span>
+              ) : (
+                <span key="m5">유효기한 미정</span>
+              ),
+            ],
+          }
+        }}
+        empty={
+          isFiltered ? (
+            <>
+              <SearchIcon width={34} height={34} strokeWidth={1.5} />
+              <p>조건에 맞는 견적이 없습니다.</p>
+              <Button variant="outline" onClick={clearFilters}>
+                검색·필터 초기화
+              </Button>
+            </>
+          ) : (
+            <>
+              <QuoteIcon width={34} height={34} strokeWidth={1.5} />
+              <p>현재 견적 단계인 영업 딜이 없습니다.</p>
+            </>
+          )
+        }
+      />
 
       {!error && !loading && matched.length > 0 && (
         <Pagination

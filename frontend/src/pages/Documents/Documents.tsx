@@ -8,6 +8,7 @@ import { useSearchParams } from 'react-router'
 
 import { useCurrentUser } from '@/auth/sessionContext'
 import Button from '@/components/Button'
+import ErrorToast from '@/components/ErrorToast'
 import FilterSelect from '@/components/FilterSelect'
 import { UploadIcon } from '@/components/icons'
 import Pagination from '@/components/Pagination'
@@ -190,14 +191,7 @@ export default function Documents() {
       {/* Topbar 빵부스러기가 이미 화면 이름을 말하므로 제목은 읽어 주기만 합니다. */}
       <h1 className="sr-only">자료실</h1>
 
-      {error && (
-        <div className={styles.state} role="alert">
-          <span>{error}</span>
-          <Button variant="outline" size="sm" onClick={reload}>
-            다시 시도
-          </Button>
-        </div>
-      )}
+      <ErrorToast message={error} onRetry={reload} />
 
       <div className={styles.toolbar}>
         <SearchInput

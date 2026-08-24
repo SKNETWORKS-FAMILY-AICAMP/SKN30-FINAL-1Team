@@ -9,6 +9,7 @@ import {
 import { useSearchParams } from 'react-router'
 
 import Button from '@/components/Button'
+import ErrorToast from '@/components/ErrorToast'
 import FilterSelect from '@/components/FilterSelect'
 import { PlusIcon } from '@/components/icons'
 import Modal from '@/components/Modal'
@@ -326,14 +327,9 @@ export default function DealBoard() {
         </div>
       )}
 
-      {error ? (
-        <div role="alert">
-          <p>{error}</p>
-          <Button variant="outline" onClick={reload}>
-            다시 시도
-          </Button>
-        </div>
-      ) : columns.length === 0 ? (
+      <ErrorToast message={error} onRetry={reload} />
+
+      {columns.length === 0 ? (
         <p role="status">아직 설정된 영업 단계가 없습니다.</p>
       ) : (
         <>

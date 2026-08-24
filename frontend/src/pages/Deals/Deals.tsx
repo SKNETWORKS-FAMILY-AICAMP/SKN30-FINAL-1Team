@@ -5,6 +5,7 @@ import { useSearchParams } from 'react-router'
 import { useCurrentUser } from '@/auth/sessionContext'
 import Button from '@/components/Button'
 import DataTable, { compareBy, type SortState } from '@/components/DataTable'
+import ErrorToast from '@/components/ErrorToast'
 import FilterSelect from '@/components/FilterSelect'
 import { VisitIcon, PlusIcon, SearchIcon } from '@/components/icons'
 import Modal from '@/components/Modal'
@@ -276,63 +277,56 @@ export default function Deals() {
         <InlineLoader label="목록을 새로고침하는 중입니다." />
       )}
 
-      {error ? (
-        <div role="alert">
-          <p>{error}</p>
-          <Button variant="outline" onClick={reload}>
-            다시 시도
-          </Button>
-        </div>
-      ) : (
-        <DataTable
-          rows={pageRows}
-          columns={tableColumns}
-          rowKey={(card) => card.id}
-          handleColumn="org"
-          sort={sort}
-          onSort={onSort}
-          onOpen={(card) => setOpenId(card.id)}
-          caption="영업 현황 목록. 헤더를 눌러 정렬할 수 있습니다."
-          renderCell={(id, card) => {
-            if (id !== 'stage') return undefined
-            const found = stageOf(card)
-            return found ? <StageChip tone={found.tone}>{found.name}</StageChip> : null
-          }}
-          mini={(card) => {
-            const found = stageOf(card)
-            return {
-              title: card.org,
-              badge: found ? <StageChip tone={found.tone}>{found.name}</StageChip> : undefined,
-              sub: card.product + ' · ' + card.kind,
-              meta: [
-                <span key="m1" className="tnum">
-                  {won(card.amount)}
-                </span>,
-                <span key="m2" className="tnum">
-                  {fmtDot(parseISO(card.date))}
-                </span>,
-                ...(showOwner ? [card.owner] : []),
-              ],
-            }
-          }}
-          empty={
-            isFiltered ? (
-              <>
-                <SearchIcon width={34} height={34} strokeWidth={1.5} />
-                <p>조건에 맞는 영업 딜이 없습니다.</p>
-                <Button variant="outline" onClick={clearFilters}>
-                  검색·필터 초기화
-                </Button>
-              </>
-            ) : (
-              <>
-                <VisitIcon width={34} height={34} strokeWidth={1.5} />
-                <p>아직 등록한 영업 딜이 없습니다.</p>
-              </>
-            )
+      <ErrorToast message={error} onRetry={reload} />
+
+      <DataTable
+        rows={pageRows}
+        columns={tableColumns}
+        rowKey={(card) => card.id}
+        handleColumn="org"
+        sort={sort}
+        onSort={onSort}
+        onOpen={(card) => setOpenId(card.id)}
+        caption="영업 현황 목록. 헤더를 눌러 정렬할 수 있습니다."
+        renderCell={(id, card) => {
+          if (id !== 'stage') return undefined
+          const found = stageOf(card)
+          return found ? <StageChip tone={found.tone}>{found.name}</StageChip> : null
+        }}
+        mini={(card) => {
+          const found = stageOf(card)
+          return {
+            title: card.org,
+            badge: found ? <StageChip tone={found.tone}>{found.name}</StageChip> : undefined,
+            sub: card.product + ' · ' + card.kind,
+            meta: [
+              <span key="m1" className="tnum">
+                {won(card.amount)}
+              </span>,
+              <span key="m2" className="tnum">
+                {fmtDot(parseISO(card.date))}
+              </span>,
+              ...(showOwner ? [card.owner] : []),
+            ],
           }
-        />
-      )}
+        }}
+        empty={
+          isFiltered ? (
+            <>
+              <SearchIcon width={34} height={34} strokeWidth={1.5} />
+              <p>조건에 맞는 영업 딜이 없습니다.</p>
+              <Button variant="outline" onClick={clearFilters}>
+                검색·필터 초기화
+              </Button>
+            </>
+          ) : (
+            <>
+              <VisitIcon width={34} height={34} strokeWidth={1.5} />
+              <p>아직 등록한 영업 딜이 없습니다.</p>
+            </>
+          )
+        }
+      />
 
       {!error && !loading && matched.length > 0 && (
         <Pagination

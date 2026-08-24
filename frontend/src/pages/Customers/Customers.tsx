@@ -4,7 +4,7 @@ import { isAxiosError } from 'axios'
 import { client } from '@/api/client'
 import { errorMessage } from '@/api/errorMessage'
 import { useCurrentUser } from '@/auth/sessionContext'
-import Button from '@/components/Button'
+import ErrorToast from '@/components/ErrorToast'
 import Pagination from '@/components/Pagination'
 import { InlineLoader, ListPageSkeleton } from '@/components/Skeleton'
 import { useScopeOwnerIds } from '@/shared/scope'
@@ -251,31 +251,24 @@ export default function Customers() {
         <InlineLoader label="고객 목록을 새로고침하는 중입니다." />
       )}
 
-      {loadError ? (
-        <div role="alert">
-          <p>{loadError}</p>
-          <Button variant="outline" onClick={() => setReloadKey((value) => value + 1)}>
-            다시 시도
-          </Button>
-        </div>
-      ) : (
-        <CustomerTable
-          columns={columns}
-          widths={prefs.widths}
-          onResize={setWidth}
-          rows={rows}
-          sort={null}
-          onSort={ignoreSort}
-          selected={selected}
-          onToggleRow={toggleRow}
-          onTogglePage={togglePage}
-          onOpen={setOpenId}
-          isFiltered={query.trim() !== ''}
-          hasAnyData={total > 0}
-          onClearFilters={clearQuery}
-          onCreate={() => setDialog('create')}
-        />
-      )}
+      <ErrorToast message={loadError} onRetry={() => setReloadKey((value) => value + 1)} />
+
+      <CustomerTable
+        columns={columns}
+        widths={prefs.widths}
+        onResize={setWidth}
+        rows={rows}
+        sort={null}
+        onSort={ignoreSort}
+        selected={selected}
+        onToggleRow={toggleRow}
+        onTogglePage={togglePage}
+        onOpen={setOpenId}
+        isFiltered={query.trim() !== ''}
+        hasAnyData={total > 0}
+        onClearFilters={clearQuery}
+        onCreate={() => setDialog('create')}
+      />
 
       {!loadError && total > 0 && (
         <Pagination

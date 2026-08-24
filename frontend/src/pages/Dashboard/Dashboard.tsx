@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useRef, useState } from 'react'
 
 import Button from '@/components/Button'
+import ErrorToast from '@/components/ErrorToast'
 import Modal from '@/components/Modal'
 import type { AgendaItem, CalendarEvent, Notice } from '@/types'
 import useMediaQuery from '@/hooks/useMediaQuery'
@@ -129,14 +130,7 @@ export default function Dashboard() {
     <section aria-busy={loading}>
       <h1 className="sr-only">영업 대시보드</h1>
 
-      {error && (
-        <div className={styles.state} role="alert">
-          <span>{error}</span>
-          <Button variant="outline" size="sm" onClick={reload}>
-            다시 시도
-          </Button>
-        </div>
-      )}
+      <ErrorToast message={error} onRetry={reload} />
       {/* 다섯 군데에서 따로 받아 오지만 화면은 한 벌로 섭니다. 위젯마다 도착할 때마다
           자리표시자를 걷으면 공지·타일·달력이 차례로 튀어 화면이 서너 번 들썩입니다.
           그래서 하나라도 오는 중이면 전부 자리표시자로 두고 한 번에 바꿉니다. */}

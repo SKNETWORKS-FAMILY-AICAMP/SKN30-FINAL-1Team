@@ -53,8 +53,7 @@ def test_all_database_tables_are_mapped():
     assert {
         table.name: len(table.columns) for table in Base.metadata.sorted_tables
     } == EXPECTED_COLUMN_COUNTS
-#     assert sum(len(table.columns) for table in Base.metadata.tables.values()) == 274
-    assert sum(len(table.columns) for table in Base.metadata.tables.values()) == 278
+    assert sum(len(table.columns) for table in Base.metadata.tables.values()) == 279
 
     foreign_key_constraints = [
         foreign_key
