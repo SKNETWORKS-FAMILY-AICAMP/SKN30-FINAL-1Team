@@ -196,6 +196,15 @@ def test_report_request_rejects_unsafe_values():
         )
 
     with pytest.raises(ValidationError):
+        # 월간도 기간을 덮으므로 주간과 같은 규칙을 받는다.
+        ReportCreate(
+            report_kind="monthly",
+            report_date="2026-08-31",
+            template_snapshot=TEMPLATE,
+            content=CONTENT,
+        )
+
+    with pytest.raises(ValidationError):
         # 끝이 시작보다 빠를 수 없다.
         ReportCreate(
             report_kind="weekly",
@@ -246,6 +255,13 @@ def test_report_request_rejects_unsafe_values():
     assert ReportPatch(note=None).model_dump(exclude_unset=True) == {"note": None}
     with pytest.raises(ValidationError):
         ReportPageParams(start_date="2026-08-17", end_date="2026-08-10")
+
+    # 업무보고 목록 화면이 실제로 보내는 조합이다. monthly 가 빠지면 여기서 422 가 난다.
+    assert ReportPageParams(report_kind=["daily", "weekly", "monthly"]).report_kind == [
+        "daily",
+        "weekly",
+        "monthly",
+    ]
 
 
 class _CreateDb(_Db):
