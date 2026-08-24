@@ -237,6 +237,22 @@ export function removeAgenda(id: string) {
   commit(items.filter((item) => item.id !== id))
 }
 
+/**
+ * 대시보드가 첫 응답으로 받아 온 하루치를 스토어에 그대로 심습니다.
+ *
+ * 심어 두지 않으면 하루 목록을 보는 쪽이 같은 날을 한 번 더 받아 옵니다. 조회한 것과
+ * 같은 자리에 같은 키로 넣어야 그 재조회가 캐시에 걸립니다.
+ */
+export function seedAgenda(dateISO: string, seeded: AgendaItem[]) {
+  const key = `${getScopeKey()}|${dateISO}:${dateISO}`
+  // 다른 날을 펼쳐 둔 채로 대시보드를 새로 고칠 수 있습니다. 그때 오늘치로 덮으면
+  // 보고 있던 목록이 통째로 바뀝니다. 그 날짜는 자기 조회가 채우게 둡니다.
+  if (loadedKey !== null && loadedKey !== key) return
+  loadedKey = key
+  loadError = null
+  commit(seeded)
+}
+
 async function fetchAgenda(
   startDate: string,
   endDate: string,
@@ -335,14 +351,6 @@ export function agendaById(id: string): AgendaItem | undefined {
 const DEFAULT_START_DATE = '2000-01-01'
 const DEFAULT_END_DATE = '2099-12-31'
 
-export function useAgenda(): AgendaItem[] {
-  const scopeKey = useScopeKey()
-  useEffect(() => {
-    void loadAgenda(DEFAULT_START_DATE, DEFAULT_END_DATE)
-  }, [scopeKey])
-  return useSyncExternalStore(subscribeAgenda, agendaSnapshot, agendaSnapshot)
-}
-
 /**
  * `ownScopeOnly` 는 보기 범위를 무시하고 본인 일정만 봅니다.
  *
@@ -371,8 +379,11 @@ export function useAgendaState(
   }
 }
 
+/**
+ * 하루치만 받아 옵니다. 대시보드가 첫 응답으로 심어 둔 날은 캐시에 걸려 다시 받지 않습니다.
+ */
 export function useAgendaFor(dateISO: string): AgendaItem[] {
-  useAgenda()
+  useAgendaState(dateISO, dateISO)
   const snapshot = useCallback(() => agendaFor(dateISO), [dateISO])
   return useSyncExternalStore(subscribeAgenda, snapshot, snapshot)
 }

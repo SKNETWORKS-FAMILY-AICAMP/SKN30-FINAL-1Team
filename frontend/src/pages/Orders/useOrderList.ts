@@ -50,7 +50,7 @@ export interface OrderDraft {
 const offsetOf = (dateISO: string) =>
   Math.round((parseISO(dateISO).getTime() - TODAY.getTime()) / 86_400_000)
 
-function toOrder(order: OrderResponse): ApiPurchaseOrder {
+export function toOrder(order: OrderResponse): ApiPurchaseOrder {
   return {
     id: order.id,
     no: order.order_no,

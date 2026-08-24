@@ -125,7 +125,7 @@ function regionLabel(code: string | null): string {
   return REGION_LABEL[code] ?? code
 }
 
-function toSalesDeal(deal: SalesDealResponse): SalesDeal {
+export function toSalesDeal(deal: SalesDealResponse): SalesDeal {
   return {
     id: deal.id,
     no: deal.deal_no,

@@ -472,6 +472,8 @@ async def list_orders(
         scope.append(PurchaseOrder.supplier_name == page.supplier_name)
     if page.stage_code is not None:
         scope.append(_order_status.code.in_(tuple(dict.fromkeys(page.stage_code))))
+    if page.sales_deal_id is not None:
+        scope.append(PurchaseOrder.sales_deal_id.in_(tuple(dict.fromkeys(page.sales_deal_id))))
     if page.start_date is not None:
         scope.append(PurchaseOrder.ordered_on >= page.start_date)
     if page.end_date is not None:

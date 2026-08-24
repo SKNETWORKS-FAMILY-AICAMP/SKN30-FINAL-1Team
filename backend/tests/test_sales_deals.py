@@ -476,3 +476,44 @@ def test_move_closes_only_closed_phase_and_rejects_another_pipeline(monkeypatch)
     assert exc.value.detail == "sales_pipeline_stage_pipeline_mismatch"
     assert deal.closed_on is None
     assert db.rollback_count == 1
+
+
+def test_renewal_filters_match_the_dashboard_card():
+    """계약갱신 카드를 눌러 여는 목록. 카드가 세는 조건과 같아야 숫자와 총계가 맞는다."""
+    member = _member()
+    pipeline = _pipeline(member)
+    stage = _stage(pipeline, code="contract_completed", phase="contract", outcome="confirmed")
+    deal_type = _deal_type(member)
+    company = _company(member)
+    product = _product(member)
+    deal = _deal(member, pipeline, stage, deal_type, company, product)
+    db = _Db(
+        _Result(scalar=1),
+        _Result(rows=[_row(deal, member, pipeline, stage, deal_type, company, product)]),
+    )
+
+    page = asyncio.run(
+        api.list_sales_deals(
+            SalesDealPageParams(
+                outcome_code=["confirmed"],
+                contract_ends_from=date(2026, 8, 25),
+                contract_ends_to=date(2026, 9, 24),
+            ),
+            member,
+            db,
+        )
+    )
+
+    assert page.total == 1
+    for statement in db.statements:
+        sql = str(statement)
+        assert "outcome_code IN" in sql
+        assert "sales_deal.contract_ends_on >=" in sql
+        assert "sales_deal.contract_ends_on <=" in sql
+
+
+def test_renewal_window_rejects_a_reversed_range():
+    with pytest.raises(ValidationError):
+        SalesDealPageParams(
+            contract_ends_from=date(2026, 9, 24), contract_ends_to=date(2026, 8, 25)
+        )

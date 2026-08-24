@@ -753,6 +753,14 @@ async def list_sales_deals(
         scope.append(SalesDeal.sales_pipeline_stage_id.in_(stage_ids))
     if page.phase_code is not None:
         scope.append(_stage.phase_code.in_(tuple(dict.fromkeys(page.phase_code))))
+    if page.outcome_code is not None:
+        scope.append(_stage.outcome_code.in_(tuple(dict.fromkeys(page.outcome_code))))
+    # 계약 종료일 범위. 대시보드 계약갱신 카드가 세는 조건과 같아야 타일 숫자와 목록
+    # 총계가 맞는다. 종료일이 없는 딜은 이 비교에서 스스로 빠진다.
+    if page.contract_ends_from is not None:
+        scope.append(SalesDeal.contract_ends_on >= page.contract_ends_from)
+    if page.contract_ends_to is not None:
+        scope.append(SalesDeal.contract_ends_on <= page.contract_ends_to)
     if page.start_date is not None:
         scope.append(SalesDeal.opened_on >= page.start_date)
     if page.end_date is not None:

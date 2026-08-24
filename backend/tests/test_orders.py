@@ -432,3 +432,31 @@ def test_order_status_move_resolves_active_target_and_rejects_stale_state(monkey
         )
     assert exc.value.status_code == 409
     assert db.rollback_count == 1
+
+
+def test_orders_can_be_narrowed_to_one_sales_deal():
+    """일정 상세의 관련 발주. 전건을 받아 거르지 않고 딜 하나로 좁혀 받는다."""
+    member = _member()
+    company = _company(member)
+    pipeline = _pipeline(member)
+    stage = _stage(pipeline, code="order_in_progress", phase="order", position=6)
+    deal = _deal(member, company, pipeline, stage)
+    status = _status(member)
+    order = _order(member, deal, status)
+    product = _product(member)
+    item = _item(order, product)
+    db = _Db(
+        _Result(scalar=1),
+        _Result(rows=[_row(order, deal, company, member, status)]),
+        _Result(rows=[(item, product.name)]),
+    )
+
+    page = asyncio.run(api.list_orders(OrderPageParams(sales_deal_id=[deal.id]), member, db))
+
+    assert page.total == 1
+    assert page.items[0].sales_deal_id == deal.id
+    for statement in (db.statements[0], db.statements[1]):
+        sql = str(statement)
+        assert "purchase_order.sales_deal_id IN" in sql
+        # IN 절이라 값이 목록으로 묶여 들어간다.
+        assert [deal.id] in statement.compile().params.values()

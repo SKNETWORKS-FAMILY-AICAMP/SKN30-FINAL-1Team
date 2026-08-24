@@ -290,6 +290,11 @@ class SalesDealPageParams(BaseModel):
     sales_pipeline_id: UUID | None = None
     sales_pipeline_stage_id: list[UUID] | None = None
     phase_code: list[SalesPhase] | None = None
+    outcome_code: list[SalesOutcome] | None = None
+    # 계약갱신 목록이 쓰는 창. start_date/end_date 가 보는 opened_on 과 다른 날짜라
+    # 이름을 따로 둔다.
+    contract_ends_from: date | None = None
+    contract_ends_to: date | None = None
     skip: int = Field(default=0, ge=0, le=9_223_372_036_854_775_807)
     limit: int = Field(default=30, ge=1, le=100)
 
@@ -301,4 +306,10 @@ class SalesDealPageParams(BaseModel):
             and self.end_date < self.start_date
         ):
             raise ValueError("end_date must not be before start_date")
+        if (
+            self.contract_ends_from is not None
+            and self.contract_ends_to is not None
+            and self.contract_ends_to < self.contract_ends_from
+        ):
+            raise ValueError("contract_ends_to must not be before contract_ends_from")
         return self

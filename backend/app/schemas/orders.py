@@ -150,6 +150,7 @@ class OrderPageParams(BaseModel):
     q: SearchQuery | None = None
     supplier_name: Text | None = None
     stage_code: list[OptionCode] | None = None
+    sales_deal_id: list[UUID] | None = None
     start_date: date | None = None
     end_date: date | None = None
     owner_member_id: list[UUID] | None = None
