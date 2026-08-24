@@ -454,6 +454,11 @@ jobs:
               if ! jq -e \
                   '((.Errors // []) | length) == 0' \
                   "${delete_response_json}" >/dev/null; then
+                # 응답의 per-object 에러를 남긴다. 이게 없으면 권한 문제인지
+                # Object Lock 인지 일시적 InternalError 인지 로그로 구분할 수 없다.
+                jq -r \
+                  '(.Errors // [])[] | "  \(.Key): \(.Code) \(.Message)"' \
+                  "${delete_response_json}"
                 echo "::error::S3 reported one or more ${target_type} deletion failures."
                 return 1
               fi
