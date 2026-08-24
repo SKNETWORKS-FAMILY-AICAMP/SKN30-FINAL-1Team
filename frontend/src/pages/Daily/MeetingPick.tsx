@@ -9,6 +9,7 @@ import { Link, useSearchParams } from 'react-router'
 
 import Button, { buttonClass } from '@/components/Button'
 import { ChevronLeftIcon, ChevronRightIcon } from '@/components/icons'
+import Skeleton from '@/components/Skeleton'
 import { dailyComposePath, dailyReportPath, ROUTES } from '@/constants/routes'
 import { KIND_LABEL, useAgendaState } from '@/shared/agenda'
 import useMeetingReports from '@/pages/Meetings/useMeetingReports'
@@ -19,6 +20,9 @@ import { meetingLinkFor, type SourceMeta } from './sources'
 import useDailyReports from './useDailyReports'
 
 import styles from './MeetingPick.module.scss'
+
+/** 목록을 기다리는 동안 잡아 두는 높이. 네 줄쯤 들어가는 자리입니다. */
+const LIST_H = 240
 
 export default function MeetingPick() {
   const [params, setParams] = useSearchParams()
@@ -122,7 +126,10 @@ export default function MeetingPick() {
         !meetingError &&
         !dailyError &&
         (agendaLoading || meetingLoading || dailyLoading) && (
-          <p role="status">일정과 보고서를 불러오는 중입니다.</p>
+          <div role="status">
+            <span className="sr-only">일정과 보고서를 불러오는 중입니다.</span>
+            <Skeleton height={LIST_H} radius="var(--r-lg)" />
+          </div>
         )}
 
       {!agendaLoading &&

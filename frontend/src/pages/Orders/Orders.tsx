@@ -15,6 +15,7 @@ import Modal from '@/components/Modal'
 import OrderDrawer from '@/components/OrderDrawer'
 import Pagination from '@/components/Pagination'
 import SearchInput from '@/components/SearchInput'
+import { InlineLoader, ListPageSkeleton } from '@/components/Skeleton'
 import StageChip from '@/components/StageChip'
 import StageTabs from '@/components/StageTabs'
 import { orderNewPath, orderPath } from '@/constants/routes'
@@ -176,6 +177,18 @@ export default function Orders() {
   const isFiltered =
     query.trim() !== '' || supplier !== '' || status !== '' || range !== DEFAULT_RANGE
 
+  // 첫 진입입니다. 툴바·탭·표가 차례로 나타나면 화면이 두세 번 들썩이므로
+  // 화면 한 장을 통째로 자리표시자로 두고 다 받은 뒤 한 번에 바꿉니다.
+  if (loading && orders.length === 0 && !error) {
+    return (
+      <section className={styles.page} aria-busy={loading}>
+        {/* Topbar 빵부스러기가 이미 화면 이름을 말하므로 제목은 읽어 주기만 합니다. */}
+        <h1 className="sr-only">발주 관리</h1>
+        <ListPageSkeleton label="발주 목록을 불러오는 중입니다." tabs />
+      </section>
+    )
+  }
+
   return (
     <section className={styles.page} aria-busy={loading}>
       {/* Topbar 빵부스러기가 이미 화면 이름을 말하므로 제목은 읽어 주기만 합니다. */}
@@ -240,6 +253,10 @@ export default function Orders() {
         </div>
       )}
 
+      {!error && loading && orders.length > 0 && (
+        <InlineLoader label="목록을 새로고침하는 중입니다." />
+      )}
+
       {error ? (
         <div role="alert">
           <p>{error}</p>
@@ -247,8 +264,6 @@ export default function Orders() {
             다시 시도
           </Button>
         </div>
-      ) : loading && orders.length === 0 ? (
-        <p role="status">발주 목록을 불러오는 중입니다.</p>
       ) : (
         <DataTable
           rows={pageRows}

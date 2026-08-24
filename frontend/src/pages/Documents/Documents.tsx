@@ -12,6 +12,7 @@ import FilterSelect from '@/components/FilterSelect'
 import { UploadIcon } from '@/components/icons'
 import Pagination from '@/components/Pagination'
 import SearchInput from '@/components/SearchInput'
+import { InlineLoader, ListPageSkeleton } from '@/components/Skeleton'
 import type { DocumentCategory } from '@/types'
 import { addDays, iso, TODAY } from '@/utils/date'
 
@@ -172,6 +173,18 @@ export default function Documents() {
   const isFiltered =
     query.trim() !== '' || owner !== '' || category !== '' || range !== DEFAULT_RANGE
 
+  // 첫 진입입니다. 툴바·탭·표가 차례로 나타나면 화면이 두세 번 들썩이므로
+  // 화면 한 장을 통째로 자리표시자로 두고 다 받은 뒤 한 번에 바꿉니다.
+  if (loading && documents.length === 0 && !error) {
+    return (
+      <section className={styles.page} aria-busy={loading || pending}>
+        {/* Topbar 빵부스러기가 이미 화면 이름을 말하므로 제목은 읽어 주기만 합니다. */}
+        <h1 className="sr-only">자료실</h1>
+        <ListPageSkeleton label="자료를 불러오는 중입니다." tabs />
+      </section>
+    )
+  }
+
   return (
     <section className={styles.page} aria-busy={loading || pending}>
       {/* Topbar 빵부스러기가 이미 화면 이름을 말하므로 제목은 읽어 주기만 합니다. */}
@@ -184,11 +197,6 @@ export default function Documents() {
             다시 시도
           </Button>
         </div>
-      )}
-      {!error && loading && (
-        <p className={styles.state} role="status">
-          자료를 불러오는 중입니다.
-        </p>
       )}
 
       <div className={styles.toolbar}>
@@ -236,6 +244,10 @@ export default function Documents() {
         total={beforeCategory.length}
         onChange={(next) => setParam('category', next)}
       />
+
+      {!error && loading && documents.length > 0 && (
+        <InlineLoader label="자료 목록을 새로고침하는 중입니다." />
+      )}
 
       <DocumentTable
         rows={pageRows}

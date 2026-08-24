@@ -4,6 +4,7 @@ import { Link } from 'react-router'
 import Button, { buttonClass } from '@/components/Button'
 import Drawer from '@/components/Drawer'
 import Popover from '@/components/Popover'
+import Skeleton, { InlineLoader } from '@/components/Skeleton'
 import { EditIcon, MoreIcon, TrashIcon } from '@/components/icons'
 import { orderPath } from '@/constants/routes'
 import type { SalesDeal } from '@/pages/Deals/useSalesDeals'
@@ -139,7 +140,7 @@ export default function RecordDrawer({
             보고서 다시 조회
           </Button>
         ) : reportState.loading ? (
-          <span role="status">보고서 연결 확인 중…</span>
+          <InlineLoader label="보고서 연결을 확인하는 중입니다." />
         ) : (
           <Link className={buttonClass()} to={report.to}>
             {report.label}
@@ -171,9 +172,11 @@ export default function RecordDrawer({
             </Button>
           </section>
         ) : relatedLoading ? (
-          <p className={`${styles.note} ${styles.full}`} role="status">
-            관련 영업·발주를 불러오는 중입니다.
-          </p>
+          <section className={`${styles.block} ${styles.full}`} role="status">
+            <h3>관련 영업·발주</h3>
+            <span className="sr-only">관련 영업·발주를 불러오는 중입니다.</span>
+            <Skeleton height={104} radius="var(--r-md)" />
+          </section>
         ) : (
           <>
             {deal && (

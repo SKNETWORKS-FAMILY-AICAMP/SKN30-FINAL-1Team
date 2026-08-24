@@ -6,8 +6,12 @@ import type { CSSProperties, ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 
 import Button from '@/components/Button'
+import Skeleton from '@/components/Skeleton'
 
 import styles from './ComboMenu.module.scss'
+
+/** 목록 한 줄의 높이. combo-option 믹스인의 여백 + 글자 높이입니다. */
+const OPTION_H = 33
 
 interface Props {
   id: string
@@ -43,10 +47,13 @@ export default function ComboMenu({
 
   return createPortal(
     <div id={id} className={styles.menu} style={style} role="listbox" aria-label={label}>
+      {/* 후보 줄을 하나씩 흉내 내지 않습니다. 목록 자리 한 덩어리면 무엇이 들어올지
+          충분히 읽히고, 좁은 메뉴에서 잔 막대가 겹치는 일도 없습니다. */}
       {loading && (
-        <p className={styles.notice} role="status">
-          {loadingText}
-        </p>
+        <div role="status">
+          <span className="sr-only">{loadingText}</span>
+          <Skeleton height={OPTION_H * 3} radius="7px" />
+        </div>
       )}
 
       {!loading && loadError && (

@@ -10,6 +10,7 @@ import Button from '@/components/Button'
 import { ChevronLeftIcon } from '@/components/icons'
 import Modal from '@/components/Modal'
 import ReportFields from '@/components/ReportFields'
+import { SkeletonDetail } from '@/components/Skeleton'
 import { meetingReportPath, ROUTES } from '@/constants/routes'
 import { useAgendaState } from '@/shared/agenda'
 import { fmtDay, parseISO } from '@/utils/date'
@@ -47,7 +48,11 @@ export default function Compose() {
   const [savedNote, setSavedNote] = useState(false)
 
   if (agendaLoading || loading) {
-    return <p role="status">미팅 기록을 불러오는 중입니다.</p>
+    return (
+      <section>
+        <SkeletonDetail label="미팅 기록을 불러오는 중입니다." title height={520} />
+      </section>
+    )
   }
 
   if (agendaError || error) {

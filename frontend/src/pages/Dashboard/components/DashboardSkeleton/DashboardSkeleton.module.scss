@@ -1,0 +1,40 @@
+// 칸 나눔은 실제 화면(Dashboard.module.scss 의 .notices, SummaryBand 의 .summary)과
+// 같아야 합니다. 자리표시자를 걷었을 때 카드가 옆으로 옮겨 가면 안 됩니다.
+.notices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s4);
+  margin-bottom: var(--s4);
+
+  @media (max-width: 900px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) 300px;
+  gap: var(--s3);
+  margin-bottom: var(--s4);
+
+  @include xl {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+
+    .goal {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @include lg {
+    gap: var(--s2);
+  }
+
+  // 폰에서는 넷이 들어가지 않아 둘씩 접힙니다.
+  @include sm {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.week {
+  margin-bottom: var(--s4);
+}

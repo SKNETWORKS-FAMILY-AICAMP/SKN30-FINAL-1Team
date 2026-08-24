@@ -9,6 +9,7 @@ import FilterSelect from '@/components/FilterSelect'
 import { ContractIcon, SearchIcon } from '@/components/icons'
 import Pagination from '@/components/Pagination'
 import SearchInput from '@/components/SearchInput'
+import { InlineLoader, ListPageSkeleton } from '@/components/Skeleton'
 import StageChip from '@/components/StageChip'
 import StageTabs from '@/components/StageTabs'
 import SalesDealDrawer from '@/pages/Deals/SalesDealDrawer'
@@ -203,6 +204,17 @@ export default function Contracts() {
     stage !== '' ||
     range !== DEFAULT_RANGE
 
+  // 첫 진입입니다. 툴바·탭·표가 차례로 나타나면 화면이 두세 번 들썩이므로
+  // 화면 한 장을 통째로 자리표시자로 두고 다 받은 뒤 한 번에 바꿉니다.
+  if (loading && contracts.length === 0 && !error) {
+    return (
+      <section className={styles.page} aria-busy={loading}>
+        <h1 className="sr-only">계약 현황</h1>
+        <ListPageSkeleton label="계약 현황을 불러오는 중입니다." tabs />
+      </section>
+    )
+  }
+
   return (
     <section className={styles.page} aria-busy={loading}>
       <h1 className="sr-only">계약 현황</h1>
@@ -257,6 +269,10 @@ export default function Contracts() {
         />
       )}
 
+      {!error && loading && contracts.length > 0 && (
+        <InlineLoader label="목록을 새로고침하는 중입니다." />
+      )}
+
       {error ? (
         <div role="alert">
           <p>{error}</p>
@@ -264,8 +280,6 @@ export default function Contracts() {
             다시 시도
           </Button>
         </div>
-      ) : loading && contracts.length === 0 ? (
-        <p role="status">계약 현황을 불러오는 중입니다.</p>
       ) : (
         <DataTable
           rows={pageRows}
@@ -318,8 +332,6 @@ export default function Contracts() {
           }
         />
       )}
-
-      {!error && loading && contracts.length > 0 && <p role="status">목록을 새로고침 중입니다.</p>}
 
       {!error && !loading && matched.length > 0 && (
         <Pagination

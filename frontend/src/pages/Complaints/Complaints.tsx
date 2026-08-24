@@ -5,6 +5,7 @@ import Button from '@/components/Button'
 import Drawer from '@/components/Drawer'
 import { ComplaintIcon, PlusIcon, SearchIcon } from '@/components/icons'
 import SearchInput from '@/components/SearchInput'
+import { InlineLoader, ListPageSkeleton, SkeletonDetail } from '@/components/Skeleton'
 import Tabs, { type TabItem } from '@/components/Tabs'
 import { BP_DESKTOP } from '@/constants/breakpoints'
 import useMediaQuery from '@/hooks/useMediaQuery'
@@ -135,6 +136,17 @@ export default function Complaints() {
     clearMutationError()
   }, [clearMutationError])
 
+  // 첫 진입입니다. 툴바·탭·표가 차례로 나타나면 화면이 두세 번 들썩이므로
+  // 화면 한 장을 통째로 자리표시자로 두고 다 받은 뒤 한 번에 바꿉니다.
+  if (loading && requests.length === 0 && !error) {
+    return (
+      <section className={styles.page} aria-busy={loading}>
+        <h1 className="sr-only">고객불만관리</h1>
+        <ListPageSkeleton label="고객불만 목록을 불러오는 중입니다." tabs />
+      </section>
+    )
+  }
+
   return (
     <section className={styles.page} aria-busy={loading}>
       <h1 className="sr-only">고객불만관리</h1>
@@ -163,6 +175,10 @@ export default function Complaints() {
         onChange={(next) => setParam('status', next)}
       />
 
+      {!error && loading && requests.length > 0 && (
+        <InlineLoader label="고객불만 목록을 새로고침하는 중입니다." />
+      )}
+
       {error ? (
         <div className={styles.loadState} role="alert">
           <p>{error}</p>
@@ -170,10 +186,6 @@ export default function Complaints() {
             다시 시도
           </Button>
         </div>
-      ) : loading && requests.length === 0 ? (
-        <p className={styles.loadState} role="status">
-          고객불만 목록을 불러오는 중입니다.
-        </p>
       ) : rows.length === 0 ? (
         <div className={styles.card}>
           <div className={styles.empty}>
@@ -319,9 +331,7 @@ export default function Complaints() {
               </Button>
             </div>
           ) : detailLoading || detail?.id !== open.id ? (
-            <p className={styles.loadState} role="status">
-              상세 내용을 불러오는 중입니다.
-            </p>
+            <SkeletonDetail label="상세 내용을 불러오는 중입니다." height={320} />
           ) : (
             <>
               <dl className={styles.rows}>

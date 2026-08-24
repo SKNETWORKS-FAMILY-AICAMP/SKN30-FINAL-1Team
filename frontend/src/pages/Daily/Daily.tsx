@@ -8,6 +8,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router'
 
 import Button, { buttonClass } from '@/components/Button'
 import { ChevronLeftIcon, ChevronRightIcon } from '@/components/icons'
+import Skeleton from '@/components/Skeleton'
 import Tabs from '@/components/Tabs'
 import WeekStrip from '@/components/WeekStrip'
 import { dailyComposePath, meetingPickPath } from '@/constants/routes'
@@ -37,6 +38,10 @@ import { byDateDesc, fromDailyReport, fromMeetingReport, type ListRow } from './
 import useDailyReports from './useDailyReports'
 
 import styles from './Daily.module.scss'
+
+/** 보고서를 기다리는 동안 잡아 두는 카드 높이. 실제 카드와 같아야 화면이 밀리지 않습니다. */
+const WEEK_H = 210
+const LIST_H = 340
 
 // 이력은 지나간 걸 보는 것이라 일–토 한 주를 통째로 봅니다.
 // (대시보드 주간 달력의 "오늘이 셋째 칸" 롤링 범위와는 성격이 다릅니다.)
@@ -80,6 +85,8 @@ export default function Daily() {
 
   const { reports, loading: dailyLoading } = useDailyReports()
   const { reports: meetings, loading: meetingLoading } = useMeetingReports()
+  // 두 종류를 한 목록에 섞으므로 둘 중 하나라도 오는 중이면 아직 기다리는 중입니다.
+  const loading = dailyLoading || meetingLoading
 
   const [weekOffset, setWeekOffset] = useState(0)
   const [showMonth, setShowMonth] = useState(false)
@@ -215,12 +222,26 @@ export default function Daily() {
     return <i className={`${tone} ${isSelected ? styles.isOnBlue : ''}`} />
   }
 
+  // 첫 진입입니다. 탭·달력·리스트가 차례로 나타나면 화면이 여러 번 들썩이므로
+  // 한 장을 통째로 자리표시자로 두고 다 받은 뒤 한 번에 바꿉니다.
+  if (loading && rows.length === 0) {
+    return (
+      <section aria-busy>
+        <h1 className="sr-only">업무 보고</h1>
+        <div className={styles.headSkeleton}>
+          <Skeleton width={220} height={36} radius="var(--r-pill)" />
+          <Skeleton width={148} height={36} radius="var(--r-sm)" />
+        </div>
+        <Skeleton className={styles.weekSkeleton} height={WEEK_H} radius="var(--r-lg)" />
+        <Skeleton height={LIST_H} radius="var(--r-lg)" />
+      </section>
+    )
+  }
+
   return (
-    <section>
+    <section aria-busy={loading}>
       {/* Topbar 빵부스러기가 이미 화면 이름을 말하므로 제목은 읽어 주기만 합니다. */}
       <h1 className="sr-only">업무 보고</h1>
-
-      {(dailyLoading || meetingLoading) && <p role="status">보고서를 불러오는 중입니다.</p>}
 
       <div className={styles.head}>
         <Tabs

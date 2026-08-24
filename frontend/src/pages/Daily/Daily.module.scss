@@ -237,3 +237,17 @@
     background: var(--fill-2);
   }
 }
+
+/* 자리표시자 전용. 실제 .head, .week 와 같은 칸 나눔·아래 여백을 씁니다. */
+.headSkeleton {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  flex-wrap: wrap;
+  margin-bottom: var(--s4);
+}
+
+.weekSkeleton {
+  margin-bottom: var(--s4);
+}

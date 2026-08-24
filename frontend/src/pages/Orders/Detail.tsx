@@ -5,6 +5,7 @@ import { Link, useNavigate, useParams } from 'react-router'
 
 import Button from '@/components/Button'
 import Modal from '@/components/Modal'
+import { SkeletonDetail } from '@/components/Skeleton'
 import { ChevronLeftIcon } from '@/components/icons'
 import { ROUTES, orderPath } from '@/constants/routes'
 import { isLate, orderItemLabel, orderTotal } from '@/shared/orders'
@@ -47,8 +48,8 @@ export default function OrderDetail() {
 
   if ((loading || detailLoading) && !order) {
     return (
-      <section className={styles.missing} role="status">
-        <h1>발주를 불러오는 중입니다.</h1>
+      <section>
+        <SkeletonDetail label="발주를 불러오는 중입니다." title height={440} actions={2} />
       </section>
     )
   }

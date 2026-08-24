@@ -18,6 +18,7 @@ import Button from '@/components/Button'
 import { errorMessage } from '@/api/errorMessage'
 import { ChevronDownIcon, CloseIcon, SearchIcon, TrashIcon } from '@/components/icons'
 import Modal from '@/components/Modal'
+import Skeleton from '@/components/Skeleton'
 import { contractCreatePath, orderNewPath, quoteNewPath } from '@/constants/routes'
 import type { CalendarEvent, CustomerContactResponse, PageResponse } from '@/types'
 import { iso, parseISO } from '@/utils/date'
@@ -589,6 +590,8 @@ function Picker({
  * 회사·부서는 고른 뒤 딸려 오는 값이라 입력칸을 따로 두지 않고 태그로 붙입니다.
  */
 const MAX_MATCHES = 8
+/** 결과 목록 한 줄의 높이. 자리표시자를 실제 목록과 같은 크기로 잡는 데 씁니다. */
+const OPTION_H = 33
 
 /**
  * 고객 검색 한 번. 고객·고객사·미팅대상자 세 칸이 같은 목록을 다르게 추릴 뿐이라
@@ -673,9 +676,10 @@ function PickerMenu({
   return createPortal(
     <div id={id} className={styles.menu} style={style} role="listbox" aria-label={label}>
       {loading && (
-        <p className={styles.option} role="status">
-          고객을 불러오는 중입니다.
-        </p>
+        <div role="status">
+          <span className="sr-only">고객을 불러오는 중입니다.</span>
+          <Skeleton height={OPTION_H * 3} radius="7px" />
+        </div>
       )}
       {!loading && loadError && (
         <div className={styles.option} role="alert">

@@ -4,6 +4,7 @@ import AttachmentPanel from '@/components/AttachmentPanel'
 import Button from '@/components/Button'
 import { ChevronLeftIcon } from '@/components/icons'
 import ReportFields from '@/components/ReportFields'
+import { SkeletonDetail } from '@/components/Skeleton'
 import { dailyComposePath, ROUTES } from '@/constants/routes'
 import { fmtDot, parseISO } from '@/utils/date'
 
@@ -22,9 +23,9 @@ export default function Detail() {
 
   if (loading)
     return (
-      <p className={styles.missing} role="status">
-        보고서를 불러오는 중입니다.
-      </p>
+      <section>
+        <SkeletonDetail label="보고서를 불러오는 중입니다." title height={420} />
+      </section>
     )
 
   if (error) {

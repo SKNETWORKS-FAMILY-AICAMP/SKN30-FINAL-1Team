@@ -1,0 +1,29 @@
+/**
+ * 다시 받아 오는 중이라는 표시. 목록 바로 위에 아이콘 하나로만 섭니다.
+ * 문구를 함께 두지 않는 이유: 보고 있던 내용 위에 문장이 끼어들면 그 자체가
+ * 줄을 밀어내 깜빡임처럼 보입니다.
+ */
+.loader {
+  display: flex;
+  align-items: center;
+  min-height: 20px;
+  color: var(--muted-2);
+}
+
+.spin {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// 전역 규칙은 animation-duration 만 줄입니다. 그러면 초당 수백 바퀴로 돌아
+// 오히려 어지럽습니다. 이름 자체를 지워 멈춰 세웁니다.
+@media (prefers-reduced-motion: reduce) {
+  .spin {
+    animation: none;
+  }
+}

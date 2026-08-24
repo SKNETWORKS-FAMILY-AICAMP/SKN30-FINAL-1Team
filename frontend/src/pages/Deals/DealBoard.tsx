@@ -13,6 +13,7 @@ import FilterSelect from '@/components/FilterSelect'
 import { PlusIcon } from '@/components/icons'
 import Modal from '@/components/Modal'
 import SearchInput from '@/components/SearchInput'
+import { InlineLoader, SkeletonBlocks } from '@/components/Skeleton'
 import usePointerDrag from '@/hooks/usePointerDrag'
 import { addDays, iso, TODAY } from '@/utils/date'
 
@@ -24,6 +25,10 @@ import SalesDealForm from './SalesDealForm'
 import useSalesDeals, { type SalesDeal } from './useSalesDeals'
 
 import styles from './DealBoard.module.scss'
+
+/** 자리표시자 컬럼 하나의 폭·높이. StageColumn 과 .board 에 맞춥니다. */
+const COLUMN_W = 288
+const BOARD_H = 420
 
 const RANGES = [
   { value: '3', label: '최근 3개월' },
@@ -234,6 +239,33 @@ export default function DealBoard() {
   const openStage = openDeal ? columns.find((column) => column.id === openDeal.stageId) : undefined
   const isDeleting = deletingDeal ? isPending(deletingDeal.id) : false
 
+  // 첫 진입입니다. 툴바와 컬럼이 따로 나타나면 화면이 두 번 들썩이므로 한 장을
+  // 통째로 자리표시자로 두고 다 받은 뒤 한 번에 바꿉니다.
+  if (loading && columns.length === 0 && !error) {
+    return (
+      <section className={styles.page} aria-busy>
+        <h1 className="sr-only">영업 현황 보드</h1>
+        <SkeletonBlocks
+          label="영업 현황을 불러오는 중입니다."
+          count={3}
+          height={36}
+          width={168}
+          gap={8}
+          radius="var(--r-sm)"
+          row
+        />
+        <SkeletonBlocks
+          label="영업 단계를 불러오는 중입니다."
+          count={4}
+          height={BOARD_H}
+          width={COLUMN_W}
+          gap={12}
+          row
+        />
+      </section>
+    )
+  }
+
   return (
     <section className={styles.page} aria-busy={loading}>
       <h1 className="sr-only">영업 현황 보드</h1>
@@ -301,8 +333,6 @@ export default function DealBoard() {
             다시 시도
           </Button>
         </div>
-      ) : loading && columns.length === 0 ? (
-        <p role="status">영업 현황을 불러오는 중입니다.</p>
       ) : columns.length === 0 ? (
         <p role="status">아직 설정된 영업 단계가 없습니다.</p>
       ) : (
@@ -339,7 +369,9 @@ export default function DealBoard() {
         </>
       )}
 
-      {!error && loading && columns.length > 0 && <p role="status">보드를 새로고침 중입니다.</p>}
+      {!error && loading && columns.length > 0 && (
+        <InlineLoader label="보드를 새로고침하는 중입니다." />
+      )}
 
       {dragging && point && (
         <div className={styles.dragChip} style={{ left: point.x, top: point.y }} aria-hidden="true">

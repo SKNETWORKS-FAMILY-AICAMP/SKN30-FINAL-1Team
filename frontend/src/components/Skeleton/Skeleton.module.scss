@@ -1,0 +1,47 @@
+/**
+ * 로딩 자리표시자. 실제 UI 가 들어설 자리를 같은 크기로 미리 잡아 두어
+ * 데이터가 도착해도 화면이 밀리지 않게 합니다.
+ *
+ * 조각을 잘게 나누지 않습니다. 카드 한 장·표 본문 한 벌이 덩어리 하나입니다.
+ * 줄마다 짧은 막대를 흩어 놓으면 기다리는 화면이 실제 화면보다 더 산만해집니다.
+ *
+ * 색은 --fill(면 위의 옅은 회색)입니다. 표·카드 어디에 놓여도 같은 톤이라
+ * 자리표시자만 따로 노는 일이 없습니다. 반짝임은 그 위를 지나가는 밝은 띠
+ * 하나뿐이고, 시선을 끌지 않도록 느리게 지나갑니다.
+ */
+.block {
+  display: block;
+  border-radius: var(--r-xs);
+  background-color: var(--fill);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.55) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-repeat: no-repeat;
+  background-size: 180% 100%;
+  animation: shimmer 1.6s var(--ease-out) infinite;
+}
+
+.circle {
+  border-radius: var(--r-pill);
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+
+// 전역 규칙은 animation-duration 만 줄입니다. 그러면 띠가 초당 수백 번
+// 지나가 오히려 심하게 깜빡입니다. 이름 자체를 지워 완전히 멈춥니다.
+@media (prefers-reduced-motion: reduce) {
+  .block {
+    animation: none;
+    background-image: none;
+  }
+}

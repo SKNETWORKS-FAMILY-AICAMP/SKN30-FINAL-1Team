@@ -1,5 +1,6 @@
 import Button from '@/components/Button'
 import Drawer from '@/components/Drawer'
+import { SkeletonDetail } from '@/components/Skeleton'
 import StageChip from '@/components/StageChip'
 import type { ColumnTone } from '@/types'
 import { fmtDot, parseISO } from '@/utils/date'
@@ -77,9 +78,7 @@ export default function SalesDealDrawer({
           </Button>
         </div>
       ) : loading ? (
-        <p className={styles.drawerState} role="status">
-          영업 딜 상세를 불러오는 중입니다.
-        </p>
+        <SkeletonDetail label="영업 딜 상세를 불러오는 중입니다." height={340} />
       ) : deal ? (
         <>
           {readOnly && <p className={styles.memoEmpty}>보관된 파이프라인 · 읽기 전용</p>}

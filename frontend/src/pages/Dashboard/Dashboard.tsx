@@ -12,6 +12,7 @@ import useOrderList from '@/pages/Orders/useOrderList'
 import { useNotices } from '@/shared/notices'
 import { addDays, iso, TODAY, TODAY_ISO } from '@/utils/date'
 
+import DashboardSkeleton from './components/DashboardSkeleton'
 import DayAgenda from './components/DayAgenda'
 import ListDrawer from './components/ListDrawer'
 import NoticeDrawer from './components/NoticeDrawer'
@@ -136,50 +137,53 @@ export default function Dashboard() {
           </Button>
         </div>
       )}
-      {!error && loading && (
-        <p className={styles.state} role="status">
-          대시보드 데이터를 불러오는 중입니다.
-        </p>
+      {/* 다섯 군데에서 따로 받아 오지만 화면은 한 벌로 섭니다. 위젯마다 도착할 때마다
+          자리표시자를 걷으면 공지·타일·달력이 차례로 튀어 화면이 서너 번 들썩입니다.
+          그래서 하나라도 오는 중이면 전부 자리표시자로 두고 한 번에 바꿉니다. */}
+      {loading ? (
+        <DashboardSkeleton />
+      ) : (
+        <>
+          <div className={styles.notices}>
+            <NoticeTicker
+              items={notices}
+              onOpen={(notice) => setOpen({ type: 'notice', label: '공지', notice })}
+            />
+            <NoticeTicker
+              label="팀장 지시사항"
+              items={directives}
+              onOpen={(notice) => setOpen({ type: 'notice', label: '팀장 지시사항', notice })}
+            />
+          </div>
+
+          <SummaryBand
+            requests={requests}
+            deals={deals}
+            onJumpToToday={jumpToToday}
+            onOpenList={(key) => setOpen({ type: 'kpi', key })}
+          />
+
+          <WeekCalendar
+            weekOffset={weekOffset}
+            selectedISO={selectedISO}
+            onSelect={setSelectedISO}
+            onWeekChange={changeWeek}
+            onToday={goToday}
+          />
+
+          <DayAgenda
+            ref={agendaRef}
+            dateISO={selectedISO}
+            doneIds={doneIds}
+            onToggleDone={toggleDone}
+            onOpen={(item) => setOpen({ type: 'record', item })}
+            onAddSchedule={() => setOpen({ type: 'addEvent' })}
+            onEdit={setEditing}
+            onDelete={setDeleting}
+            flash={flash}
+          />
+        </>
       )}
-
-      <div className={styles.notices}>
-        <NoticeTicker
-          items={notices}
-          onOpen={(notice) => setOpen({ type: 'notice', label: '공지', notice })}
-        />
-        <NoticeTicker
-          label="팀장 지시사항"
-          items={directives}
-          onOpen={(notice) => setOpen({ type: 'notice', label: '팀장 지시사항', notice })}
-        />
-      </div>
-
-      <SummaryBand
-        requests={requests}
-        deals={deals}
-        onJumpToToday={jumpToToday}
-        onOpenList={(key) => setOpen({ type: 'kpi', key })}
-      />
-
-      <WeekCalendar
-        weekOffset={weekOffset}
-        selectedISO={selectedISO}
-        onSelect={setSelectedISO}
-        onWeekChange={changeWeek}
-        onToday={goToday}
-      />
-
-      <DayAgenda
-        ref={agendaRef}
-        dateISO={selectedISO}
-        doneIds={doneIds}
-        onToggleDone={toggleDone}
-        onOpen={(item) => setOpen({ type: 'record', item })}
-        onAddSchedule={() => setOpen({ type: 'addEvent' })}
-        onEdit={setEditing}
-        onDelete={setDeleting}
-        flash={flash}
-      />
 
       {open?.type === 'addEvent' && (
         <EventModal

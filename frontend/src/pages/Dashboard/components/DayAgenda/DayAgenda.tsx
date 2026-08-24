@@ -11,6 +11,7 @@ import {
   TrashIcon,
 } from '@/components/icons'
 import Popover from '@/components/Popover'
+import { InlineLoader } from '@/components/Skeleton'
 import { endTime, statusScope, useAgendaFor } from '@/shared/agenda'
 import { useAgendaReportLink } from '@/shared/agendaReport'
 import type { AgendaItem } from '@/types'
@@ -208,8 +209,8 @@ const DayAgenda = forwardRef<HTMLElement, Props>(function DayAgenda(
           </Button>
         </p>
       )}
-      {!reportState.error && reportState.loading && (
-        <p role="status">보고서 연결을 확인하는 중입니다.</p>
+      {!reportState.error && reportState.loading && list.length > 0 && (
+        <InlineLoader label="보고서 연결을 확인하는 중입니다." />
       )}
 
       {list.length === 0 ? (

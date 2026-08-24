@@ -6,6 +6,7 @@ import useOrderList from '@/pages/Orders/useOrderList'
 import type { CalendarEvent } from '@/types'
 import { startOfMonth, TODAY, TODAY_ISO } from '@/utils/date'
 
+import CalendarSkeleton from './components/CalendarSkeleton'
 import EventModal from './components/EventModal'
 import MonthGrid from './components/MonthGrid'
 import SuggestionPanel from './components/SuggestionPanel'
@@ -108,6 +109,17 @@ export default function Calendar() {
     reloadOrders()
   }
 
+  // 첫 진입입니다. 달력 칸만 자리표시자로 두면 달·요일·날짜가 이미 다 그려진 화면에서
+  // 칩만 깜빡여 무엇을 기다리는지 읽히지 않습니다. 카드 두 장을 통째로 덮습니다.
+  if (loading && eventsByDate.size === 0 && !error) {
+    return (
+      <section aria-busy>
+        <h1 className="sr-only">캘린더</h1>
+        <CalendarSkeleton />
+      </section>
+    )
+  }
+
   return (
     <section aria-busy={loading}>
       <h1 className="sr-only">캘린더</h1>
@@ -120,8 +132,6 @@ export default function Calendar() {
           </Button>
         </div>
       )}
-      {!error && loading && <p role="status">일정과 발주를 불러오는 중입니다.</p>}
-
       <div className={styles.layout}>
         <MonthGrid
           cursor={cursor}

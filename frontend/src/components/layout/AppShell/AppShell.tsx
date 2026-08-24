@@ -6,6 +6,7 @@ import Sidebar from '@/components/layout/Sidebar'
 import Topbar from '@/components/layout/Topbar'
 import { BP_DESKTOP, BP_RAIL_DEFAULT } from '@/constants/breakpoints'
 import useMediaQuery from '@/hooks/useMediaQuery'
+import { useScopeKey } from '@/shared/scope'
 
 import { SidebarContext } from './sidebarContext'
 
@@ -33,6 +34,7 @@ export default function AppShell() {
 
   const isDesktop = useMediaQuery(`(min-width: ${BP_DESKTOP}px)`)
   const { pathname } = useLocation()
+  const scopeKey = useScopeKey()
 
   const toggleCollapsed = useCallback(() => {
     setCollapsed((prev) => {
@@ -91,7 +93,15 @@ export default function AppShell() {
         <div className={styles.main}>
           <Topbar />
           <div className={styles.content}>
-            <Outlet />
+            {/*
+              보기 범위가 바뀌면 화면을 처음부터 다시 세웁니다.
+
+              범위를 바꾸는 것은 조건을 좁히는 일이 아니라 보는 대상 자체를 바꾸는
+              일입니다. 서 있던 목록·집계·쪽 번호가 전부 앞 범위의 결과라, 그대로 둔
+              채 새로 받아 오면 잠깐 다른 사람의 자료가 남습니다. 키를 갈면 각 화면이
+              자료 0건에서 다시 시작해 첫 진입과 똑같이 자리표시자가 섭니다.
+            */}
+            <Outlet key={scopeKey} />
           </div>
         </div>
 

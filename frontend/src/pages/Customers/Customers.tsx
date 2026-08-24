@@ -5,6 +5,7 @@ import { client } from '@/api/client'
 import { useCurrentUser } from '@/auth/sessionContext'
 import Button from '@/components/Button'
 import Pagination from '@/components/Pagination'
+import { InlineLoader, ListPageSkeleton } from '@/components/Skeleton'
 import { useScopeOwnerIds } from '@/shared/scope'
 import type {
   Customer,
@@ -194,6 +195,17 @@ export default function Customers() {
     setReloadKey((value) => value + 1)
   }, [])
 
+  // 첫 진입입니다. 툴바·탭·표가 차례로 나타나면 화면이 두세 번 들썩이므로
+  // 화면 한 장을 통째로 자리표시자로 두고 다 받은 뒤 한 번에 바꿉니다.
+  if (loading && rows.length === 0 && !loadError) {
+    return (
+      <section aria-busy={loading}>
+        <h1 className="sr-only">고객 목록</h1>
+        <ListPageSkeleton label="고객 목록을 불러오는 중입니다." />
+      </section>
+    )
+  }
+
   return (
     <section aria-busy={loading}>
       <h1 className="sr-only">고객 목록</h1>
@@ -211,6 +223,10 @@ export default function Customers() {
 
       {selected.size > 0 && <SelectionBar count={selected.size} onClear={clearSelection} />}
 
+      {!loadError && loading && rows.length > 0 && (
+        <InlineLoader label="고객 목록을 새로고침하는 중입니다." />
+      )}
+
       {loadError ? (
         <div role="alert">
           <p>{loadError}</p>
@@ -218,8 +234,6 @@ export default function Customers() {
             다시 시도
           </Button>
         </div>
-      ) : loading && rows.length === 0 ? (
-        <p role="status">고객 목록을 불러오는 중입니다.</p>
       ) : (
         <CustomerTable
           columns={columns}

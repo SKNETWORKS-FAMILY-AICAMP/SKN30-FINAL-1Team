@@ -3,6 +3,7 @@
 import { useSearchParams } from 'react-router'
 
 import Button from '@/components/Button'
+import Skeleton, { InlineLoader } from '@/components/Skeleton'
 import useSalesDeals from '@/pages/Deals/useSalesDeals'
 
 import { downloadCsv, toCsv } from '@/utils/csv'
@@ -81,6 +82,21 @@ export default function Sales() {
     downloadCsv(`매출분석_${range.label}_${GROUP_LABEL[by]}.csv`, toCsv(headers, rows))
   }
 
+  // 첫 진입입니다. 기간 줄과 좌우 두 칸이 따로 나타나면 화면이 두 번 들썩이므로
+  // 한 장을 통째로 자리표시자로 두고 다 받은 뒤 한 번에 바꿉니다.
+  if (loading && cards.length === 0 && !error) {
+    return (
+      <section aria-busy>
+        <h1 className="sr-only">매출 분석</h1>
+        <Skeleton className={styles.periodSkeleton} height={36} radius="var(--r-sm)" />
+        <div className={styles.split}>
+          <Skeleton height={480} radius="var(--r-lg)" />
+          <Skeleton height={360} radius="var(--r-lg)" />
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section>
       {/* Topbar 빵부스러기가 이미 화면 이름을 말하므로 제목은 읽어 주기만 합니다. */}
@@ -102,8 +118,6 @@ export default function Sales() {
             다시 시도
           </Button>
         </div>
-      ) : loading && cards.length === 0 ? (
-        <p role="status">매출 데이터를 불러오는 중입니다.</p>
       ) : (
         <div className={styles.split}>
           <GroupTable
@@ -115,7 +129,7 @@ export default function Sales() {
         </div>
       )}
       {!error && loading && cards.length > 0 && (
-        <p role="status">매출 데이터를 새로고침 중입니다.</p>
+        <InlineLoader label="매출 데이터를 새로고침하는 중입니다." />
       )}
     </section>
   )

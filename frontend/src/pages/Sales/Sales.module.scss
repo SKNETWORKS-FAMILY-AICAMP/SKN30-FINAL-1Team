@@ -16,3 +16,8 @@
     }
   }
 }
+
+/* 기간 줄 자리표시자. PeriodBar 와 같은 아래 여백을 둡니다. */
+.periodSkeleton {
+  margin-bottom: var(--s5);
+}

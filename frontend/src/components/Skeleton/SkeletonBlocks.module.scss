@@ -1,0 +1,16 @@
+// 세로로 쌓는 기본형. 카드 목록이 그렇습니다.
+.stack {
+  display: grid;
+}
+
+// 가로로 늘어서는 형태. 칸반 보드처럼 폭이 정해진 덩어리가 옆으로 섭니다.
+.row {
+  display: flex;
+  align-items: flex-start;
+  overflow: hidden;
+
+  // 폭은 넘긴 값 그대로입니다. 줄어들면 컬럼 폭이 실제 보드와 어긋납니다.
+  > * {
+    flex: none;
+  }
+}

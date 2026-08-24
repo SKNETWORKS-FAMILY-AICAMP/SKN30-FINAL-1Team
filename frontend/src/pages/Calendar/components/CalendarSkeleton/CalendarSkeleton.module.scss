@@ -1,0 +1,12 @@
+// 칸 나눔은 실제 화면(Calendar.module.scss 의 .layout)과 같아야 합니다.
+// 자리표시자를 걷었을 때 추천 패널이 옆에서 아래로 옮겨 가면 안 됩니다.
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  align-items: start;
+  gap: var(--s4);
+
+  @include lg {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

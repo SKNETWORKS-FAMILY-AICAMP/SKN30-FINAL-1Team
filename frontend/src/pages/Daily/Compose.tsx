@@ -11,6 +11,7 @@ import Button, { buttonClass } from '@/components/Button'
 import { ChevronLeftIcon, ChevronRightIcon } from '@/components/icons'
 import Modal from '@/components/Modal'
 import ReportFields from '@/components/ReportFields'
+import Skeleton from '@/components/Skeleton'
 import { APPROVERS } from '@/shared/reports'
 import { dailyComposePath, dailyReportPath, ROUTES } from '@/constants/routes'
 import type { ReportKind } from '@/types'
@@ -23,6 +24,9 @@ import useDailyDraft from './useDailyDraft'
 import useDailyReports from './useDailyReports'
 
 import styles from './Compose.module.scss'
+
+/** 자료를 기다리는 동안 잡아 두는 목록 높이. 서너 줄쯤 들어가는 자리입니다. */
+const SOURCE_LIST_H = 240
 
 /** 확인이 필요한 세 갈래. 셋 다 "쓰던 걸 버려도 되나"를 묻습니다. */
 type Confirm = { kind: 'regenerate' } | { kind: 'date'; next: string } | { kind: 'submit' } | null
@@ -259,7 +263,6 @@ export default function Compose() {
           </Button>
         </p>
       )}
-      {!loadError && draft.loading && <p role="status">보고서 자료를 불러오는 중입니다.</p>}
 
       {saved && <p className={styles.saved}>임시저장했습니다. 목록에서 이어서 쓸 수 있습니다.</p>}
 
@@ -286,7 +289,14 @@ export default function Compose() {
             </div>
             <p className={styles.panelNote}>{copy.note}</p>
 
-            {draft.activities.length === 0 ? (
+            {draft.loading ? (
+              // 아직 자료를 받아 오는 중입니다. 여기서 .blank 를 먼저 보여 주면
+              // "고를 자료가 없다" 고 잘못 읽힙니다.
+              <div role="status">
+                <span className="sr-only">보고서 자료를 불러오는 중입니다.</span>
+                <Skeleton height={SOURCE_LIST_H} radius="var(--r-md)" />
+              </div>
+            ) : draft.activities.length === 0 ? (
               <div className={styles.blank}>
                 <p>{copy.empty}</p>
                 <Link className={buttonClass({ variant: 'outline' }, styles.blankCta)} to={copy.to}>
