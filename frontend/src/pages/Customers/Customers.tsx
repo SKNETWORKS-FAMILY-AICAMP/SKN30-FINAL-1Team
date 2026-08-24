@@ -2,7 +2,7 @@ import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } f
 import { isAxiosError } from 'axios'
 
 import { client } from '@/api/client'
-import { errorMessage } from '@/api/errorMessage'
+import { errorMessage, transportMessage } from '@/api/errorMessage'
 import { useCurrentUser } from '@/auth/sessionContext'
 import ErrorToast from '@/components/ErrorToast'
 import Pagination from '@/components/Pagination'
@@ -31,10 +31,11 @@ export type SortState = { id: string; dir: 'asc' | 'desc' } | null
 type OpenDialog = 'create' | 'import' | 'card' | null
 
 function loadErrorMessage(error: unknown): string {
-  if (!isAxiosError(error)) return '고객 목록을 불러오지 못했습니다.'
+  const fallback = '고객 목록을 불러오지 못했습니다.'
+  if (!isAxiosError(error)) return fallback
   if (error.response?.status === 401) return '로그인이 만료되었습니다. 다시 로그인해 주세요.'
   if (error.response?.status === 422) return '고객 검색 조건을 처리하지 못했습니다.'
-  return '서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.'
+  return transportMessage(error) ?? fallback
 }
 
 export default function Customers() {

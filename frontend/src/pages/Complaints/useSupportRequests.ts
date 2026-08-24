@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { isAxiosError } from 'axios'
 
 import { client } from '@/api/client'
+import { transportMessage } from '@/api/errorMessage'
 import { useScopeOwnerIds } from '@/shared/scope'
 import type {
   CustomerContactResponse,
@@ -44,16 +45,18 @@ async function fetchAll<T>(
 }
 
 function loadErrorMessage(error: unknown, detail = false): string {
-  if (!isAxiosError(error)) return `고객불만 ${detail ? '상세를' : '목록을'} 불러오지 못했습니다.`
+  const fallback = `고객불만 ${detail ? '상세를' : '목록을'} 불러오지 못했습니다.`
+  if (!isAxiosError(error)) return fallback
   if (error.response?.status === 401) return '로그인이 만료되었습니다. 다시 로그인해 주세요.'
   if (error.response?.status === 403) return '고객불만을 조회할 권한이 없습니다.'
   if (error.response?.status === 404) return '고객불만을 찾을 수 없습니다.'
   if (error.response?.status === 422) return '조회 조건을 처리하지 못했습니다.'
-  return '서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.'
+  return transportMessage(error) ?? fallback
 }
 
 export function mutationErrorMessage(error: unknown, action: string): string {
-  if (!isAxiosError(error)) return `${action}하지 못했습니다.`
+  const fallback = `${action}하지 못했습니다.`
+  if (!isAxiosError(error)) return fallback
   if (error.response?.status === 401) return '로그인이 만료되었습니다. 다시 로그인해 주세요.'
   if (error.response?.status === 403) return `${action}할 권한이 없습니다.`
   if (error.response?.status === 404)
@@ -61,7 +64,7 @@ export function mutationErrorMessage(error: unknown, action: string): string {
   if (error.response?.status === 409)
     return '다른 변경이 먼저 반영되었습니다. 새로고침한 뒤 다시 시도해 주세요.'
   if (error.response?.status === 422) return '입력한 내용을 확인해 주세요.'
-  return '서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.'
+  return transportMessage(error) ?? fallback
 }
 
 export default function useSupportRequests(openId: string | null) {

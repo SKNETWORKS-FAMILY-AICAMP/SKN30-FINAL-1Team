@@ -61,6 +61,26 @@ const MESSAGE_BY_DETAIL: Record<string, string> = {
   storage_not_configured: '파일 저장소 설정이 완료되지 않았습니다. 서버 설정을 확인해 주세요.',
 }
 
+/**
+ * 통신 계층의 실패를 문구로 바꿉니다. 업무 오류가 아니면 여기서 걸립니다.
+ *
+ * 응답이 없으면 요청이 서버까지 못 간 것(네트워크 끊김·timeout·DNS 실패)이고,
+ * 5xx 는 서버에 닿았지만 서버가 실패한 것입니다. 둘은 사용자가 할 일이 달라서
+ * 같은 문구로 뭉뚱그리면 안 됩니다.
+ *
+ * 502·503·504 를 따로 나누지 않습니다. "잠시 후 다시 시도" 가 그 경우에도 맞는
+ * 안내라 분기를 늘릴 이유가 없습니다.
+ *
+ * @returns 통신 실패가 아니면 null. 호출부가 상태별 업무 문구로 이어 갑니다.
+ */
+export function transportMessage(error: unknown): string | null {
+  if (!isAxiosError(error)) return null
+  const status = error.response?.status
+  if (status === undefined) return '서버에 연결할 수 없습니다. 네트워크 상태를 확인해 주세요.'
+  if (status >= 500) return '서버에서 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.'
+  return null
+}
+
 const MESSAGE_BY_STATUS: Record<number, string> = {
   401: '로그인이 만료되었습니다. 다시 로그인해 주세요.',
   403: '이 작업을 수행할 권한이 없습니다.',
