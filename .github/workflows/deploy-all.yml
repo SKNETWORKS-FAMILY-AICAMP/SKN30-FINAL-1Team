@@ -1,0 +1,101 @@
+name: Deploy All
+
+run-name: Deploy All · ${{ github.ref_name }} · ${{ github.sha }}
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  # 배포 로직은 개별 워크플로를 그대로 호출한다. 여기에 복제하면 한쪽만 고쳐지는 날이 온다.
+  backend:
+    name: Backend
+    uses: ./.github/workflows/deploy-backend.yml
+    permissions:
+      id-token: write
+      contents: read
+    secrets: inherit
+
+  # needs 하나로 순서와 실패 차단이 동시에 해결된다. 백엔드 실패 시 이 잡은 skipped.
+  frontend:
+    name: Frontend
+    needs: backend
+    uses: ./.github/workflows/deploy-frontend.yml
+    permissions:
+      id-token: write
+      contents: read
+    secrets: inherit
+
+  summary:
+    name: Notify combined deployment result
+    needs:
+      - backend
+      - frontend
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {}
+
+    steps:
+      - name: Send Discord notification
+        continue-on-error: true
+        shell: bash
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          BACKEND_RESULT: ${{ needs.backend.result }}
+          FRONTEND_RESULT: ${{ needs.frontend.result }}
+          DEPLOY_BRANCH: ${{ github.ref_name }}
+          DEPLOY_SHA: ${{ github.sha }}
+          DEPLOY_ACTOR: ${{ github.actor }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -Eeuo pipefail
+
+          if [[ -z "${DISCORD_WEBHOOK_URL:-}" ]]; then
+            echo "::warning::Discord webhook is not configured; skipping notification."
+            exit 0
+          fi
+
+          if [[ "${BACKEND_RESULT}" == "success" && \
+                "${FRONTEND_RESULT}" == "success" ]]; then
+            title='✅ 전체 배포 완료'
+          else
+            title='❌ 전체 배포 실패'
+          fi
+
+          short_sha="${DEPLOY_SHA:0:7}"
+          # Discord Markdown backticks are intentional literals; printf substitutes the values.
+          # shellcheck disable=SC2016
+          description="$(printf '백엔드: `%s`\n프론트엔드: `%s`\n브랜치: `%s`\n커밋: `%s`\n실행자: `%s`\n[GitHub Actions 실행 보기](%s)' \
+            "${BACKEND_RESULT}" "${FRONTEND_RESULT}" "${DEPLOY_BRANCH}" \
+            "${short_sha}" "${DEPLOY_ACTOR}" "${RUN_URL}")"
+
+          if ! payload="$(
+            jq -n \
+              --arg title "${title}" \
+              --arg description "${description}" \
+              '{
+                embeds: [{title: $title, description: $description}],
+                allowed_mentions: {parse: []}
+              }'
+          )"; then
+            echo "::warning::Failed to build the Discord notification payload."
+            exit 0
+          fi
+
+          if ! curl --disable \
+              --fail \
+              --silent \
+              --retry 2 \
+              --retry-delay 1 \
+              --retry-max-time 30 \
+              --connect-timeout 5 \
+              --max-time 10 \
+              --header 'Content-Type: application/json' \
+              --data-binary "${payload}" \
+              --output /dev/null \
+              "${DISCORD_WEBHOOK_URL}" 2>/dev/null; then
+            echo "::warning::Failed to send the Discord deployment notification."
+            exit 0
+          fi
