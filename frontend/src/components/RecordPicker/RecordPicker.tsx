@@ -25,7 +25,8 @@ interface Props<T> {
   /** 조회할 목록. '/products' 처럼 client 의 baseURL 뒤에 붙습니다. */
   path: string
   value: RecordOption | null
-  onChange: (next: RecordOption | null) => void
+  /** 고른 값과 그 원본 행. 목록이 준 다른 칸까지 써야 하는 화면이 row 를 씁니다. */
+  onChange: (next: RecordOption | null, row: T | null) => void
   toOption: (row: T) => RecordOption
   /** 조회에 늘 붙는 조건. 값이 바뀌면 처음부터 다시 받습니다. */
   params?: Record<string, unknown>
@@ -78,15 +79,16 @@ export default function RecordPicker<T>({
 
   const trimmed = query.trim()
 
-  const choose = (option: RecordOption) => {
-    onChange(option)
+  const choose = (index: number) => {
+    const option = options[index]
+    onChange(option, matches[index])
     setQuery(option.label)
     setOpen(false)
   }
 
   const clear = () => {
     setQuery('')
-    onChange(null)
+    onChange(null, null)
     setOpen(true)
     inputRef.current?.focus()
   }
@@ -113,7 +115,7 @@ export default function RecordPicker<T>({
 
     if (event.key === 'Enter' && open && options[active] !== undefined) {
       event.preventDefault()
-      choose(options[active])
+      choose(active)
     }
   }
 
@@ -150,7 +152,7 @@ export default function RecordPicker<T>({
           onChange={(event) => {
             setQuery(event.target.value)
             // 글자를 고치면 고른 항목과 어긋납니다. 다시 고르게 둡니다.
-            if (value !== null) onChange(null)
+            if (value !== null) onChange(null, null)
             setActive(0)
             setOpen(true)
           }}
@@ -202,7 +204,7 @@ export default function RecordPicker<T>({
               // 목록은 입력칸 밖(body)에 있어, 누르는 순간 포커스가 빠지면 클릭이 닿기 전에
               // 닫힙니다. 포커스를 입력에 붙들어 둡니다.
               onMouseDown={(event) => event.preventDefault()}
-              onClick={() => choose(option)}
+              onClick={() => choose(index)}
             >
               <b>
                 <HighlightedText text={option.label} query={trimmed} />
