@@ -40,6 +40,7 @@ const MESSAGE_BY_DETAIL: Record<string, string> = {
   email_already_exists: '이미 등록된 이메일입니다.',
   team_name_already_exists: '같은 이름의 팀이 이미 있습니다.',
   team_not_found: '고른 팀을 찾을 수 없습니다. 목록을 새로 불러와 주세요.',
+  team_manager_exists: '이 팀에는 이미 팀장이 있습니다. 팀장은 팀당 한 명입니다.',
   password_rejected: '비밀번호가 정책에 맞지 않습니다. 더 길고 복잡하게 정해 주세요.',
   // 고객 (/customers)
   manager_required: '이 작업은 팀장만 할 수 있습니다.',

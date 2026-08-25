@@ -56,6 +56,10 @@
   `image_storage_key`는 `notice.image_storage_key`와 같은 뜻이며 API 응답에 나가지 않습니다.
   상품 목록(`GET /api/products`)은 발주·영업 화면이 함께 쓰므로 팀원에게도 그대로 열려 있고,
   쓰기(`POST /api/products`, 사진 업로드)만 팀장으로 제한합니다.
+- `20260825_0005_one_manager_per_team.sql`: `member(team_id)`에 `role_code = 'manager' AND active`
+  조건의 부분 유일 인덱스를 걸어 팀당 활성 팀장을 한 명으로 제한합니다. `/admin` 계정 발급도
+  발급 전에 같은 조건으로 막고 409 `team_manager_exists`를 냅니다. 앱 검사는 안내용이고
+  동시 요청까지 막는 근거는 이 인덱스입니다. 물러난 팀장(`active = false`)은 세지 않습니다.
 
 - `20260825_0005_notice_management.sql`: 공지·지시사항을 팀장이 직접 관리하게 합니다.
   `notice`에 `type`(NOTICE/DIRECTIVE), `display_start_date`·`display_end_date`(date, 양끝 포함),
