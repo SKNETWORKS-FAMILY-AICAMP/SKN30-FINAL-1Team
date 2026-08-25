@@ -2,6 +2,7 @@
 //
 // 어느 목록이든 서버가 준 것을 그리기만 합니다. 거르고 정렬하는 일은 카드 숫자를 만든
 // 조건과 같아야 해서 서버에 두었습니다. 여기서 다시 거르면 타일과 목록이 어긋납니다.
+import { STATUS_LABEL as SUPPORT_STATUS_LABEL } from '@/pages/Complaints/statuses'
 import type { ActivityRead, FollowUpCard, SalesDealResponse, SupportRequestResponse } from '@/types'
 import { ddayLabel, fmtDay, parseISO, TODAY } from '@/utils/date'
 import { won } from '@/utils/format'
@@ -37,29 +38,32 @@ const daysUntil = (dateISO: string) =>
   Math.round((parseISO(dateISO).getTime() - TODAY.getTime()) / DAY)
 
 export function csList(requests: SupportRequestResponse[]): DrawerList {
-  const working = requests.filter((request) => request.status_code === 'in_progress').length
-  const done = requests.length - working
+  // 상태는 접수·원인파악·처리중·처리완료 네 가지입니다. 처리완료가 아니면 아직 남은
+  // 건이므로 '미완료' 로 묶어 셉니다. in_progress 만 세면 접수와 원인파악이 완료 쪽으로
+  // 넘어가 숫자가 틀립니다.
+  const open = requests.filter((request) => request.status_code !== 'completed').length
+  const done = requests.length - open
   return {
     title: 'C/S 대응요청',
-    sub: `처리중 ${working}건 · 처리완료 ${done}건`,
+    sub: `미완료 ${open}건 · 처리완료 ${done}건`,
     rows: [...requests]
-      .sort((a, b) => b.registered_at.localeCompare(a.registered_at))
+      .sort((a, b) => b.occurred_at.localeCompare(a.occurred_at))
       .map((request) => ({
         key: request.id,
         title: request.title,
-        titleNote: `${request.customer_company_name} · ${request.customer_contact_name}`,
+        titleNote: `${request.customer_company_name} · ${request.contract_no ?? request.deal_no}`,
         note: request.body,
         tags: [
           ...(request.is_urgent ? [{ text: '긴급', tone: 'risk' as const }] : []),
           {
-            text: request.status_code === 'completed' ? '처리완료' : '처리중',
+            text: SUPPORT_STATUS_LABEL[request.status_code],
             tone: request.status_code === 'completed' ? ('good' as const) : undefined,
           },
         ],
         side: {
-          strong: request.status_code === 'completed' ? '처리완료' : '처리중',
-          late: request.status_code === 'in_progress',
-          lines: [{ text: fmtDay(new Date(request.registered_at)) }],
+          strong: SUPPORT_STATUS_LABEL[request.status_code],
+          late: request.status_code !== 'completed',
+          lines: [{ text: fmtDay(new Date(request.occurred_at)) }],
         },
       })),
     empty: '등록된 C/S 대응요청이 없습니다.',

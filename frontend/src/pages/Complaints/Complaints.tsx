@@ -11,37 +11,27 @@ import { InlineLoader, ListPageSkeleton, SkeletonDetail } from '@/components/Ske
 import Tabs, { type TabItem } from '@/components/Tabs'
 import { BP_DESKTOP } from '@/constants/breakpoints'
 import useMediaQuery from '@/hooks/useMediaQuery'
-import type {
-  ColumnTone,
-  SupportRequestResponse,
-  SupportStatusCode,
-  SupportResponseResponse,
-} from '@/types'
+import type { SupportRequestResponse, SupportStatusCode, SupportResponseResponse } from '@/types'
 import { fmtDotShort } from '@/utils/date'
 
 import ComplaintFormModal from './components/ComplaintFormModal'
+import { STATES, STATUS_LABEL } from './statuses'
 import useSupportRequests from './useSupportRequests'
 
 import styles from './Complaints.module.scss'
 
-const STATES: { code: SupportStatusCode; label: string; tone: ColumnTone }[] = [
-  { code: 'in_progress', label: '처리중', tone: 'blue' },
-  { code: 'completed', label: '처리완료', tone: 'green' },
-]
-
-const STATUS_LABEL: Record<SupportStatusCode, string> = {
-  in_progress: '처리중',
-  completed: '처리완료',
-}
-
 const COLUMNS = [
-  { id: 'org', header: '회사', width: 150 },
-  { id: 'owner', header: '담당자', width: 90 },
-  { id: 'issue', header: '제목', width: 230 },
-  { id: 'note', header: '내용', width: 560 },
+  { id: 'org', header: '회사', width: 140 },
+  { id: 'deal', header: '계약건', width: 120 },
+  { id: 'owner', header: '등록자', width: 90 },
+  { id: 'issue', header: '제목', width: 210 },
+  { id: 'note', header: '내용', width: 460 },
   { id: 'state', header: '상태', width: 92 },
-  { id: 'created', header: '등록날짜', width: 104 },
+  { id: 'occurred', header: '발생날짜', width: 104 },
 ]
+
+/** 계약번호가 아직 없는 딜은 딜 번호로 부릅니다. */
+const dealLabel = (request: SupportRequestResponse) => request.contract_no ?? request.deal_no
 
 const dateOf = (value: string) => new Date(value)
 
@@ -152,7 +142,7 @@ export default function Complaints() {
         <SearchInput
           className={styles.search}
           value={query}
-          placeholder="제목·회사·담당자·내용 검색"
+          placeholder="제목·회사·계약번호·내용 검색"
           label="고객불만 검색"
           onChange={(next) => setParam('q', next)}
         />
@@ -239,6 +229,9 @@ export default function Complaints() {
                         {request.customer_company_name}
                       </button>
                     </td>
+                    <td className="tnum" title={dealLabel(request)}>
+                      {dealLabel(request)}
+                    </td>
                     <td title={request.assignee_display_name}>{request.assignee_display_name}</td>
                     <td className={styles.issue} title={request.title}>
                       {request.title}
@@ -250,7 +243,7 @@ export default function Complaints() {
                       <StateBadge state={request.status_code} />
                     </td>
                     <td className={`${styles.date} tnum`}>
-                      {fmtDotShort(dateOf(request.registered_at))}
+                      {fmtDotShort(dateOf(request.occurred_at))}
                     </td>
                   </tr>
                 ))}
@@ -275,8 +268,9 @@ export default function Complaints() {
               <p className={styles.miniIssue}>{request.title}</p>
               <p className={styles.miniNote}>{request.body}</p>
               <div className={styles.miniMeta}>
+                <span className="tnum">{dealLabel(request)}</span>
                 <span>{request.assignee_display_name}</span>
-                <span className="tnum">{fmtDotShort(dateOf(request.registered_at))}</span>
+                <span className="tnum">{fmtDotShort(dateOf(request.occurred_at))}</span>
               </div>
             </li>
           ))}
@@ -290,7 +284,7 @@ export default function Complaints() {
       {open && (
         <Drawer
           title={open.title}
-          sub={`${open.customer_company_name} · ${open.customer_contact_name}`}
+          sub={`${open.customer_company_name} · ${dealLabel(open)}`}
           onClose={closeDrawer}
           meta={
             <>
@@ -300,22 +294,22 @@ export default function Complaints() {
           }
           footer={
             detail?.id === open.id ? (
-              <Button
-                variant={detail.status_code === 'in_progress' ? 'primary' : 'outline'}
-                disabled={pendingKey !== null}
-                onClick={() =>
-                  void transition(
-                    detail,
-                    detail.status_code === 'in_progress' ? 'completed' : 'in_progress',
-                  )
-                }
-              >
-                {pendingKey === `transition:${open.id}`
-                  ? '변경 중…'
-                  : detail.status_code === 'in_progress'
-                    ? '처리완료로 변경'
-                    : '처리중으로 되돌리기'}
-              </Button>
+              <label className={styles.stateChange}>
+                <span>{pendingKey === `transition:${open.id}` ? '변경 중…' : '상태 변경'}</span>
+                <select
+                  value={detail.status_code}
+                  disabled={pendingKey !== null}
+                  onChange={(event) =>
+                    void transition(detail, event.target.value as SupportStatusCode)
+                  }
+                >
+                  {STATES.map((state) => (
+                    <option key={state.code} value={state.code}>
+                      {state.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
             ) : undefined
           }
         >
@@ -336,12 +330,26 @@ export default function Complaints() {
                   <dd>{detail.customer_company_name}</dd>
                 </div>
                 <div>
-                  <dt>고객 담당자</dt>
-                  <dd>{detail.customer_contact_name}</dd>
+                  <dt>계약건</dt>
+                  <dd>
+                    <span className="tnum">{dealLabel(detail)}</span> · {detail.deal_title}
+                  </dd>
                 </div>
                 <div>
-                  <dt>처리 담당자</dt>
+                  <dt>제품</dt>
+                  <dd>{detail.product_name ?? '미지정'}</dd>
+                </div>
+                <div>
+                  <dt>워런티</dt>
+                  <dd>{detail.warranty_terms ?? '없음'}</dd>
+                </div>
+                <div>
+                  <dt>등록한 사람</dt>
                   <dd>{detail.assignee_display_name}</dd>
+                </div>
+                <div>
+                  <dt>발생일시</dt>
+                  <dd>{dateTime.format(dateOf(detail.occurred_at))}</dd>
                 </div>
                 <div>
                   <dt>등록일시</dt>
@@ -383,11 +391,7 @@ export default function Complaints() {
 }
 
 function StateBadge({ state }: { state: SupportStatusCode }) {
-  return (
-    <i className={`${styles.badge} ${state === 'completed' ? styles.done : styles.working}`}>
-      {STATUS_LABEL[state]}
-    </i>
-  )
+  return <i className={`${styles.badge} ${styles[state]}`}>{STATUS_LABEL[state]}</i>
 }
 
 interface ResponseHistoryProps {

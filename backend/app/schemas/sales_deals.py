@@ -297,6 +297,9 @@ class SalesDealPageParams(BaseModel):
     # 이미 쓰던 조회는 그대로다.
     date_basis: Literal["opened", "quote_issued", "contract_signed"] = "opened"
     owner_member_id: list[UUID] | None = None
+    # 불만 등록 화면이 쓴다. 회사를 고르면 그 회사의 계약건만 후보로 남아야 한다.
+    # 전건을 받아 화면에서 거르면 첫 쪽이 30건으로 끊기지 않는다.
+    customer_company_id: UUID | None = None
     sales_pipeline_id: UUID | None = None
     # 발주를 넣을 딜을 고르는 칸이 쓴다. 보관된 파이프라인의 딜은 새 발주를 붙일 자리가
     # 아니라 고르는 칸에서 빼야 한다. 전건을 받아 화면에서 거르면 쪽으로 끊을 수 없다.

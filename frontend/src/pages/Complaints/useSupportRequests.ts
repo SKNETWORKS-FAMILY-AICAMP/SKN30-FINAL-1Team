@@ -122,7 +122,7 @@ export default function useSupportRequests(openId: string | null, query: Support
 
   const createRequest = useCallback(async (payload: SupportRequestCreateRequest) => {
     const { data } = await client.post<SupportRequestResponse>('/support-requests', payload)
-    // 새 불만이 이 쪽 첫 줄에 오는지는 접수 시각 순서가 정합니다. 목록에 끼워 넣지 않고
+    // 새 불만이 이 쪽 첫 줄에 오는지는 발생 시각 순서가 정합니다. 목록에 끼워 넣지 않고
     // 다시 받아 서버가 놓는 자리를 따릅니다.
     setReloadKey((value) => value + 1)
     return data

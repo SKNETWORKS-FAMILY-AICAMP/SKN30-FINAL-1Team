@@ -756,6 +756,8 @@ async def list_sales_deals(
     # 단계를 뺀 나머지 조건. 단계 탭 옆 건수가 이 범위를 센다. 단계까지 넣고 세면
     # 고른 탭에만 숫자가 남아 다른 단계에 무엇이 얼마나 있는지 알 수 없다.
     scope = _scope(member, owner_ids)
+    if page.customer_company_id is not None:
+        scope.append(SalesDeal.customer_company_id == page.customer_company_id)
     if page.sales_pipeline_id is not None:
         scope.append(SalesDeal.sales_pipeline_id == page.sales_pipeline_id)
     if page.sales_pipeline_status_code is not None:

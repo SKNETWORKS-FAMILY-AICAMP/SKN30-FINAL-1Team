@@ -33,7 +33,9 @@ EXPECTED_COLUMN_COUNTS = {
     "activity_category": 10,
     "activity_action_tag": 10,
     "activity_companion": 2,
-    "support_request": 9,
+    # 20260825_0006 으로 support_request 에 customer_company_id/sales_deal_id/occurred_at 이
+    # 늘고 customer_contact_id 가 빠졌다. 불만은 담당자 대신 회사와 계약건에 맨다.
+    "support_request": 11,
     "support_response": 5,
     "sales_pipeline": 10,
     "sales_pipeline_stage": 10,
@@ -58,7 +60,7 @@ def test_all_database_tables_are_mapped():
     assert {
         table.name: len(table.columns) for table in Base.metadata.sorted_tables
     } == EXPECTED_COLUMN_COUNTS
-    assert sum(len(table.columns) for table in Base.metadata.tables.values()) == 294
+    assert sum(len(table.columns) for table in Base.metadata.tables.values()) == 296
 
     foreign_key_constraints = [
         foreign_key
