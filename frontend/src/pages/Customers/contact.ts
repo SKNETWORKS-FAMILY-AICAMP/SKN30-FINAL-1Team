@@ -8,6 +8,8 @@ import type {
   CustomerStatusCode,
 } from '@/types'
 
+// 코드 칸은 서버에서 자유 문자열로 옵니다. 이 앱이 모르는 값이 섞여도 빈칸이 아니라
+// '미지정' 으로 보이게 아래 조회에 기본값을 답니다.
 const STATUS_LABEL: Record<CustomerStatusCode, CustomerStatus> = {
   new: '신규',
   proposal: '제안',
