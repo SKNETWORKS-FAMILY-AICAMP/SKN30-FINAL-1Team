@@ -5,7 +5,7 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.schemas.activities import ActivityRead
-from app.schemas.notices import NoticeType
+from app.schemas.notices import NoticeTargetRead, NoticeType
 
 
 class NoticeBrief(BaseModel):
@@ -16,6 +16,9 @@ class NoticeBrief(BaseModel):
     tag: str | None
     author_display_name: str
     title: str
+    # 지시의 수신자. 팀장이 남에게 간 지시를 볼 때 누구에게 간 것인지 밝힌다.
+    # 공지(NOTICE)는 수신자가 없어 빈 목록이다.
+    targets: list[NoticeTargetRead]
     published_at: datetime
     due_at: datetime | None
     due_text: str | None

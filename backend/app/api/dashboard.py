@@ -62,9 +62,14 @@ async def _notice_summary(
     member: Member,
     scope: str,
     limit: int,
+    owner_ids: tuple[UUID, ...] | None,
 ) -> NoticeSummary:
-    """공지와 지시는 담당자 범위와 무관하다. notices 라우터의 조건을 그대로 쓴다."""
-    conditions = notices_api._scope(member, scope)
+    """공지는 팀 전체가 보고, 지시는 화면이 고른 담당자에게 간 것을 본다.
+
+    notices 라우터의 조건을 그대로 쓴다. 담당자를 좁히는 일도 거기서 한다. 공지(NOTICE)는
+    수신자가 없어 owner_ids 를 넘겨도 조건이 달라지지 않는다.
+    """
+    conditions = notices_api._scope(member, scope, owner_ids)
     total = (
         await db.execute(notices_api._joined_select(func.count(Notice.id)).where(*conditions))
     ).scalar_one()
@@ -77,6 +82,9 @@ async def _notice_summary(
             .limit(limit)
         )
     ).all()
+    # 팀장은 남에게 간 지시도 보므로 누구에게 간 것인지 함께 세운다. 공지는 수신자가 없어
+    # 빈 목록이다.
+    targets = await notices_api._load_targets(db, [notice for notice, _ in rows])
     # 티커는 제목과 게시 시각만 세운다. 본문과 이미지는 눌렀을 때 /api/notices/{id} 가 준다.
     return NoticeSummary(
         total=total,
@@ -87,6 +95,7 @@ async def _notice_summary(
                 tag=notice.tag,
                 author_display_name=author_display_name,
                 title=notice.title,
+                targets=targets[notice.id],
                 published_at=notices_api._seoul(notice.published_at),
                 due_at=notices_api._seoul(notice.due_at),
                 due_text=notice.due_text,
@@ -362,8 +371,8 @@ async def read_dashboard(
     return DashboardRead(
         as_of=as_of,
         date=day,
-        notices=await _notice_summary(db, member, "NOTICE", params.notice_limit),
-        directives=await _notice_summary(db, member, "DIRECTIVE", params.notice_limit),
+        notices=await _notice_summary(db, member, "NOTICE", params.notice_limit, owner_ids),
+        directives=await _notice_summary(db, member, "DIRECTIVE", params.notice_limit, owner_ids),
         visited_companies=visited,
         activities=activity_total,
         today_activities=await _today_activities(db, member, owner_ids, day),

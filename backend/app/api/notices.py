@@ -9,6 +9,7 @@
 응답을 만들 때마다 서명 URL 로 새로 발급한다. 저장소 주소는 응답에 나가지 않는다.
 """
 
+from collections.abc import Sequence
 from datetime import UTC, date, datetime
 from typing import Annotated
 from uuid import UUID, uuid4
@@ -98,7 +99,37 @@ def _targeted_to(member_id: UUID):
     )
 
 
-def _visible(member: Member, requested_type: str | None):
+def _targeted_to_any(member_ids: Sequence[UUID]):
+    """이 지시가 고른 사람들 중 누구에게든 왔는지 묻는다. 이유는 _targeted_to 와 같다."""
+    return (
+        select(NoticeTarget.member_id)
+        .where(NoticeTarget.notice_id == Notice.id, NoticeTarget.member_id.in_(member_ids))
+        .exists()
+    )
+
+
+def _has_target():
+    """수신자가 한 명이라도 있는지만 묻는다. 팀 전체를 보는 팀장이 쓴다."""
+    return select(NoticeTarget.member_id).where(NoticeTarget.notice_id == Notice.id).exists()
+
+
+def _directive_reach(member: Member, owner_ids: Sequence[UUID] | None):
+    """지시가 지금 보는 사람에게 닿는지 정한다.
+
+    팀원은 언제나 자기에게 온 것만 본다. 팀장은 지시를 보내는 쪽이라 수신자가 아니어서,
+    자기 것만 걸면 지시 카드가 늘 비어 있다. 팀장이 볼 수 있는 범위는 이미 관리 화면
+    (/notices/manage)이 보여 주는 팀 전체와 같으므로 여기서 넓어지는 것은 없다.
+    """
+    if owner_ids is not None:
+        # 화면 위 스위처가 고른 담당자다. deps.owner_scope 가 팀장인지, 같은 팀의 활성
+        # 구성원인지 이미 확인한 값이다.
+        return _targeted_to_any(owner_ids)
+    if member.role_code == "manager":
+        return _has_target()
+    return _targeted_to(member.id)
+
+
+def _visible(member: Member, requested_type: str | None, owner_ids: Sequence[UUID] | None = None):
     """팀원이 볼 수 있는 것. 지운 것, 숨긴 것, 노출 기간 밖은 여기서 모두 빠진다."""
     today = _today()
     conditions = [
@@ -114,24 +145,25 @@ def _visible(member: Member, requested_type: str | None):
         conditions.append(Notice.type == "NOTICE")
     elif requested_type == "DIRECTIVE":
         conditions.append(Notice.type == "DIRECTIVE")
-        conditions.append(_targeted_to(member.id))
+        conditions.append(_directive_reach(member, owner_ids))
     else:
         conditions.append(
             or_(
                 Notice.type == "NOTICE",
-                and_(Notice.type == "DIRECTIVE", _targeted_to(member.id)),
+                and_(Notice.type == "DIRECTIVE", _directive_reach(member, owner_ids)),
             )
         )
     return conditions
 
 
-def _scope(member: Member, requested: str | None):
-    """공지는 팀 전체가 보고 지시는 수신자 본인만 본다. 담당자 범위와 무관하다.
+def _scope(member: Member, requested: str | None, owner_ids: Sequence[UUID] | None = None):
+    """공지는 팀 전체가 보고, 지시는 화면이 보고 있는 담당자에게 간 것을 본다.
 
-    이름과 인자 모양을 그대로 둔다. dashboard 가 이 함수를 직접 가져다 쓰므로, 여기 조건이
-    곧 대시보드 카드의 조건이다.
+    담당자를 좁히지 않으면(owner_ids 가 None) 팀원은 자기에게 온 지시를, 팀장은 팀에 나간
+    지시를 본다. 이름과 인자 모양을 그대로 둔다. dashboard 가 이 함수를 직접 가져다 쓰므로,
+    여기 조건이 곧 대시보드 카드의 조건이다.
     """
-    return _visible(member, _SCOPE_TO_TYPE.get(requested or ""))
+    return _visible(member, _SCOPE_TO_TYPE.get(requested or ""), owner_ids)
 
 
 def _require_manager(member: Member) -> None:

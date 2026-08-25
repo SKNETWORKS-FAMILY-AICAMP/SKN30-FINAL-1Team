@@ -5,6 +5,7 @@ import pytest
 from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
+from app.api import notices
 from app.api.deps import get_current_member
 from app.core.config import settings
 from app.db.session import get_db
@@ -219,6 +220,52 @@ def test_default_scope_hides_other_members_directive():
     assert "public.notice.type = " in sql
     assert "EXISTS (SELECT public.notice_target.member_id" in sql
     assert "public.notice.team_id =" in sql
+
+
+def _directive_scope(member: Member, owner_ids=None):
+    """지시 조회 조건이 만드는 SQL 과 바인딩 값. 대시보드도 이 조건을 그대로 쓴다."""
+    statement = notices._joined_select(Notice.id).where(
+        *notices._scope(member, "DIRECTIVE", owner_ids)
+    )
+    values = []
+    for value in statement.compile().params.values():
+        # IN 절은 값 하나가 아니라 목록으로 묶인다.
+        values.extend(value) if isinstance(value, list) else values.append(value)
+    return str(statement), values
+
+
+def test_manager_sees_every_directive_sent_in_the_team():
+    """팀장은 지시를 보내는 쪽이라 수신자가 아니다. 자기 것만 걸면 카드가 늘 비어 있다."""
+    manager = _member(role="manager")
+    sql, params = _directive_scope(manager)
+
+    assert "EXISTS (SELECT public.notice_target.member_id" in sql
+    # 수신자가 있는지만 묻고 누구인지는 묻지 않는다.
+    assert "public.notice_target.member_id =" not in sql
+    assert "public.notice_target.member_id IN" not in sql
+    assert manager.id not in params
+    # 팀 경계는 그대로다.
+    assert manager.team_id in params
+
+
+def test_owner_scope_narrows_directives_to_the_chosen_members():
+    """화면 위 스위처가 고른 담당자에게 간 지시만 남는다."""
+    manager = _member(role="manager")
+    teammate = _member(team_id=manager.team_id)
+    sql, params = _directive_scope(manager, (teammate.id,))
+
+    assert "public.notice_target.member_id IN" in sql
+    assert teammate.id in params
+    assert manager.id not in params
+
+
+def test_member_still_sees_only_directives_sent_to_them():
+    """팀원의 가시성은 넓어지지 않는다."""
+    member = _member()
+    sql, params = _directive_scope(member)
+
+    assert "public.notice_target.member_id =" in sql
+    assert member.id in params
 
 
 def test_hidden_expired_and_deleted_notices_are_invisible():

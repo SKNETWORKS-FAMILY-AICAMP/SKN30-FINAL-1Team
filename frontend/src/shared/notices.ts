@@ -29,7 +29,18 @@ export function toNotice(item: NoticeLike): Notice {
     detail: item.body ?? '',
     imageAlt: item.image_alt ?? undefined,
     due: item.due_text ?? item.due_at?.slice(0, 10),
+    // 공지는 수신자가 없어 빈 목록입니다. 없는 것과 같게 두어 화면이 자리를 잡지 않게 합니다.
+    recipients: item.targets.length === 0 ? undefined : item.targets.map((t) => t.display_name),
   }
+}
+
+/**
+ * 수신자를 한 줄에 담습니다. 티커는 한 줄짜리라 이름을 다 늘어놓으면 제목이 밀립니다.
+ * 전부 필요한 자리(드로어)는 recipients 를 직접 씁니다.
+ */
+export function recipientLabel(recipients: string[]): string {
+  const [first, ...rest] = recipients
+  return rest.length === 0 ? first : `${first} 외 ${rest.length}명`
 }
 
 export function postedLabel(notice: Pick<Notice, 'postedOff' | 'postedAt'>): string {

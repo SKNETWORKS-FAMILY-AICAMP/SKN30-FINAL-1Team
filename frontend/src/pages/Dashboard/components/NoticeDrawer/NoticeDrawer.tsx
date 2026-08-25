@@ -35,6 +35,11 @@ export default function NoticeDrawer({ label, notice, onClose }: Props) {
           본문 자리만 비워 두어야 누른 것이 열렸다는 것이 보입니다. */}
       <h3 className={styles.headline}>{notice.text}</h3>
 
+      {/* 팀장이 남에게 간 지시를 열었을 때만 섭니다. 여기는 자리가 넉넉해 이름을 다 적습니다. */}
+      {notice.recipients && (
+        <p className={styles.recipients}>받는 사람 {notice.recipients.join(', ')}</p>
+      )}
+
       {error ? (
         <p className={styles.detail} role="alert">
           {error}{' '}

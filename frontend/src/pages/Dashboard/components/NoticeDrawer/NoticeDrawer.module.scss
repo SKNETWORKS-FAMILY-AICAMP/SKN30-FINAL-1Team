@@ -13,6 +13,13 @@
   letter-spacing: -0.01em;
 }
 
+// 지시를 받은 사람들. 팀장이 남에게 간 지시를 볼 때만 섭니다.
+.recipients {
+  margin-top: var(--s1);
+  color: var(--muted);
+  font-size: 12px;
+}
+
 // 본문은 HTML 한 덩어리입니다. 편집기가 낼 수 있는 태그(RichTextEditor.valid_elements)에
 // 맞춰 자식 요소의 여백과 크기를 여기서 정합니다.
 .detail {

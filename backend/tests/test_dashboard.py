@@ -37,6 +37,9 @@ class _Result:
     def all(self):
         return self.rows
 
+    def scalars(self):
+        return self
+
 
 class _Db:
     """SQL 내용을 보고 응답을 고른다. 쿼리 순서가 바뀌어도 테스트가 깨지지 않는다."""
@@ -55,6 +58,10 @@ class _Db:
 
     @staticmethod
     def _key(sql: str) -> str:
+        # 수신자 조회는 notice_target 에서 시작한다. 지시 조회 SQL 안에도 notice_target 이
+        # EXISTS 로 들어가므로 FROM 절 모양으로 갈라야 본 쿼리와 섞이지 않는다.
+        if "public.notice_target join public.member" in sql:
+            return "notice_targets"
         # sales_target 과 purchase_order 를 sales_deal 보다 먼저 본다. join 으로 겹친다.
         if "public.sales_target" in sql:
             return "target_sum"
@@ -75,6 +82,9 @@ class _Db:
             if "sum(" in sql:
                 return "deal_sums"
             return "renewal_count" if "count(" in sql else "renewal_lead"
+        # deps.owner_scope 가 고른 담당자가 같은 팀의 활성 구성원인지 확인하는 쿼리다.
+        if "public.member" in sql:
+            return "member_ids"
         raise AssertionError(f"예상하지 못한 쿼리: {sql[:120]}")
 
     @staticmethod
@@ -82,6 +92,8 @@ class _Db:
         return {
             "notice_count": _Result(scalar=0),
             "notice_rows": _Result(rows=[]),
+            "notice_targets": _Result(rows=[]),
+            "member_ids": _Result(rows=[]),
             "today": _Result(row=(0, 0)),
             "today_rows": _Result(rows=[]),
             "follow_ups": _Result(row=(0, 0, 0)),
@@ -119,12 +131,12 @@ def _member(*, role: str = "member") -> Member:
     )
 
 
-def _notice(author: Member) -> Notice:
+def _notice(author: Member, *, type: str = "NOTICE") -> Notice:
     return Notice(
         id=uuid4(),
         team_id=author.team_id,
         author_member_id=author.id,
-        type="NOTICE",
+        type=type,
         tag="공지",
         title="합성 공지",
         body="<p>합성 본문</p>",
@@ -337,8 +349,12 @@ def test_missing_target_gives_null_rate_not_zero():
     assert target["target_month"] == "2026-08"
 
 
-def test_notice_queries_ignore_owner_scope():
-    """공지와 지시는 팀 공개 범위다. 담당자 조건이 섞이면 안 된다."""
+def test_notice_queries_do_not_use_the_owner_column():
+    """공지와 지시는 담당자(owner_member_id)가 없는 글이다.
+
+    지시를 담당자로 좁히는 일은 수신자 표(notice_target)가 하지, 업무 집계처럼
+    owner_member_id 로 하지 않는다.
+    """
     member = _member()
     db = _Db()
     with _client(db, member) as client:
@@ -411,3 +427,37 @@ def test_notice_items_omit_the_body():
     assert item["author_display_name"] == member.display_name
     assert "body" not in item
     assert "합성 본문" not in response.text
+
+
+def test_manager_directives_follow_the_owner_scope():
+    """스위처가 고른 담당자에게 간 지시만 카드에 선다."""
+    manager = _member(role="manager")
+    teammate_id = uuid4()
+    db = _Db(member_ids=_Result(rows=[teammate_id]))
+
+    with _client(db, manager) as client:
+        response = client.get(f"/api/dashboard?date=2026-08-18&owner_member_id={teammate_id}")
+
+    assert response.status_code == 200
+    # 지시를 훑는 쿼리는 모두 고른 담당자로 좁혀져야 한다. 공지는 수신자가 없어 이 조건이 없다.
+    directive_sqls = [sql for sql in db.statements if "public.notice_target" in sql]
+    assert directive_sqls, "지시 조회가 실행되지 않았습니다."
+    assert all("public.notice_target.member_id in" in sql for sql in directive_sqls)
+
+
+def test_directive_items_carry_their_recipients():
+    """팀장은 남에게 간 지시도 본다. 누구에게 간 것인지 함께 세운다."""
+    manager = _member(role="manager")
+    directive = _notice(manager, type="DIRECTIVE")
+    db = _Db(
+        notice_count=_Result(scalar=1),
+        notice_rows=_Result(rows=[(directive, manager.display_name)]),
+        notice_targets=_Result(rows=[(directive.id, uuid4(), "김지훈")]),
+    )
+
+    with _client(db, manager) as client:
+        response = client.get("/api/dashboard?date=2026-08-18")
+
+    assert response.status_code == 200
+    item = response.json()["directives"]["items"][0]
+    assert [target["display_name"] for target in item["targets"]] == ["김지훈"]

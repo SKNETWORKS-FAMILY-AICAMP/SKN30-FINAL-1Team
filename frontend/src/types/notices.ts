@@ -16,6 +16,8 @@ export interface Notice {
   imageAlt?: string
   /** 지시사항에만 붙는 기한. 공지에는 없습니다. */
   due?: string
+  /** 지시를 받은 사람들의 이름. 팀장이 남에게 간 지시를 볼 때 채워집니다. */
+  recipients?: string[]
 }
 
 /** 공지는 팀 전체가, 지시는 지정된 팀원만 봅니다. */

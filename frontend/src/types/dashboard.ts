@@ -1,7 +1,7 @@
 // GET /api/dashboard 한 벌. 진입하자마자 화면에 서는 숫자와 오늘 일정만 담습니다.
 // 눌러야 열리는 드로어의 목록과 본문은 각 도메인 API 가 그때 줍니다.
 import type { ActivityRead } from './agenda'
-import type { NoticeType } from './notices'
+import type { NoticeTargetResponse, NoticeType } from './notices'
 
 export interface NoticeBrief {
   id: string
@@ -9,6 +9,8 @@ export interface NoticeBrief {
   tag: string | null
   author_display_name: string
   title: string
+  /** 지시의 수신자입니다. 공지는 빈 목록입니다. */
+  targets: NoticeTargetResponse[]
   published_at: string
   due_at: string | null
   due_text: string | null
