@@ -6,6 +6,8 @@ import type { ReportKind } from '@/types'
 // 화면을 구현할 때 src/pages/<Name>/ 을 만들고 App.tsx 에 <Route> 를 추가하세요.
 export const ROUTES = {
   LOGIN: '/login', // 셸 밖. 내비게이션에 넣지 않습니다.
+  // 계정 요청. 스스로 가입할 수 없는 제품이라 이메일만 남기고 연락을 기다립니다.
+  SIGNUP: '/signup',
   // 초대 메일이 착지하는 곳. 로그인 전에 여는 화면이라 셸 밖에 둡니다.
   SET_PASSWORD: '/set-password',
   DASHBOARD: '/',

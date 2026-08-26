@@ -28,6 +28,7 @@ import Products from '@/pages/Products'
 import Quotes from '@/pages/Quotes'
 import Sales from '@/pages/Sales'
 import SetPassword from '@/pages/SetPassword'
+import Signup from '@/pages/Signup'
 import Team from '@/pages/Team'
 import Deals, { DealBoard } from '@/pages/Deals'
 
@@ -41,6 +42,8 @@ export default function App() {
         <ToastHost />
         <Routes>
           <Route path={ROUTES.LOGIN} element={<Login />} />
+          {/* 계정 요청. 아직 계정이 없는 사람이 여는 화면이라 셸 밖입니다. */}
+          <Route path={ROUTES.SIGNUP} element={<Signup />} />
           {/* 초대 메일이 착지하는 곳. 아직 비밀번호가 없는 사람이 여는 화면이라 셸 밖입니다. */}
           <Route path={ROUTES.SET_PASSWORD} element={<SetPassword />} />
 
