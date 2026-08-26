@@ -56,9 +56,8 @@ export default function Login() {
 
   return (
     <AuthLayout>
-      <p className={styles.eyebrow}>Welcome back</p>
-      <h2>현장으로 돌아가기</h2>
-      <p className={styles.lead}>SalesLuv 백엔드 계정으로 로그인하세요.</p>
+      <h2>로그인</h2>
+      <p className={styles.lead}>SalesLuv 계정으로 로그인해주세요.</p>
 
       <form onSubmit={onSubmit}>
         <div className={styles.field}>
@@ -97,7 +96,7 @@ export default function Login() {
           </p>
         )}
         <Button className={styles.mainBtn} type="submit" disabled={submitting}>
-          {submitting ? '로그인 중…' : '로그인'} <span aria-hidden="true">→</span>
+          {submitting ? '로그인 중…' : '로그인'}
         </Button>
       </form>
 
