@@ -17,8 +17,8 @@ readonly DEAL_MODEL_HOST_DIR="/opt/salesluv-models/${DEAL_MODEL_VERSION}"
 readonly DEAL_MODEL_CONTAINER_DIR="/app/pipeline/artifacts"
 readonly -a DEAL_MODEL_ARTIFACTS=(
     "deal-stacking-lr-v1-models.joblib:78a56a3bcc6a69da94fde8366c228036103f5c42b48d668fec2d1051cdbd4a6f"
-    "deal-stacking-lr-v1-tabicl.pkl:eb462256069cf27f2a572c0b230dbb06eb1eeb9295e0d03fb5f0255ef72c6ffb"
-    "deal-stacking-lr-v1.json:1e48bb2217db9795a129e67acb520ea0ef79e7a7c50b9e42f5b8e91dc375db65"
+    "deal-stacking-lr-v1-tabicl.pkl:4d6de1c7724cb004b7901a7523e727061f7e9a944e7419114291fb859870f45c"
+    "deal-stacking-lr-v1.json:71a39c37ae2f2d63d86c5adf9af7863bf8b51d032e35d18712d0a750726a0d42"
 )
 
 readonly IMAGE_REPOSITORY="salesluv-backend"
@@ -39,6 +39,7 @@ readonly CONTAINER_STOP_TIMEOUT_SECONDS="30"
 readonly HEALTH_ATTEMPTS="30"
 readonly HEALTH_DELAY_SECONDS="2"
 readonly HEALTH_TIMEOUT_SECONDS="5"
+readonly DEAL_MODEL_VALIDATION_TIMEOUT_SECONDS="300"
 
 readonly DOTENV_KEY_MISSING_STATUS="10"
 readonly DOTENV_KEY_DUPLICATE_STATUS="11"
@@ -642,6 +643,16 @@ start_production() {
         "${image}" >/dev/null
 }
 
+validate_deal_model_runtime() {
+    local container_name="$1"
+
+    timeout --foreground --signal=TERM --kill-after=10s \
+        "${DEAL_MODEL_VALIDATION_TIMEOUT_SECONDS}s" \
+        docker exec "${container_name}" \
+        /app/.venv/bin/python -c \
+        'from app.ml.deal_baseline import _load_models; _load_models()'
+}
+
 rollback_production() {
     ROLLBACK_ATTEMPTED="true"
     printf 'Production promotion was interrupted; starting rollback.\n' >&2
@@ -740,6 +751,7 @@ require_command git
 require_command grep
 require_command nginx
 require_command sha256sum
+require_command timeout
 
 [[ -d "${REPO_DIR}/.git" ]] \
     || die "Git repository not found: ${REPO_DIR}"
@@ -839,6 +851,10 @@ fi
 
 if ! wait_for_backend "${NEW_PORT}"; then
     die "candidate validation failed; the production upstream was not changed"
+fi
+printf 'Validating the deal model in backend slot %s.\n' "${NEW_CONTAINER}"
+if ! validate_deal_model_runtime "${NEW_CONTAINER}"; then
+    die "deal model validation failed; the production upstream was not changed"
 fi
 
 PROMOTION_STARTED="true"
