@@ -251,22 +251,6 @@ export default function CustomerFormModal({
           />
         </Field>
 
-        {/* 담당자를 정할 수 있는 건 팀장뿐입니다. 팀원이 등록하면 본인이 담당자가 됩니다. */}
-        {isManager && (
-          <Field label="담당자" required error={errors.assignees} htmlFor={false}>
-            <MemberMultiSelect
-              value={assigneeIds}
-              onChange={(next) => {
-                setAssigneeIds(next)
-                clearError('assignees')
-              }}
-              disabled={submitting}
-              invalid={errors.assignees !== undefined}
-              firstChipHint="첫 번째 담당자가 대표 담당자입니다."
-            />
-          </Field>
-        )}
-
         <Field label="방문여부" htmlFor={false}>
           <div className={styles.choice} role="radiogroup" aria-label="방문여부">
             {[false, true].map((value) => (
@@ -284,6 +268,25 @@ export default function CustomerFormModal({
             ))}
           </div>
         </Field>
+
+        {/*
+         * 담당자를 정할 수 있는 건 팀장뿐입니다. 팀원이 등록하면 본인이 담당자가 됩니다.
+         * 칩이 늘면 칸이 세로로 자라 옆 칸과 어긋나므로 한 줄을 통째로 씁니다.
+         */}
+        {isManager && (
+          <Field label="담당자" required error={errors.assignees} wide htmlFor={false}>
+            <MemberMultiSelect
+              value={assigneeIds}
+              onChange={(next) => {
+                setAssigneeIds(next)
+                clearError('assignees')
+              }}
+              disabled={submitting}
+              invalid={errors.assignees !== undefined}
+              firstChipHint="첫 번째 담당자가 대표 담당자입니다."
+            />
+          </Field>
+        )}
 
         <Field label="메모" wide>
           <textarea
