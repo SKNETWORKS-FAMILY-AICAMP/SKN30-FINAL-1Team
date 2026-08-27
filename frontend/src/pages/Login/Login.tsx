@@ -3,9 +3,11 @@ import { isAxiosError } from 'axios'
 import { Link, Navigate } from 'react-router'
 
 import { errorMessage } from '@/api/errorMessage'
+import { DEV_ACCOUNTS, LOCAL_DEV_PASSWORD } from '@/auth/devAccounts'
 import { useSession } from '@/auth/sessionContext'
 import Button from '@/components/Button'
 import AuthLayout from '@/components/layout/AuthLayout'
+import { env } from '@/config/env'
 import { ROUTES } from '@/constants/routes'
 
 import styles from './Login.module.scss'
@@ -41,17 +43,23 @@ export default function Login() {
 
   const message = error
 
-  const onSubmit = async (event: FormEvent) => {
-    event.preventDefault()
+  // 폼 제출과 로컬 빠른 로그인이 같은 경로를 씁니다.
+  // 성공해도 navigate() 를 부르지 않습니다. 위의 <Navigate> 가 목적지를 정합니다.
+  const signIn = async (accountEmail: string, accountPassword: string) => {
     setSubmitting(true)
     setError(null)
     try {
-      await login(email.trim(), password)
+      await login(accountEmail, accountPassword)
     } catch (cause) {
       setError(loginErrorMessage(cause))
     } finally {
       setSubmitting(false)
     }
+  }
+
+  const onSubmit = async (event: FormEvent) => {
+    event.preventDefault()
+    await signIn(email.trim(), password)
   }
 
   return (
@@ -99,6 +107,26 @@ export default function Login() {
           {submitting ? '로그인 중…' : '로그인'}
         </Button>
       </form>
+
+      {env.isDev && (
+        <div className={styles.devPanel}>
+          <p className={styles.devHint}>로컬 전용 · 비밀번호 {LOCAL_DEV_PASSWORD}</p>
+          <div className={styles.devButtons}>
+            {DEV_ACCOUNTS.map((account) => (
+              <Button
+                key={account.email}
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={submitting}
+                onClick={() => void signIn(account.email, LOCAL_DEV_PASSWORD)}
+              >
+                {account.label}로 로그인
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <p className={styles.footnote}>
         SalesLuv 처음이신가요? <Link to={ROUTES.SIGNUP}>회원가입</Link>

@@ -8,6 +8,25 @@
   line-height: 1.6;
 }
 
+// 로컬 개발 서버에서만 렌더됩니다 (Login.tsx 의 env.isDev).
+.devPanel {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--line);
+}
+
+.devHint {
+  margin: 0 0 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.devButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .footnote {
   margin-top: 24px;
   text-align: center;
