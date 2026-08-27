@@ -121,6 +121,13 @@
   `quote_delivery_terms`·`sales_deal_item`이 같은 행에 그대로 있습니다. 보증기간은
   기존 `warranty_terms`입니다. 백필할 근거가 없어 기존 행은 NULL 이고 삭제도 없습니다.
 
+- `20260826_0009_customer_company_address.sql`: `customer_company`에 `postcode`(5자리),
+  `address`, `address_detail`을 더합니다. 고객 등록 화면이 다음(카카오) 우편번호 서비스로
+  주소를 찾아 넣습니다. 주소는 사람이 아니라 회사에 붙는 값이라 `customer_contact`가 아니라
+  여기에 둡니다. 회사 검색 목록도 같은 이름을 구분할 때 `business_no` 대신 이 주소를 먼저
+  보여 줍니다. `postcode`·`address`는 우편번호 서비스가 주는 값이고 `address_detail`은
+  층·호수처럼 사람이 직접 적는 부분입니다. 기존 행은 채울 근거가 없어 NULL로 둡니다.
+
 `20260819_0001`은 빈 `public` 스키마에 처음부터 만드는 것을 전제로 합니다. 되돌리는 마이그레이션이
 아니므로 적용 전에 아래 런북의 1~2단계를 먼저 수행합니다.
 
@@ -138,6 +145,7 @@
 | 2026-08-25 | 개발 | `20260825_0006_support_request_deal_link.sql` | session pooler | 성공. support_request 9→11컬럼(`customer_contact_id` 제거, `customer_company_id`·`sales_deal_id`·`occurred_at` 추가) / 복합 FK `support_request_sales_deal_company_membership_fkey`(ON UPDATE CASCADE)와 `sales_deal_id_customer_company_key` 신설 / `support_request_status_code_check` 를 값 목록 검사로 교체 / 인덱스 `support_request_sales_deal_company_idx`·`support_request_team_company_idx` 추가. support_request·support_response 행이 0건이라 삭제 대상 없음. 회사·딜 불일치 INSERT 와 없는 상태값 INSERT 가 각각 FK·CHECK 로 거절되는 것까지 확인 |
 | 2026-08-26 | 개발 | `20260826_0007_deal_quote_contract_order.sql` | session pooler | 성공. quote_status·contract_status(각 10컬럼)·sales_deal_item(6컬럼)·sales_deal_participant(3컬럼) 신설(RLS on) / sales_deal 28→33컬럼 / purchase_order 13→17컬럼. 기존 발주 9건 모두 걸린 딜의 owner_member_id·customer_company_id 로 백필한 뒤 NOT NULL 적용(NULL 0건). 부서 두 칸은 DEFAULT 대로 '영업팀'/'생산팀'. purchase_order_status 의 `cancelled` 라벨 2행을 '취소'→'발주취소' 로 변경. 기존 딜 52건의 신규 컬럼은 전부 NULL(아직 견적·계약 없음). `tests/test_models.py` 의 신규 4표·컬럼 수 대조 통과 |
 | 2026-08-26 | 개발 | `20260826_0008_contract_terms.sql` | session pooler | 성공. sales_deal 33→35컬럼(`contract_payment_terms`·`contract_late_interest_terms`). 둘 다 NULL 허용이라 기존 딜 52건은 NULL 그대로이고 백필 대상이 없습니다. `tests/test_models.py` 의 물리 스키마 대조 통과 |
+| 2026-08-26 | 개발 | `20260826_0009_customer_company_address.sql` | session pooler | 성공. customer_company 6→9컬럼(`postcode`·`address`·`address_detail`, 전부 nullable). 기존 36행은 백필 없이 NULL. `tests/test_models.py` 의 컬럼 수 대조 통과 |
 
 ## 개발 DB 재구축 런북
 
