@@ -46,7 +46,8 @@ EXPECTED_COLUMN_COUNTS = {
     # purchase_order 에 요청·협조부서와 작성자·납품예상 거래처가 늘었다.
     # 견적/계약 상태 룩업과 견적 품목·미팅 대상자 표도 이때 생겼다.
     # 20260826_0008 이 계약서 양식의 물품대금 지급기일·대금연체 이자율을 더했다.
-    "sales_deal": 35,
+    # 20260828_0011 로 sales_deal 에 유입경로(source_code)가 늘었다.
+    "sales_deal": 36,
     "sales_deal_item": 6,
     "sales_deal_participant": 3,
     "quote_status": 10,
@@ -70,7 +71,7 @@ def test_all_database_tables_are_mapped():
     assert {
         table.name: len(table.columns) for table in Base.metadata.sorted_tables
     } == EXPECTED_COLUMN_COUNTS
-    assert sum(len(table.columns) for table in Base.metadata.tables.values()) == 336
+    assert sum(len(table.columns) for table in Base.metadata.tables.values()) == 337
 
     foreign_key_constraints = [
         foreign_key
