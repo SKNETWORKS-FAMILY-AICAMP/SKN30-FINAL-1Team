@@ -20,7 +20,7 @@ interface Props {
 export default function DocumentDrawer({ doc, onClose, onNewVersion }: Props) {
   const latest = latestOf(doc)
   const rows: [string, string][] = [
-    ['설명', doc.description || '—'],
+    ['메모', doc.description || '—'],
     ['연결', linkLabel(doc) || '연결된 곳 없음'],
     ['파일', latest.fileName],
     ['크기', sizeLabel(latest.bytes)],
@@ -55,14 +55,6 @@ export default function DocumentDrawer({ doc, onClose, onNewVersion }: Props) {
           </div>
         ))}
       </dl>
-
-      {doc.tags.length > 0 && (
-        <ul className={styles.tags}>
-          {doc.tags.map((tag) => (
-            <li key={tag}>#{tag}</li>
-          ))}
-        </ul>
-      )}
 
       <h3 className={styles.sectionTitle}>버전 이력</h3>
       <ul className={styles.history}>

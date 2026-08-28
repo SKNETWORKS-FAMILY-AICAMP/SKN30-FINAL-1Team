@@ -58,7 +58,8 @@ EXPECTED_COLUMN_COUNTS = {
     "sales_target": 5,
     "report": 20,
     "report_activity": 2,
-    "document": 12,
+    # 20260828_0012 로 document 에 product_id 가 늘었다.
+    "document": 13,
     "file": 13,
     "agent_run": 17,
 }
@@ -71,14 +72,14 @@ def test_all_database_tables_are_mapped():
     assert {
         table.name: len(table.columns) for table in Base.metadata.sorted_tables
     } == EXPECTED_COLUMN_COUNTS
-    assert sum(len(table.columns) for table in Base.metadata.tables.values()) == 337
+    assert sum(len(table.columns) for table in Base.metadata.tables.values()) == 338
 
     foreign_key_constraints = [
         foreign_key
         for table in Base.metadata.tables.values()
         for foreign_key in table.foreign_key_constraints
     ]
-    assert len(foreign_key_constraints) == 80
+    assert len(foreign_key_constraints) == 81
     assert all(
         element.column.table.schema == "public"
         for foreign_key in foreign_key_constraints
