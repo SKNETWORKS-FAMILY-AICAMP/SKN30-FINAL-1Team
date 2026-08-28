@@ -160,6 +160,9 @@
 | 2026-08-26 | 개발 | `20260826_0007_deal_quote_contract_order.sql` | session pooler | 성공. quote_status·contract_status(각 10컬럼)·sales_deal_item(6컬럼)·sales_deal_participant(3컬럼) 신설(RLS on) / sales_deal 28→33컬럼 / purchase_order 13→17컬럼. 기존 발주 9건 모두 걸린 딜의 owner_member_id·customer_company_id 로 백필한 뒤 NOT NULL 적용(NULL 0건). 부서 두 칸은 DEFAULT 대로 '영업팀'/'생산팀'. purchase_order_status 의 `cancelled` 라벨 2행을 '취소'→'발주취소' 로 변경. 기존 딜 52건의 신규 컬럼은 전부 NULL(아직 견적·계약 없음). `tests/test_models.py` 의 신규 4표·컬럼 수 대조 통과 |
 | 2026-08-26 | 개발 | `20260826_0008_contract_terms.sql` | session pooler | 성공. sales_deal 33→35컬럼(`contract_payment_terms`·`contract_late_interest_terms`). 둘 다 NULL 허용이라 기존 딜 52건은 NULL 그대로이고 백필 대상이 없습니다. `tests/test_models.py` 의 물리 스키마 대조 통과 |
 | 2026-08-26 | 개발 | `20260826_0009_customer_company_address.sql` | session pooler | 성공. customer_company 6→9컬럼(`postcode`·`address`·`address_detail`, 전부 nullable). 기존 36행은 백필 없이 NULL. `tests/test_models.py` 의 컬럼 수 대조 통과 |
+| 2026-08-28 | 개발 | `20260827_0010_drop_activity_type.sql` | session pooler | 성공. activity 22→21 / activity_category 10→9 / activity_action_tag 10→9컬럼. 업무 활동 28건(전부 미삭제 상태)과 그 report_activity 3건을 지우고 report 1건의 `source_activity_id` 를 NULL 로 끊었다. 딸린 activity_companion 은 0건. 액션태그 8행·카테고리 2행 삭제(팀 2개 × 4/1). 미팅 활동 377건과 report 229건은 그대로. ORM 대조에서 세 표의 컬럼·nullable·타입·기본값·PK·FK 일치 확인 |
+| 2026-08-28 | 개발 | `20260828_0011_sales_deal_source.sql` | — | **적용 시점 미상.** 0010 을 넣기 전 확인해 보니 `sales_deal.source_code` 와 `sales_deal_source_code_check` 가 이미 있었고 값이 든 딜이 122건이었다. 저장소 밖에서 먼저 적용된 것으로 보이며 이 줄은 사후 기록이다 |
+| 2026-08-28 | 개발 | `20260828_0012_document_product_link.sql` | — | **적용 시점 미상.** 위와 같이 `document.product_id`·`document_product_id_fkey`·`document_product_idx` 가 이미 있었다. 사후 기록이다 |
 
 ## 개발 DB 재구축 런북
 
