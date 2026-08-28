@@ -57,15 +57,10 @@
 
 .brandMark {
   flex: none;
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 11px 11px 11px 3px;
-  background: var(--blue);
-  color: #fff;
-  font-size: 17px;
-  font-weight: 800;
+  width: auto;
+  // 워드마크와 같은 높이로 세워 로고가 글자 위아래로 튀어나오지 않게 합니다.
+  height: 20px;
+  object-fit: contain;
 }
 
 .brandName {
