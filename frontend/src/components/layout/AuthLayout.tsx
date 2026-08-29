@@ -1,6 +1,6 @@
 import type { CSSProperties, ReactNode } from 'react'
 
-import logoMark from '@/assets/logo-mark.png'
+import fullLogo from '@/assets/full-logo.png'
 import { DailyReportIcon, DashboardIcon, VisitIcon } from '@/components/icons'
 
 import styles from './AuthLayout.module.scss'
@@ -49,8 +49,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
         <AuthNetwork />
 
         <div className={styles.brand} style={{ '--d': '0ms' } as CSSProperties}>
-          <img src={logoMark} alt="" className={styles.brandMark} />
-          <span className={styles.brandName}>SalesLuv</span>
+          <img src={fullLogo} alt="SalesLuv" className={styles.brandFull} />
         </div>
 
         <div className={styles.copy}>
@@ -86,8 +85,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
 
       <div className={styles.panel}>
         <div className={styles.panelBrand}>
-          <img src={logoMark} alt="" className={styles.brandMark} />
-          <span className={styles.brandName}>SalesLuv</span>
+          <img src={fullLogo} alt="SalesLuv" className={styles.brandFull} />
         </div>
         {children}
       </div>
