@@ -48,7 +48,7 @@ class Settings(BaseSettings):
     # 있으면 그것을 우선하고, 비어 있을 때만 OPENAI_API_KEY를 사용한다.
     openai_api_key: SecretStr = SecretStr("")
     llm_model: str = ""
-    llm_timeout_seconds: float = Field(default=30.0, gt=0, le=300)
+    llm_timeout_seconds: float = Field(default=180.0, gt=0, le=300)
 
     # 문서 청크 임베딩. 비워 두면 RAG는 출처 보존 키워드 검색으로 동작한다.
     embedding_provider: Literal["none", "external", "local"] = "none"
