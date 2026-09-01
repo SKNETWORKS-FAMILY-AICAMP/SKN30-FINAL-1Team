@@ -47,6 +47,9 @@ class _Result:
     def all(self):
         return self.rows
 
+    def scalars(self):
+        return self
+
 
 class _Db:
     def __init__(self, *results: _Result):
@@ -176,6 +179,7 @@ def test_approval_clears_the_review_note_even_if_a_reason_is_sent():
         _Result(scalar=report),
         _Result(rows=[(report, author.display_name, None)]),
         _Result(rows=[]),
+        _Result(rows=[]),
     )
     response = _review(db, manager, report, decision="approve", reason="확인했습니다.")
 
@@ -192,6 +196,7 @@ def test_manager_approves_a_teammates_report():
     db = _Db(
         _Result(scalar=report),
         _Result(rows=[(report, author.display_name, None)]),
+        _Result(rows=[]),
         _Result(rows=[]),
     )
     response = _review(db, manager, report, decision="approve")
@@ -218,6 +223,7 @@ def test_rejection_returns_the_report_to_an_editable_state():
     db = _Db(
         _Result(scalar=report),
         _Result(rows=[(report, author.display_name, None)]),
+        _Result(rows=[]),
         _Result(rows=[]),
     )
     response = _review(
