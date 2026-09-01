@@ -15,11 +15,13 @@ import StatusBadge from '@/components/StatusBadge'
 import { InlineLoader } from '@/components/Skeleton'
 import { useCurrentUser } from '@/auth/sessionContext'
 import { meetingReportPath } from '@/constants/routes'
+import MeetingSharedPanel from '@/pages/Meetings/components/MeetingSharedPanel'
 import { toMeetingReport } from '@/pages/Meetings/useMeetingReports'
 import { useReportDetail } from '@/shared/reportQuery'
 import { isReviewable, reviewLabel, reviewReport } from '@/shared/reviewDecision'
 import { showToast } from '@/shared/toast'
 import { errorMessage } from '@/api/errorMessage'
+import type { MeetingReport } from '@/types'
 
 import RejectReasonModal from '../RejectReasonModal'
 
@@ -36,6 +38,49 @@ interface Props {
 function stamp(value: string | null): string {
   if (value === null) return '—'
   return `${value.slice(0, 10).replaceAll('-', '.')} ${value.slice(11, 16)}`
+}
+
+/** 공통 기록과 딜별 본문은 상세 화면과 같은 저장 단위로 모두 펼칩니다. */
+export function ReportReviewContents({ report }: { report: MeetingReport }) {
+  return (
+    <>
+      <MeetingSharedPanel shared={report.meetingShared ?? null} />
+
+      {report.dealSections.length === 0 ? (
+        <section className={styles.section}>
+          <h3 className={styles.heading}>딜별 보고 내용</h3>
+          <p className={styles.hint}>저장된 딜별 보고서 내용을 찾을 수 없습니다.</p>
+        </section>
+      ) : (
+        report.dealSections.map((section, index) => (
+          <section className={styles.section} key={section.salesDealId}>
+            <h3 className={styles.heading}>
+              딜별 보고 {index + 1} · {section.salesDeal.label}
+            </h3>
+            {(section.salesDeal.note || section.product || section.title) && (
+              <p className={styles.hint}>
+                {[section.salesDeal.note, section.product, section.title]
+                  .filter(Boolean)
+                  .join(' · ')}
+              </p>
+            )}
+            <ReportFields template={report.template} values={section.values} readOnly />
+            {section.evidence && <p className={styles.evidence}>{section.evidence}</p>}
+            {(section.aiEvidence !== undefined || section.aiGeneratedAt !== undefined) && (
+              <div>
+                {section.aiEvidence !== undefined && (
+                  <p className={styles.evidence}>{section.aiEvidence}</p>
+                )}
+                {section.aiGeneratedAt !== undefined && (
+                  <p className={styles.hint}>작성 도움 {stamp(section.aiGeneratedAt)}</p>
+                )}
+              </div>
+            )}
+          </section>
+        ))
+      )}
+    </>
+  )
 }
 
 export default function ReportReviewDrawer({ reportId, onReviewed, onClose }: Props) {
@@ -117,10 +162,12 @@ export default function ReportReviewDrawer({ reportId, onReviewed, onClose }: Pr
                 <dt>담당자</dt>
                 <dd>{[report.dept, report.contact].filter(Boolean).join(' · ') || '—'}</dd>
               </div>
-              {report.salesDeal !== undefined && (
+              {report.dealSections.length > 0 && (
                 <div>
                   <dt>관련 영업</dt>
-                  <dd>{report.salesDeal.label}</dd>
+                  <dd>
+                    {report.dealSections.map((section) => section.salesDeal.label).join(', ')}
+                  </dd>
                 </div>
               )}
             </dl>
@@ -134,22 +181,7 @@ export default function ReportReviewDrawer({ reportId, onReviewed, onClose }: Pr
               </section>
             )}
 
-            <section className={styles.section}>
-              <h3 className={styles.heading}>보고 내용</h3>
-              <ReportFields template={report.template} values={report.values} readOnly />
-            </section>
-
-            {(report.aiEvidence !== undefined || report.aiGeneratedAt !== undefined) && (
-              <section className={styles.section}>
-                <h3 className={styles.heading}>🤖 AI 분석 결과</h3>
-                {report.aiEvidence !== undefined && (
-                  <p className={styles.evidence}>{report.aiEvidence}</p>
-                )}
-                {report.aiGeneratedAt !== undefined && (
-                  <p className={styles.hint}>작성 도움 {stamp(report.aiGeneratedAt)}</p>
-                )}
-              </section>
-            )}
+            <ReportReviewContents report={report} />
 
             <section className={styles.section}>
               <dl className={styles.facts}>

@@ -108,6 +108,23 @@ export interface ReportActivityResponse {
   starts_at: string
 }
 
+export interface ReportDealSectionWrite {
+  sales_deal_id: string
+  deal_snapshot: {
+    id: string
+    label: string
+    note?: string | null
+  }
+  content: Record<string, unknown>
+}
+
+export interface ReportDealSectionResponse extends ReportDealSectionWrite {
+  /** 미팅 분석·ML 결과는 서버가 생성하며 조회 응답에만 포함됩니다. */
+  ai_evidence: Record<string, unknown> | null
+  created_at: string
+  updated_at: string
+}
+
 export interface ReportResponse {
   id: string
   author_member_id: string
@@ -134,6 +151,7 @@ export interface ReportResponse {
   reviewed_by_member_id: string | null
   reviewed_at: string | null
   activities: ReportActivityResponse[]
+  deal_sections: ReportDealSectionResponse[]
   created_at: string
   updated_at: string
 }
@@ -158,6 +176,7 @@ export interface ReportWriteRequest {
   transcript: string | null
   note: string | null
   activity_ids: string[]
+  deal_sections: ReportDealSectionWrite[]
 }
 
 export type AgentRunStatus = 'queued' | 'running' | 'completed' | 'failed'
