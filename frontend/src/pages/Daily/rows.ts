@@ -38,6 +38,8 @@ export interface ListRow {
   hospital?: string
   /** 이 보고서를 쓴 사람. 여러 사람이 섞여 보일 때만 화면에 섭니다. */
   author: string
+  /** 작성자의 구성원 번호. 이름표에 칠할 색을 찾는 데 씁니다. */
+  ownerMemberId: string
 }
 
 const lower = (parts: (string | undefined)[]) => parts.filter(Boolean).join(' ').toLowerCase()
@@ -59,6 +61,7 @@ export function fromDailyReport(report: DailyReport): ListRow {
         : report.note,
     aside: report.approver,
     author: report.owner,
+    ownerMemberId: report.ownerMemberId,
     status: report.status,
     to: dailyReportPath(report.id),
     haystack: lower([
@@ -100,6 +103,7 @@ export function fromMeetingReport(report: MeetingReport): ListRow {
       .join(' · '),
     aside: report.hospital,
     author: report.owner,
+    ownerMemberId: report.ownerMemberId,
     status: report.status,
     to: meetingReportPath(report.id),
     haystack: lower([
