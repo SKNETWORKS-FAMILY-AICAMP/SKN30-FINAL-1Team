@@ -16,8 +16,9 @@ from app.models.content import ReportDeal
 EXPECTED_COLUMN_COUNTS = {
     # 20260823_0002 로 team 에 company_name/department/business_no, member 에 email 이 늘었다.
     # 20260907_0024 로 member 에 badge_color 가 늘었다.
+    # 20260908_0027 로 member 에 region_code 가 늘었다.
     "team": 6,
-    "member": 9,
+    "member": 10,
     # 20260824_0003 으로 customer_company 에 business_no,
     # customer_contact 에 created_by_member_id 가 늘고 customer_contact_assignee 가 생겼다.
     # 20260826_0009 로 customer_company 에 postcode/address/address_detail 이 늘었다.
@@ -28,7 +29,8 @@ EXPECTED_COLUMN_COUNTS = {
     "customer_contact_status": 9,
     # 20260824_0004 로 product 에 category_code/unit_price/shelf_life_months/memo/
     # image_storage_key 가 늘었다.
-    "product": 9,
+    # 20260908_0025 로 spec 이 늘었다. memo 는 그대로 두고 비고로 쓴다.
+    "product": 10,
     # 20260825_0005 로 notice 에 type/display_start_date/display_end_date/is_hidden/
     # sort_order/updated_at/deleted_at 이 늘고 recipient_member_id 가 빠졌다.
     # 수신자는 notice_target 으로 옮겼고, 본문 사진은 notice_image 가 가리킨다.
