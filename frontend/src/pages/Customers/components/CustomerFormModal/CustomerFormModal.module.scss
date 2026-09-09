@@ -8,6 +8,68 @@
   }
 }
 
+.formLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 176px;
+  gap: var(--s4);
+  align-items: start;
+
+  @include sm {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.sourcePreview {
+  position: sticky;
+  top: 0;
+  min-width: 0;
+  padding: var(--s2);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+
+  img,
+  .sourcePreviewLoading {
+    display: block;
+    width: 100%;
+    height: 168px;
+    border-radius: calc(var(--r-sm) - 2px);
+    background: var(--surface);
+  }
+
+  img {
+    object-fit: contain;
+  }
+}
+
+.sourcePreviewLoading {
+  @include flex-center;
+
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.sourcePreviewLabel,
+.sourcePreviewName {
+  margin: 0;
+}
+
+.sourcePreviewLabel {
+  margin-bottom: var(--s2);
+  color: var(--ink-2);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.sourcePreviewName {
+  margin-top: var(--s2);
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .duplicateNotice {
   margin-bottom: var(--s3);
   padding: var(--s3);
