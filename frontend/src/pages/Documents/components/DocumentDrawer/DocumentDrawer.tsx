@@ -36,17 +36,20 @@ interface Props {
 }
 
 /**
- * 새 요약은 서버에서 추출 필드를 본문에 넣지 않는다. 이미 저장된 구버전 요약도
- * 드로어에서는 같은 기준으로 보여야 하므로, 해당 섹션만 렌더링 직전에 제외한다.
+ * 새 요약은 서버에서 추출 필드·출처를 본문에 넣지 않는다. 이미 저장된 구버전 요약도
+ * 드로어에서는 같은 기준으로 보여야 하므로, 해당 섹션을 렌더링 직전에 제외한다.
  */
-function summaryWithoutExtractedFields(markdown: string): string {
+function summaryWithoutHiddenSections(markdown: string): string {
   const lines = markdown.split('\n')
-  const start = lines.findIndex((line) => line.trim() === '## 추출 필드')
-  if (start < 0) return markdown
+  const hiddenHeadings = new Set(['## 추출 필드', '## 출처'])
+  const visibleLines: string[] = []
+  let hiding = false
 
-  let end = start + 1
-  while (end < lines.length && !/^#{1,2}\s+/.test(lines[end])) end += 1
-  return [...lines.slice(0, start), ...lines.slice(end)].join('\n')
+  for (const line of lines) {
+    if (/^#{1,2}\s+/.test(line)) hiding = hiddenHeadings.has(line.trim())
+    if (!hiding) visibleLines.push(line)
+  }
+  return visibleLines.join('\n')
 }
 
 export default function DocumentDrawer({
@@ -337,7 +340,7 @@ export default function DocumentDrawer({
               )}
               {/* 저장된 요약은 마크다운입니다. 보고서 본문과 같은 렌더러로 그립니다. */}
               <ReportBody
-                body={summaryWithoutExtractedFields(summary.summary_markdown)}
+                body={summaryWithoutHiddenSections(summary.summary_markdown)}
                 className={styles.summaryBody}
               />
               {summary?.processing_status === 'review_required' && (
