@@ -441,6 +441,17 @@ def test_business_license_archive_rejects_unsupported_file(monkeypatch):
 
     monkeypatch.setattr(type(settings), "storage_configured", property(lambda self: True))
     app.dependency_overrides[get_current_member] = lambda: member
+
+    # 확장자에서 막히므로 세션을 쓰지는 않지만, 의존성은 엔드포인트에 들어가기 전에 모두
+    # 풀린다. 진짜 get_db 로 두면 DATABASE_URL 이 없는 CI 에서 415 대신 RuntimeError 가 난다.
+    class _Db:
+        async def execute(self, _statement):
+            raise AssertionError("확장자에서 막히므로 조회할 것이 없다")
+
+    async def _db():
+        yield _Db()
+
+    app.dependency_overrides[get_db] = _db
     try:
         with TestClient(app) as client:
             response = client.post(
