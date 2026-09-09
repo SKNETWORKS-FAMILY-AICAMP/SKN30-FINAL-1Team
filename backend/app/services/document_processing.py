@@ -337,7 +337,7 @@ async def approve_review(
 
 
 def _summary_markdown(summary: document_summary.DocumentSummaryOutput) -> str:
-    lines = ["# 문서 요약", "", "## 핵심 요약", summary.summary or "내용 없음", ""]
+    lines = ["## 핵심 요약", summary.summary or "내용 없음", ""]
     for title, values in (
         ("주요 내용", summary.key_points),
         ("영업 참고사항", summary.sales_relevance),

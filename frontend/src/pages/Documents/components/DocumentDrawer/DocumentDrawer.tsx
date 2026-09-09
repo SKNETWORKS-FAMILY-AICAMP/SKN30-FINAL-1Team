@@ -42,10 +42,13 @@ interface Props {
 function summaryWithoutHiddenSections(markdown: string): string {
   const lines = markdown.split('\n')
   const hiddenHeadings = new Set(['## 추출 필드', '## 출처'])
+  const hiddenTitles = new Set(['# 문서 요약', '# 문서요약'])
   const visibleLines: string[] = []
   let hiding = false
 
   for (const line of lines) {
+    // 새 요약은 제목을 만들지 않지만, 구버전의 제목도 화면에서는 표시하지 않는다.
+    if (hiddenTitles.has(line.trim())) continue
     if (/^#{1,2}\s+/.test(line)) hiding = hiddenHeadings.has(line.trim())
     if (!hiding) visibleLines.push(line)
   }

@@ -119,6 +119,7 @@ async def test_execute_auto_saves_summary_and_rag_chunks(monkeypatch):
     assert row.processing_status == "completed"
     assert row.extracted_text == "계약기간: 1년"
     assert "계약기간은 1년이다." in row.summary_markdown
+    assert "# 문서 요약" not in row.summary_markdown
     assert "## 추출 필드" not in row.summary_markdown
     assert "## 출처" not in row.summary_markdown
     chunks = [item for item in second.added if item.__class__.__name__ == "DocumentChunk"]
@@ -138,6 +139,7 @@ def test_summary_markdown_excludes_extracted_fields_and_sources():
 
     markdown = document_processing._summary_markdown(summary)
 
+    assert "# 문서 요약" not in markdown
     assert "## 추출 필드" not in markdown
     assert "- 계약기간: 1년" not in markdown
     assert "## 출처" not in markdown
