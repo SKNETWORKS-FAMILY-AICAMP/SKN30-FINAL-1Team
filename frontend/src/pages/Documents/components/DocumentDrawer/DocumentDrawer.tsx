@@ -86,6 +86,12 @@ export default function DocumentDrawer({
     ['연결', linkLabel(doc) || '연결된 곳 없음'],
   ]
   const fileMeta = [sizeLabel(file.bytes), file.owner, fmtDay(parseISO(file.uploaded))].join(' · ')
+  // 자동 폴링을 시작한 경우와, 드로어를 다시 열어 파일 상태만 가진 경우를 모두 잡는다.
+  // 처리 중인데 "아직 요약이 없습니다"라고 보이면 사용자는 업로드가 실패한 것으로 오해한다.
+  const summaryProcessing =
+    summaryLoading ||
+    summary?.processing_status === 'processing' ||
+    file.processingStatus === 'processing'
 
   // 목록을 다시 받으면 부모의 콜백 정체성이 바뀝니다. 그때마다 아래 효과가
   // 다시 돌면 같은 요약을 여러 번 조회하게 되므로 최신 함수만 ref 로 들고 갑니다.
@@ -322,7 +328,15 @@ export default function DocumentDrawer({
           </div>
           {(summaryError ?? summaryLoadError) ? (
             <p className={styles.summaryError}>{summaryError ?? summaryLoadError}</p>
-          ) : (summaryFetching || summaryLoading) && !summary?.summary_markdown ? (
+          ) : summaryProcessing && !summary?.summary_markdown ? (
+            <div className={styles.summaryLoading} role="status" aria-live="polite">
+              <span className={styles.summarySpinner} aria-hidden="true" />
+              <div>
+                <strong>AI 문서 요약 중…</strong>
+                <p>문서 내용을 읽고 핵심 정보를 정리하고 있습니다.</p>
+              </div>
+            </div>
+          ) : summaryFetching && !summary?.summary_markdown ? (
             <div className={styles.summarySkeleton}>
               <SkeletonBlocks
                 label="AI 요약을 불러오는 중입니다."
