@@ -313,11 +313,11 @@ export function useMeetingReportsOn(
   return { reports, loading, error, reload }
 }
 
-/** 그 일정으로 쓴 업무보고서 한 건. 딜별 내용은 report.dealSections에 있습니다. */
+/** 그 일정으로 쓴 미팅 보고서 한 건. 딜별 내용은 report.dealSections에 있습니다. */
 export function useMeetingReportOfAgenda(agendaId: string) {
   const { items, loading, error, reload } = useReportQuery(
     agendaId === '' ? null : { report_kind: 'meeting', source_activity_id: agendaId, limit: 1 },
-    '업무보고서를 불러오지 못했습니다.',
+    '미팅 보고서를 불러오지 못했습니다.',
   )
   const report = useMemo(() => (items[0] ? toMeetingReport(items[0]) : undefined), [items])
   return { report, loading, error, reload }

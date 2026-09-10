@@ -116,7 +116,7 @@ const DayAgenda = forwardRef<HTMLElement, Props>(function DayAgenda(
               <Link
                 to={meetingComposePath(it.id)}
                 className={styles.reportBtn}
-                aria-label={`${it.title} 업무보고서 ${reportAction}`}
+                aria-label={`${it.title} 미팅 보고서 ${reportAction}`}
               >
                 <DailyReportIcon width={13} height={13} />
                 {reportAction === '계속 작성' ? reportAction : `보고서 ${reportAction}`}

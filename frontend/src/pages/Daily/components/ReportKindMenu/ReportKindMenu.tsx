@@ -24,8 +24,8 @@ interface Option {
 }
 
 const OPTIONS: Option[] = [
-  { kind: '미팅', title: '업무보고서', desc: '일정 1건을 선택해 기록합니다.' },
-  { kind: '일일', title: '일일업무', desc: '오늘의 일정과 미팅 결과를 모아 작성합니다.' },
+  { kind: '미팅', title: '미팅보고서', desc: '미팅 1건을 선택해 기록합니다.' },
+  { kind: '일일', title: '일일업무', desc: '오늘의 미팅을 모아 작성합니다.' },
   { kind: '주간', title: '주간업무', desc: '제출된 일일업무보고서를 모아 작성합니다.' },
   { kind: '월간', title: '월간업무', desc: '제출된 주간업무보고서를 모아 작성합니다.' },
 ]

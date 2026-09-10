@@ -68,14 +68,14 @@ export function useAgendaReportLink(item: AgendaItem | null) {
                 to: canContinue ? meetingComposePath(id) : meetingReportPath(row.id),
                 label:
                   row.status_code === 'draft' && canContinue
-                    ? '업무보고서 계속 작성'
+                    ? '미팅 보고서 계속 작성'
                     : canContinue
-                      ? '업무보고서 수정'
-                      : '업무보고서 열기',
+                      ? '미팅 보고서 수정'
+                      : '미팅 보고서 열기',
                 written: true,
               }
             : canWrite
-              ? { to: meetingComposePath(id), label: '업무보고서 작성', written: false }
+              ? { to: meetingComposePath(id), label: '미팅 보고서 작성', written: false }
               : { to: '', label: '', written: false, blocked: true },
         )
       })

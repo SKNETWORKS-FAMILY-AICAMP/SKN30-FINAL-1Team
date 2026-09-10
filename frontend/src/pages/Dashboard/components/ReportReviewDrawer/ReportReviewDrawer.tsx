@@ -1,6 +1,6 @@
 // 팀장이 일정에 붙은 보고서를 열어 확정하거나 반려하는 자리.
 //
-// 팀원에게는 이 드로어를 열지 않습니다. 자기 보고서는 업무보고서 상세로 갑니다.
+// 팀원에게는 이 드로어를 열지 않습니다. 자기 보고서는 미팅 보고서 상세로 갑니다.
 import { useState } from 'react'
 import { Link } from 'react-router'
 
@@ -211,7 +211,7 @@ export default function ReportReviewDrawer({ reportId, onReviewed, onClose }: Pr
                 )}
               </dl>
               <Link className={styles.link} to={meetingReportPath(item.id)}>
-                업무보고서 전체 보기
+                미팅 보고서 전체 보기
               </Link>
             </section>
 

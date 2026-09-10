@@ -19,7 +19,7 @@ export type Period = (typeof PERIODS)[number]
 
 export const PERIOD_LABEL: Record<Period, string> = {
   all: '전체',
-  meeting: '업무보고서',
+  meeting: '미팅보고서',
   daily: '일일업무',
   weekly: '주간업무',
   monthly: '월간업무',

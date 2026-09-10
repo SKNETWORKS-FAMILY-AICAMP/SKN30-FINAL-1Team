@@ -551,7 +551,7 @@
             createElement(MeetingCompose),
           ),
         )
-        const submit = document.querySelector('[aria-label="업무보고 작성 완료"]')
+        const submit = document.querySelector('[aria-label="미팅 보고서 작성 완료"]')
         check(submit && !submit.disabled, '실제 미팅 작성 화면: 유효 공통·미지정 본문 제출 가능')
         const setText = async (editor, value) =>
           act(async () => {

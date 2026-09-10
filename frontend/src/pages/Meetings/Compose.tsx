@@ -1,4 +1,4 @@
-// 업무 보고서 작성 화면.
+// 미팅 보고서 작성 화면.
 //
 // 왼쪽은 미팅 공통 정보·원문이고, 오른쪽은 공통 기록과 선택한 딜의 보고서입니다.
 // 저장할 때는 공통 기록과 선택된 딜 카드를 미팅 보고서 한 건으로 묶습니다.
@@ -260,7 +260,7 @@ export default function Compose() {
   if (agendaLoading || loading) {
     return (
       <section>
-        <SkeletonDetail label="업무 보고서를 불러오는 중입니다." title height={520} />
+        <SkeletonDetail label="미팅 보고서를 불러오는 중입니다." title height={520} />
       </section>
     )
   }
@@ -287,7 +287,7 @@ export default function Compose() {
   if (!item) {
     return (
       <section>
-        <h1 className="sr-only">업무 보고서 작성</h1>
+        <h1 className="sr-only">미팅 보고서 작성</h1>
         <p className={styles.notFound}>
           기록할 일정을 찾을 수 없습니다.{' '}
           <Link to={ROUTES.DASHBOARD}>대시보드에서 일정을 고르세요.</Link>
@@ -506,11 +506,11 @@ export default function Compose() {
     try {
       const report = await finalizeReport(payloadForMeeting(), result?.runId, controller.signal)
       if (controller.signal.aborted || submitAbort.current !== controller) return
-      showToast('업무보고 작성을 완료했습니다.')
+      showToast('미팅 보고서 작성을 완료했습니다.')
       navigate(meetingReportPath(report.id), { replace: true })
     } catch (reason: unknown) {
       if (!controller.signal.aborted) {
-        setRunError(errorMessage(reason, '업무보고 작성을 완료하지 못했습니다.'))
+        setRunError(errorMessage(reason, '미팅 보고서 작성을 완료하지 못했습니다.'))
       }
     } finally {
       if (submitAbort.current === controller) {
@@ -527,7 +527,7 @@ export default function Compose() {
   return (
     <section className={styles.page}>
       <h1 className="sr-only">
-        {item.hospital} {item.title} 업무 보고서 작성
+        {item.hospital} {item.title} 미팅 보고서 작성
       </h1>
 
       <div className={styles.head}>
@@ -664,7 +664,7 @@ export default function Compose() {
             <Button
               type="button"
               className={styles.saveAllButton}
-              aria-label="업무보고 작성 완료"
+              aria-label="미팅 보고서 작성 완료"
               disabled={
                 busy ||
                 draft.attachmentsPending ||
@@ -675,7 +675,7 @@ export default function Compose() {
               }
               onClick={() => void submitAll()}
             >
-              {submitting ? '완료 중…' : '업무보고 작성 완료'}
+              {submitting ? '완료 중…' : '미팅 보고서 작성 완료'}
             </Button>
           </div>
           <div className={styles.reports}>
@@ -748,7 +748,7 @@ export default function Compose() {
             </>
           }
         >
-          <p>현재 편집 중인 내용은 아직 업무보고서로 저장되지 않았습니다.</p>
+          <p>현재 편집 중인 내용은 아직 미팅 보고서로 저장되지 않았습니다.</p>
         </Modal>
       )}
       {createDealOpen && item.customerCompanyId && (
