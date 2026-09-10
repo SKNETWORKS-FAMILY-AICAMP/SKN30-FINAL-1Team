@@ -2,11 +2,10 @@
 //
 // 수정은 바뀐 항목만 보냅니다. 통째로 보내면 그 사이 다른 곳에서 바뀐 값을 되돌려 놓습니다.
 import { useState, type ReactNode } from 'react'
-import DatePicker, { registerLocale } from 'react-datepicker'
-import { ko } from 'date-fns/locale'
 
 import { errorMessage } from '@/api/errorMessage'
 import Button from '@/components/Button'
+import DayPicker from '@/components/DayPicker'
 import MemberMultiSelect from '@/components/MemberMultiSelect'
 import Modal from '@/components/Modal'
 import RichTextEditor from '@/components/RichTextEditor'
@@ -21,10 +20,7 @@ import { iso, parseISO, TODAY } from '@/utils/date'
 
 import { TYPE_TABS } from '../noticeCatalog'
 
-import 'react-datepicker/dist/react-datepicker.css'
 import styles from '../Notices.module.scss'
-
-registerLocale('ko', ko)
 
 interface Props {
   /** 수정할 글. 주지 않으면 등록입니다. */
@@ -217,6 +213,7 @@ export default function NoticeFormModal({ initial, defaultType, onClose, onSubmi
             <DayPicker
               selected={start}
               label="노출 시작일"
+              fixed
               disabled={submitting}
               onChange={(date) => {
                 if (date === null) return
@@ -229,6 +226,8 @@ export default function NoticeFormModal({ initial, defaultType, onClose, onSubmi
               selected={end}
               label="노출 종료일"
               minDate={start}
+              placeholderText="무기한"
+              fixed
               isClearable
               disabled={submitting}
               onChange={(date) => {
@@ -323,38 +322,6 @@ function changedFields(
   if (next.type === 'DIRECTIVE' && !sameTargets) patch.target_member_ids = nextTargets
 
   return patch
-}
-
-interface DayPickerProps {
-  selected: Date | null
-  onChange: (date: Date | null) => void
-  label: string
-  minDate?: Date
-  isClearable?: boolean
-  disabled?: boolean
-}
-
-function DayPicker({ selected, onChange, label, minDate, isClearable, disabled }: DayPickerProps) {
-  return (
-    <div className={styles.pickerCell}>
-      <DatePicker
-        selected={selected}
-        onChange={onChange}
-        minDate={minDate}
-        isClearable={isClearable}
-        disabled={disabled}
-        locale="ko"
-        dateFormat="yyyy-MM-dd"
-        placeholderText={isClearable ? '무기한' : undefined}
-        // date-fns 의 ko 로케일은 달 제목을 '8월 2026' 으로 냅니다. 우리말 차례로 뒤집습니다.
-        dateFormatCalendar="yyyy년 M월"
-        customInput={<input aria-label={label} className={styles.picker} />}
-        popperPlacement="bottom-start"
-        // 모달이 overflow: hidden 이라, 아래쪽에서 열린 달력이 잘리지 않게 띄웁니다.
-        popperProps={{ strategy: 'fixed' }}
-      />
-    </div>
-  )
 }
 
 interface FieldProps {

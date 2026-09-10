@@ -2,7 +2,7 @@
 // 작성만 별도 화면(/daily/new)으로 나갑니다.
 //
 // 업무보고서도 여기서 함께 봅니다. 목록에는 두 종류가 섞이므로 rows.ts 가 한 모양으로
-// 정리한 뒤 넘깁니다. 조건(tab·q·status·approver·hospital·range)은 주소에 둡니다.
+// 정리한 뒤 넘깁니다. 조건(tab·q·status·start·end)은 주소에 둡니다.
 import { useCallback, useMemo, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
 
@@ -36,7 +36,7 @@ import ReportKindMenu, { type ComposeKind } from './components/ReportKindMenu'
 import ReportStatusBadge from './components/ReportStatusBadge'
 import { countFilters, parseFilters, writeFilters, type HistoryFilters } from './historyFilters'
 import { PERIOD_KIND, PERIOD_LABEL, PERIODS, toPeriod } from './periods'
-import { useReportFilterOptions, useReportList, useReportMarks } from './useReportHistory'
+import { useReportList, useReportMarks } from './useReportHistory'
 
 import styles from './Daily.module.scss'
 
@@ -77,11 +77,9 @@ export default function Daily() {
   const [openISO, setOpenISO] = useState('')
 
   const query = params.get('q') ?? ''
-  const filters = useMemo(() => {
+  const filters = useMemo<HistoryFilters>(() => {
     const parsed = parseFilters(params)
-    return period === 'meeting'
-      ? { ...parsed, status: parsed.status.filter((status) => status !== '작성중') }
-      : parsed
+    return period === 'meeting' && parsed.status === '작성중' ? { ...parsed, status: '' } : parsed
   }, [params, period])
 
   const days = weekDays(weekOffset)
@@ -152,9 +150,6 @@ export default function Daily() {
     if (tab) query.set('tab', tab)
     setParams(query, { replace: true })
   }
-
-  /** 필터 선택지. 목록에 있는 값만 내놓아야 고르고도 0건이 되지 않습니다. */
-  const { approvers, hospitals } = useReportFilterOptions()
 
   // 칸마다 점 하나. 평일인데 지나갔고 일일보고가 비었으면 미작성 표시입니다.
   const renderMark = (dateISO: string, isSelected: boolean) => {
@@ -316,9 +311,8 @@ export default function Daily() {
         onSearch={setQuery}
         filters={filters}
         onFiltersChange={setFilters}
-        approvers={approvers}
-        hospitals={hospitals}
         period={period}
+        onReset={resetAll}
       />
 
       {visible.length === 0 ? (

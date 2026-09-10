@@ -2,68 +2,84 @@
 // (보고서 종류는 기간 탭이 정하므로 여기서 다루지 않습니다.)
 //
 // 조건은 주소에 둡니다. 걸러 둔 목록을 링크로 건네면 받는 쪽도 같은 화면을 봅니다.
-// 계약·발주·자료실 화면과 같은 방식이고, 여러 개를 고르는 값만 쉼표로 잇습니다.
-import type { ReportStatus } from '@/types'
+// 계약·발주·자료실 화면과 같은 방식입니다.
+import type { ColumnTone, ReportStatus } from '@/types'
+import { addMonths, iso, startOfMonth, startOfWeek, TODAY } from '@/utils/date'
 
-import { showsDaily, type Period } from './periods'
-
-export type RangeFilter = 'all' | 'week' | 'month' | 'quarter'
+import type { Period } from './periods'
 
 export interface HistoryFilters {
-  status: ReportStatus[]
-  approver: string[]
-  /** 업무보고서의 고객사. 업무 보고에는 없는 값이라 미팅 탭에서만 씁니다. */
-  hospital: string[]
-  range: RangeFilter
+  /** 빈 문자열이면 전체입니다. */
+  status: ReportStatus | ''
+  /** 기간의 시작·끝. 빈 문자열이면 그쪽을 자르지 않습니다. */
+  start: string
+  end: string
 }
 
-export const NO_FILTERS: HistoryFilters = { status: [], approver: [], hospital: [], range: 'all' }
+export const NO_FILTERS: HistoryFilters = { status: '', start: '', end: '' }
 
 export const FILTER_STATUSES: ReportStatus[] = ['작성중', '검토 대기', '확정', '반려']
-export const FILTER_RANGES: { value: RangeFilter; label: string }[] = [
+
+/** 상태 탭 앞에 붙는 점. 보고서 배지와 같은 색이지만 그쪽은 StatusTone 이라 표가 다릅니다. */
+export const STATUS_TONE: Record<ReportStatus, ColumnTone> = {
+  작성중: 'blue',
+  '검토 대기': 'orange',
+  확정: 'green',
+  반려: 'red',
+}
+
+/** 기간 빠른 선택. 누르면 시작·끝을 함께 갈아 끼웁니다. */
+export const RANGE_PRESETS: { value: string; label: string }[] = [
   { value: 'all', label: '전체' },
   { value: 'week', label: '이번 주' },
   { value: 'month', label: '이번 달' },
   { value: 'quarter', label: '최근 3개월' },
 ]
 
-const RANGE_VALUES = FILTER_RANGES.map((item) => item.value)
+/**
+ * 빠른 선택이 채우는 구간. 끝은 비워 두어 오늘 이후로 열어 둡니다.
+ * 앞으로 잡힌 미팅 보고서를 잘라 내면 '이번 달' 이 이번 달을 다 보여 주지 못합니다.
+ */
+export function presetRange(value: string): { start: string; end: string } {
+  if (value === 'week') return { start: iso(startOfWeek(TODAY)), end: '' }
+  if (value === 'month') return { start: iso(startOfMonth(TODAY)), end: '' }
+  if (value === 'quarter') return { start: iso(addMonths(TODAY, -3)), end: '' }
+  return { start: '', end: '' }
+}
 
-/** 켜져 있는 필터 개수. 배지와 초기화 버튼이 같은 값을 씁니다. */
+/**
+ * 지금 구간과 똑같은 빠른 선택. 없으면 null 이라 아무 칸도 켜지지 않습니다.
+ * 날짜를 직접 고치면 그 순간 어느 것과도 맞지 않게 됩니다.
+ */
+export function activePreset(filters: HistoryFilters): string | null {
+  const found = RANGE_PRESETS.find((preset) => {
+    const range = presetRange(preset.value)
+    return range.start === filters.start && range.end === filters.end
+  })
+  return found?.value ?? null
+}
+
+/** 켜져 있는 필터 개수. 초기화 버튼이 이 값을 봅니다. */
 export function countFilters(filters: HistoryFilters): number {
   return (
-    filters.status.length +
-    filters.approver.length +
-    filters.hospital.length +
-    (filters.range === 'all' ? 0 : 1)
+    (filters.status === '' ? 0 : 1) + (filters.start === '' ? 0 : 1) + (filters.end === '' ? 0 : 1)
   )
 }
 
-const splitList = (value: string | null) =>
-  value
-    ? value
-        .split(',')
-        .map((item) => item.trim())
-        .filter(Boolean)
-    : []
-
 /** 주소에 적힌 조건을 필터로. 모르는 값은 무시하고 기본값으로 둡니다. */
 export function parseFilters(params: URLSearchParams): HistoryFilters {
-  const range = params.get('range') as RangeFilter | null
+  const status = params.get('status')
   return {
-    status: splitList(params.get('status')).filter((value): value is ReportStatus =>
-      FILTER_STATUSES.includes(value as ReportStatus),
-    ),
-    approver: splitList(params.get('approver')),
-    hospital: splitList(params.get('hospital')),
-    range: range && RANGE_VALUES.includes(range) ? range : 'all',
+    status: FILTER_STATUSES.includes(status as ReportStatus) ? (status as ReportStatus) : '',
+    start: params.get('start') ?? '',
+    end: params.get('end') ?? '',
   }
 }
 
 /**
  * 필터를 주소에 씁니다. 기본값인 키는 지워서 주소를 짧게 둡니다.
- * 지금 탭에 없는 필터도 함께 지웁니다. 보이지 않는 조건이 목록을 걸러 버리면
- * 왜 비었는지 알 길이 없습니다.
+ * 미팅 탭에는 작성중이 없으므로 그 값도 함께 지웁니다. 보이지 않는 조건이 목록을
+ * 걸러 버리면 왜 비었는지 알 길이 없습니다.
  */
 export function writeFilters(
   params: URLSearchParams,
@@ -76,21 +92,8 @@ export function writeFilters(
     else next.set(key, value)
   }
 
-  put(
-    'status',
-    filters.status.filter((status) => period !== 'meeting' || status !== '작성중').join(','),
-  )
-  put('approver', showsApprover(period) ? filters.approver.join(',') : '')
-  put('hospital', showsHospital(period) ? filters.hospital.join(',') : '')
-  put('range', filters.range === 'all' ? '' : filters.range)
+  put('status', period === 'meeting' && filters.status === '작성중' ? '' : filters.status)
+  put('start', filters.start)
+  put('end', filters.end)
   return next
 }
-
-/** 보고 대상은 업무 보고에만 있는 값입니다. */
-export const showsApprover = (period: Period) => showsDaily(period)
-
-/**
- * 고객사는 미팅 탭에서만 고릅니다. '전체' 탭에서 걸면 고객사가 없는 업무 보고가
- * 전부 빠져 목록이 미팅만 남습니다.
- */
-export const showsHospital = (period: Period) => period === 'meeting'

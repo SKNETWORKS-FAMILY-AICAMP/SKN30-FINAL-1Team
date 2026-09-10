@@ -4,19 +4,15 @@
 // 화면에서 계산했습니다. 한 쪽만 받는 지금 그렇게 하면 첫 쪽에 없는 일치 항목이
 // 통째로 빠집니다. 그래서 조건은 서버가 걸고 화면은 받은 것만 그립니다.
 //
-// 조회는 셋으로 나뉩니다. 목록은 조건을 다 걸고 더보기로 잇고, 달력은 조건 없이
-// 보이는 구간만 보고, 필터 선택지는 목록에 실제로 있는 값만 따로 묻습니다.
+// 조회는 둘로 나뉩니다. 목록은 조건을 다 걸고 더보기로 잇고, 달력은 조건 없이
+// 보이는 구간만 봅니다.
 import { useEffect, useMemo, useRef, useState } from 'react'
 
-import { client } from '@/api/client'
-import { errorMessage } from '@/api/errorMessage'
 import useSearchPaging from '@/hooks/useSearchPaging'
 import { toMeetingReport } from '@/pages/Meetings/useMeetingReports'
 import { fetchAllReportPages } from '@/shared/reportQuery'
 import { useScopeOwnerIds } from '@/shared/scope'
 import type { ApiReportKind, ApiReportStatus, ReportResponse } from '@/types'
-import { addMonths, iso, startOfMonth, startOfWeek, TODAY } from '@/utils/date'
-
 import { type HistoryFilters } from './historyFilters'
 import { PERIOD_KIND, showsDaily, showsMeetings, type Period } from './periods'
 import { byDateDesc, fromDailyReport, fromMeetingReport, type ListRow } from './rows'
@@ -44,8 +40,6 @@ interface HistoryQueryScope {
   report_kind: ApiReportKind[]
   status_code?: ApiReportStatus[]
 }
-
-const some = <T>(values: T[]) => (values.length > 0 ? values : undefined)
 
 /** 이 탭이 보는 보고서 종류. 서버가 이 목록으로 좁힙니다. */
 function kindsOf(period: Period): ApiReportKind[] {
@@ -96,7 +90,7 @@ export function toRow(item: ReportResponse): ListRow {
 }
 
 /**
- * 작성 리스트. 검색어·상태·보고 대상·고객사·기간을 모두 서버가 겁니다.
+ * 작성 리스트. 검색어·상태·기간을 모두 서버가 겁니다.
  *
  * 상태는 화면 말('확정')과 서버 코드('approved')가 달라 여기서 옮깁니다. 서버가 모르는
  * 말을 그대로 보내면 422 로 돌아옵니다.
@@ -104,14 +98,13 @@ export function toRow(item: ReportResponse): ListRow {
 export function useReportList(period: Period, query: string, filters: HistoryFilters) {
   const authorIds = useScopeOwnerIds()
   const paramsByScope = useMemo(() => {
-    const selectedStatuses = some(filters.status.flatMap((value) => API_STATUS[value]))
+    const selectedStatuses = filters.status === '' ? undefined : API_STATUS[filters.status]
     return historyQueryScopes(period, selectedStatuses).map((scope) => ({
       ...scope,
       author_member_id: authorIds,
-      // 빈 배열을 보내면 "아무것도 아닌 것" 을 고른 조건이 됩니다. 아예 뺍니다.
-      approver: some(filters.approver),
-      hospital: some(filters.hospital),
-      start_date: rangeStartISO(filters.range) ?? undefined,
+      // 빈 문자열은 조건 없음입니다. 그대로 보내면 "빈 날짜" 를 고른 것이 됩니다.
+      start_date: filters.start || undefined,
+      end_date: filters.end || undefined,
     }))
   }, [period, authorIds, filters])
 
@@ -216,46 +209,4 @@ export function useReportMarks(period: Period, fromISO: string, toISO: string) {
     }
     return map
   }, [rows])
-}
-
-/** 필터의 선택지. 화면이 못 본 값까지 서버가 셉니다. */
-export function useReportFilterOptions() {
-  const authorIds = useScopeOwnerIds()
-  const [options, setOptions] = useState<{ approvers: string[]; hospitals: string[] }>({
-    approvers: [],
-    hospitals: [],
-  })
-  const [error, setError] = useState<string | null>(null)
-  const key = JSON.stringify(authorIds ?? null)
-
-  useEffect(() => {
-    const ids = JSON.parse(key) as string[] | null
-    const controller = new AbortController()
-
-    void client
-      .get<{ approvers: string[]; hospitals: string[] }>('/report-filter-options', {
-        params: { author_member_id: ids ?? undefined },
-        signal: controller.signal,
-      })
-      .then(({ data }) => {
-        if (!controller.signal.aborted) setOptions(data)
-      })
-      .catch((reason: unknown) => {
-        if (controller.signal.aborted) return
-        setOptions({ approvers: [], hospitals: [] })
-        setError(errorMessage(reason, '필터 선택지를 불러오지 못했습니다.'))
-      })
-
-    return () => controller.abort()
-  }, [key])
-
-  return { ...options, error }
-}
-
-/** 기간 필터의 시작일. 'all' 이면 자르지 않습니다. */
-export function rangeStartISO(range: HistoryFilters['range']): string | null {
-  if (range === 'week') return iso(startOfWeek(TODAY))
-  if (range === 'month') return iso(startOfMonth(TODAY))
-  if (range === 'quarter') return iso(addMonths(TODAY, -3))
-  return null
 }

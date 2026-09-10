@@ -231,17 +231,6 @@
   }
 }
 
-// 열린 달력은 DatePicker 의 형제로 붙습니다. 이 감싸개가 없으면 그 달력이 기간 칸 하나를
-// 차지해 종료 입력을 다음 줄로 밀어냅니다.
-.pickerCell {
-  position: relative;
-  flex: 0 1 200px;
-}
-
-.picker {
-  width: 100%;
-}
-
 /* ---- 숨기기 스위치 ---- */
 
 .switch {

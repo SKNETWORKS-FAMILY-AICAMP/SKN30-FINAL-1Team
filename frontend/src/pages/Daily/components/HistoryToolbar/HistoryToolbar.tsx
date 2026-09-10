@@ -1,59 +1,64 @@
 // 작성 리스트의 찾기 줄입니다. 유형은 기간 탭이 정하므로 여기에는 없고,
-// 상태·보고 대상·고객사·기간은 Popover 안에 접어 둡니다. (Customers 의 도구 줄과 같은 방식)
+// 위에서부터 검색어 → 상태 → 기간 순으로 넓은 조건이 먼저 옵니다.
 //
-// 보고 대상과 고객사는 서로 다른 탭의 값이라 한 번에 하나만 뜹니다.
-// 업무 보고에는 고객사가 없고 업무보고서에는 결재선이 없습니다.
-import { useState } from 'react'
+// 조건을 접어 두지 않습니다. 보이지 않는 필터가 목록을 걸러 버리면 왜 비었는지
+// 알 길이 없습니다. 검색어만 기존대로 검색 버튼·Enter 로 확정하고, 상태와 기간은
+// 고르는 즉시 목록에 걸립니다(딜·계약 화면의 탭·드롭다운과 같은 방식).
+import { useMemo } from 'react'
 
-import Button from '@/components/Button'
-import { FilterIcon } from '@/components/icons'
-import Popover from '@/components/Popover'
+import DayPicker from '@/components/DayPicker'
 import SearchInput from '@/components/SearchInput'
+import Tabs, { type TabItem } from '@/components/Tabs'
+import type { ReportStatus } from '@/types'
+import { iso, parseISO } from '@/utils/date'
 
 import {
+  activePreset,
   countFilters,
-  FILTER_RANGES,
   FILTER_STATUSES,
-  NO_FILTERS,
-  showsApprover,
-  showsHospital,
+  presetRange,
+  RANGE_PRESETS,
+  STATUS_TONE,
   type HistoryFilters,
 } from '../../historyFilters'
 import type { Period } from '../../periods'
 
 import styles from './HistoryToolbar.module.scss'
 
+type StatusValue = ReportStatus | ''
+
 interface Props {
   query: string
   onSearch: (next: string) => void
   filters: HistoryFilters
   onFiltersChange: (next: HistoryFilters) => void
-  approvers: string[]
-  /** 미팅 탭의 고객사 선택지 */
-  hospitals: string[]
-  /** 지금 보고 있는 탭. 어느 그룹을 그릴지 정합니다. */
+  /** 지금 보고 있는 탭. 미팅에는 작성중이 없습니다. */
   period: Period
+  /** 검색어까지 함께 푸는 전체 해제. */
+  onReset: () => void
 }
+
+/** 빈 문자열은 조건 없음이라 달력에는 아무것도 고르지 않은 것으로 넘깁니다. */
+const toDate = (value: string) => (value === '' ? null : parseISO(value))
+const toISO = (date: Date | null) => (date === null ? '' : iso(date))
 
 export default function HistoryToolbar({
   query,
   onSearch,
   filters,
   onFiltersChange,
-  approvers,
-  hospitals,
   period,
+  onReset,
 }: Props) {
-  const [open, setOpen] = useState(false)
-  const filterCount = countFilters(filters)
-
-  const toggle = (key: 'status' | 'approver' | 'hospital', value: string) => {
-    const current: string[] = filters[key]
-    onFiltersChange({
-      ...filters,
-      [key]: current.includes(value) ? current.filter((v) => v !== value) : [...current, value],
-    })
-  }
+  const statusItems = useMemo<TabItem<StatusValue>[]>(
+    () => [
+      { value: '', label: '전체' },
+      ...FILTER_STATUSES.filter((value) => period !== 'meeting' || value !== '작성중').map(
+        (value) => ({ value, label: value, tone: STATUS_TONE[value] }),
+      ),
+    ],
+    [period],
+  )
 
   return (
     <div className={styles.root}>
@@ -65,121 +70,53 @@ export default function HistoryToolbar({
         onSearch={onSearch}
       />
 
-      <Popover
-        open={open}
-        onClose={() => setOpen(false)}
-        align="end"
-        label="이력 필터"
-        trigger={
-          <Button
-            variant="outline"
-            className={filterCount > 0 ? styles.isOn : ''}
-            aria-expanded={open}
-            onClick={() => setOpen(!open)}
-          >
-            <FilterIcon width={15} height={15} />
-            필터
-            {filterCount > 0 && <span className={styles.badge}>{filterCount}</span>}
-          </Button>
-        }
-      >
-        <div className={styles.panel}>
-          <fieldset className={styles.group}>
-            <legend className={styles.legend}>상태</legend>
-            <div className={styles.chips}>
-              {FILTER_STATUSES.filter((value) => period !== 'meeting' || value !== '작성중').map(
-                (value) => {
-                  const on = filters.status.includes(value)
-                  return (
-                    <button
-                      key={value}
-                      type="button"
-                      className={`${styles.chip} ${on ? styles.isChipOn : ''}`}
-                      aria-pressed={on}
-                      onClick={() => toggle('status', value)}
-                    >
-                      {value}
-                    </button>
-                  )
-                },
-              )}
-            </div>
-          </fieldset>
+      <Tabs
+        items={statusItems}
+        value={filters.status}
+        label="보고서 상태"
+        onChange={(status) => onFiltersChange({ ...filters, status })}
+      />
 
-          {showsApprover(period) && (
-            <fieldset className={styles.group}>
-              <legend className={styles.legend}>보고 대상</legend>
-              <div className={styles.chips}>
-                {approvers.map((value) => {
-                  const on = filters.approver.includes(value)
-                  return (
-                    <button
-                      key={value}
-                      type="button"
-                      className={`${styles.chip} ${on ? styles.isChipOn : ''}`}
-                      aria-pressed={on}
-                      onClick={() => toggle('approver', value)}
-                    >
-                      {value}
-                    </button>
-                  )
-                })}
-              </div>
-            </fieldset>
-          )}
+      <div className={styles.range}>
+        <DayPicker
+          className={styles.day}
+          selected={toDate(filters.start)}
+          maxDate={toDate(filters.end) ?? undefined}
+          label="조회 시작일"
+          placeholderText="시작일"
+          isClearable
+          onChange={(date) => onFiltersChange({ ...filters, start: toISO(date) })}
+        />
+        <span className={styles.tilde} aria-hidden="true">
+          ~
+        </span>
+        <DayPicker
+          className={styles.day}
+          selected={toDate(filters.end)}
+          minDate={toDate(filters.start) ?? undefined}
+          label="조회 종료일"
+          placeholderText="종료일"
+          isClearable
+          onChange={(date) => onFiltersChange({ ...filters, end: toISO(date) })}
+        />
 
-          {showsHospital(period) && (
-            <fieldset className={styles.group}>
-              <legend className={styles.legend}>고객사</legend>
-              <div className={styles.chips}>
-                {hospitals.map((value) => {
-                  const on = filters.hospital.includes(value)
-                  return (
-                    <button
-                      key={value}
-                      type="button"
-                      className={`${styles.chip} ${on ? styles.isChipOn : ''}`}
-                      aria-pressed={on}
-                      onClick={() => toggle('hospital', value)}
-                    >
-                      {value}
-                    </button>
-                  )
-                })}
-              </div>
-            </fieldset>
-          )}
+        {/* 자주 보는 구간을 한 번에. 누르면 시작·끝을 함께 갈아 끼웁니다.
+            날짜를 직접 고치면 어느 칸과도 맞지 않게 되어 모두 꺼집니다. */}
+        <Tabs
+          variant="segmented"
+          size="sm"
+          items={RANGE_PRESETS}
+          value={activePreset(filters) ?? ''}
+          label="기간 빠른 선택"
+          onChange={(value) => onFiltersChange({ ...filters, ...presetRange(value) })}
+        />
 
-          <fieldset className={styles.group}>
-            <legend className={styles.legend}>기간</legend>
-            <div className={styles.chips}>
-              {FILTER_RANGES.map((item) => {
-                const on = filters.range === item.value
-                return (
-                  <button
-                    key={item.value}
-                    type="button"
-                    className={`${styles.chip} ${on ? styles.isChipOn : ''}`}
-                    aria-pressed={on}
-                    onClick={() => onFiltersChange({ ...filters, range: item.value })}
-                  >
-                    {item.label}
-                  </button>
-                )
-              })}
-            </div>
-          </fieldset>
-
-          <button
-            type="button"
-            className={styles.clear}
-            disabled={filterCount === 0}
-            onClick={() => onFiltersChange(NO_FILTERS)}
-          >
-            필터 초기화
+        {(countFilters(filters) > 0 || query !== '') && (
+          <button type="button" className={styles.clear} onClick={onReset}>
+            초기화
           </button>
-        </div>
-      </Popover>
+        )}
+      </div>
     </div>
   )
 }

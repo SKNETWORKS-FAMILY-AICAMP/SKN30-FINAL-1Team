@@ -1,0 +1,25 @@
+.root {
+  position: relative;
+  flex: 0 1 200px;
+}
+
+// 폼 안에서는 form-field 믹스인이 같은 모양을 입히지만, 툴바처럼 .field 밖에
+// 서는 자리도 있어 여기서 스스로 갖춥니다.
+.input {
+  width: 100%;
+  height: var(--control-h);
+  padding: 0 var(--s3);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  font-size: 13px;
+  outline: none;
+  transition:
+    border-color var(--t-fast) var(--ease-out),
+    box-shadow var(--t-fast) var(--ease-out);
+
+  &:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px var(--blue-ring);
+  }
+}
