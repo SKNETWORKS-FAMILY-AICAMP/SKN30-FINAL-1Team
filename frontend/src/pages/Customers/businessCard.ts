@@ -7,6 +7,8 @@ import { downscaleImage } from '@/utils/image'
 /** 명함에서 읽어 낸 값. 고객 등록 폼의 칸과 이름을 맞춰 둡니다. */
 export interface BusinessCardDraft {
   org: string
+  /** 명함에서 읽은 회사 주소. 회사 등록 폼의 주소 칸에 미리 채운다. */
+  address: string
   name: string
   dept: string
   title: string
@@ -41,6 +43,7 @@ interface BusinessCardScanStatus {
     job_title: string
     email: string
     phone: string
+    address: string
   } | null
 }
 
@@ -134,6 +137,7 @@ export async function recognizeBusinessCard(
       job_title: scan.fields.job_title,
       email: scan.fields.email,
       phone: scan.fields.phone,
+      address: scan.fields.address,
     }
     let matches: BusinessCardMatch[] = []
     try {
@@ -144,6 +148,7 @@ export async function recognizeBusinessCard(
     }
     return {
       org: fields.company_name,
+      address: fields.address,
       name: fields.name,
       dept: fields.department,
       title: fields.job_title,

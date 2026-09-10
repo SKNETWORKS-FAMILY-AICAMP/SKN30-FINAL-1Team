@@ -385,10 +385,12 @@ export default function Customers() {
                 : undefined
           }
           initialBusinessNo={licenseDraft?.businessNo}
-          // 등록증의 소재지는 한 줄로 옵니다. 우편번호가 필요하면 주소 검색으로 다시 고릅니다.
+          // 명함·등록증의 소재지는 한 줄로 옵니다. 우편번호가 필요하면 주소 검색으로 다시 고릅니다.
           initialAddress={
-            licenseDraft?.address.trim()
-              ? { postcode: '', address: licenseDraft.address.trim(), addressDetail: '' }
+            cardDraft?.address.trim()
+              ? { postcode: '', address: cardDraft.address.trim(), addressDetail: '' }
+              : licenseDraft?.address.trim()
+                ? { postcode: '', address: licenseDraft.address.trim(), addressDetail: '' }
               : undefined
           }
         />

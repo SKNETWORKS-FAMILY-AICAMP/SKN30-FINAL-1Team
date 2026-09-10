@@ -47,6 +47,7 @@ def _accept_scan(monkeypatch, member: Member, ocr_call) -> str:
                 name="합성 담당자",
                 company_name="합성 회사",
                 phone="010-0000-0000",
+                address="서울시 양천구 신월로 355",
             ),
             ready_for_contact_registration=True,
         )
@@ -82,6 +83,7 @@ def test_business_card_scan_route_accepts_then_serves_draft(monkeypatch):
     body = response.json()
     assert body["processing_status"] == "completed"
     assert body["fields"]["name"] == "합성 담당자"
+    assert body["fields"]["address"] == "서울시 양천구 신월로 355"
     assert body["ready_for_contact_registration"] is True
     assert body["processing_error"] is None
 
