@@ -64,8 +64,8 @@ export const NAV_SECTIONS: NavSection[] = [
     id: 'documents',
     title: '자료실',
     items: [
-      { to: ROUTES.DOCUMENTS_TRADE, label: '거래문서실', icon: DocumentsIcon },
-      { to: ROUTES.DOCUMENTS_SALES, label: '영업자료실', icon: DocumentsIcon },
+      { to: ROUTES.DOCUMENTS_TRADE, label: '거래문서', icon: DocumentsIcon },
+      { to: ROUTES.DOCUMENTS_SALES, label: '영업자료', icon: DocumentsIcon },
     ],
   },
   {
