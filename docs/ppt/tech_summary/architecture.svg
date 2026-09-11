@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1660 900" width="1660" height="900" font-family="Pretendard, 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', sans-serif">
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1e3a5f"/>
+    </marker>
+    <marker id="ahg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#94a3b8"/>
+    </marker>
+    <style>
+      .box  { fill:#f4f7fb; stroke:#1e3a5f; stroke-width:2.5; rx:10; }
+      .acc  { fill:#e3edfa; stroke:#1b5fb0; stroke-width:2.5; rx:10; }
+      .ext  { fill:#ffffff; stroke:#1b5fb0; stroke-width:2.5; stroke-dasharray:7 5; rx:10; }
+      .t    { font-size:28px; font-weight:700; fill:#12263f; text-anchor:middle; }
+      .s    { font-size:19px; fill:#4a5f7a; text-anchor:middle; }
+      .acct { font-size:19px; fill:#1b5fb0; font-weight:700; text-anchor:middle; }
+      .ln   { stroke:#1e3a5f; stroke-width:2.5; fill:none; marker-end:url(#ah); }
+      .ln2  { stroke:#1e3a5f; stroke-width:2.5; fill:none; marker-end:url(#ah); marker-start:url(#ah); }
+      .dash { stroke:#94a3b8; stroke-width:2.5; fill:none; stroke-dasharray:8 6; marker-end:url(#ahg); }
+      .lb   { font-size:17px; fill:#33506e; text-anchor:middle; }
+      .lbs  { font-size:17px; fill:#33506e; text-anchor:start; }
+      .lbe  { font-size:17px; fill:#33506e; text-anchor:end; }
+    </style>
+  </defs>
+
+  <rect width="1660" height="900" fill="#ffffff"/>
+
+  <!-- 배포 -->
+  <rect x="40" y="20" width="1580" height="150" rx="12" fill="#fafbfd" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="9 6"/>
+  <text x="62" y="50" font-size="18" fill="#7d8fa6" font-weight="600">배포 — 수동 실행 · develop 브랜치만 · 장기 키 없이 OIDC</text>
+  <rect x="90"  y="64" width="270" height="82" rx="9" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+  <text x="225"  y="113" font-size="21" fill="#3d5570" text-anchor="middle" font-weight="600">GitHub Actions</text>
+  <rect x="480" y="64" width="270" height="82" rx="9" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+  <text x="615"  y="113" font-size="21" fill="#3d5570" text-anchor="middle" font-weight="600">AWS IAM Role</text>
+  <rect x="870" y="64" width="390" height="82" rx="9" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+  <text x="1065" y="113" font-size="21" fill="#3d5570" text-anchor="middle" font-weight="600">S3 배포 · EC2 원격 실행</text>
+  <path class="dash" d="M 362 105 L 474 105"/>
+  <text x="418" y="90" font-size="16" fill="#7d8fa6" text-anchor="middle">OIDC</text>
+  <path class="dash" d="M 752 105 L 864 105"/>
+  <text x="808" y="90" font-size="16" fill="#7d8fa6" text-anchor="middle">SSM</text>
+  <path class="dash" d="M 712 172 L 712 230"/>
+  <path class="dash" d="M 585 172 L 585 420 L 640 420 L 640 435"/>
+
+  <!-- 런타임 -->
+  <rect x="60" y="448" width="170" height="94" rx="10" fill="#1e3a5f" stroke="#1e3a5f" stroke-width="2.5"/>
+  <text x="145" y="507" font-size="28" font-weight="700" fill="#ffffff" text-anchor="middle">사용자</text>
+
+  <rect class="box" x="290" y="438" width="240" height="114"/>
+  <text x="410" y="485" class="t">CloudFront</text>
+  <text x="410" y="518" class="s">단일 HTTPS 진입점</text>
+
+  <rect class="box" x="610" y="238" width="260" height="104"/>
+  <text x="740" y="280" class="t">Private S3</text>
+  <text x="740" y="313" class="s">React SPA</text>
+
+  <rect class="box" x="610" y="443" width="260" height="114"/>
+  <text x="740" y="490" class="t">EC2</text>
+  <text x="740" y="523" class="s">Nginx · FastAPI</text>
+
+  <rect class="acc" x="990" y="425" width="300" height="150"/>
+  <text x="1140" y="474" class="t">Supabase</text>
+  <text x="1140" y="507" class="s">PostgreSQL · Auth · Storage</text>
+  <text x="1140" y="538" class="acct">AgentRun 큐</text>
+
+  <rect class="acc" x="990" y="680" width="300" height="104"/>
+  <text x="1140" y="722" class="t">Agent Worker</text>
+  <text x="1140" y="755" class="s">별도 컨테이너</text>
+
+  <rect class="ext" x="1370" y="228" width="270" height="114"/>
+  <text x="1505" y="275" class="t">OpenAI API</text>
+  <text x="1505" y="308" class="s">LLM · STT</text>
+
+  <rect class="ext" x="1370" y="678" width="270" height="114"/>
+  <text x="1505" y="725" class="t">RunPod</text>
+  <text x="1505" y="758" class="s">Serverless 한국어 OCR</text>
+
+  <!-- 연결 -->
+  <path class="ln" d="M 232 495 L 284 495"/>
+  <path class="ln" d="M 530 462 L 555 462 L 555 290 L 604 290"/>
+  <text x="549" y="428" class="lbe">기본 경로</text>
+  <path class="ln" d="M 530 508 L 604 508"/>
+  <text x="567" y="494" class="lb">/api/*</text>
+
+  <path class="ln2" d="M 874 500 L 984 500"/>
+  <text x="929" y="486" class="lb" font-size="16">데이터 · 작업 큐</text>
+
+  <path class="ln" d="M 872 470 L 900 470 L 900 258 L 1364 258"/>
+  <text x="1130" y="245" class="lb">음성 전사</text>
+
+  <path class="ln" d="M 740 559 L 740 832 L 1505 832 L 1505 788"/>
+  <text x="1140" y="820" class="lb">문서 · 명함 OCR</text>
+
+  <path class="ln2" d="M 1140 577 L 1140 676"/>
+  <text x="1126" y="633" class="lbe">작업 선점 · 결과 저장</text>
+
+  <path class="ln" d="M 1292 732 L 1330 732 L 1330 300 L 1364 300"/>
+  <text x="1344" y="490" class="lbs">보고서 · 분석 생성</text>
+
+  <path class="dash" d="M 650 559 Q 405 706 152 545" style="stroke:#1b5fb0"/>
+  <text x="408" y="682" class="lb" fill="#1b5fb0">SSE 진행 상황</text>
+</svg>
