@@ -1,113 +1,74 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1215" viewBox="0 0 1600 1215">
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1120" viewBox="0 0 1600 1120">
 <title>계약·일정 관리 에이전트 아키텍처</title>
-<desc>서버가 계약 판단과 일정 후보 생성을 연결하고, 자료·일정이 바뀌면 브리핑을 백그라운드에서 미리 다시 만들어 두는 현재 구현.</desc>
-<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#345578"/></marker>
-<style>
-text{font-family:'Apple SD Gothic Neo','Noto Sans CJK KR','Noto Sans KR',sans-serif}
-.title{font-size:42px;font-weight:700;fill:#12263f}
-.h{font-size:28px;font-weight:700;fill:#12263f}
-.b{font-size:23px;fill:#435b75}
-.label{font-size:22px;font-weight:700;fill:#1b5fb0}
-.box{fill:#f3f7fc;stroke:#7991ad;stroke-width:2}
-.agent{fill:#e7f0ff;stroke:#1b5fb0;stroke-width:2.5}
-.user{fill:#fff5df;stroke:#b78022;stroke-width:2.5}
-.queue{fill:#eef7ef;stroke:#3f8a55;stroke-width:2.5}
-.line{fill:none;stroke:#345578;stroke-width:3;marker-end:url(#arrow)}
-.dash{fill:none;stroke:#7991ad;stroke-width:2.5;stroke-dasharray:9 7;marker-end:url(#arrow)}
-.note{font-size:20px;fill:#5f7185}
-</style></defs>
-<rect width="1600" height="1215" fill="white"/>
-<text x="60" y="72" class="title">계약·일정 관리 에이전트 아키텍처</text>
-<text x="60" y="115" class="b">현재 구현 · 서버가 실행 순서를 제어하고, 브리핑은 화면을 열기 전에 미리 만들어 둡니다</text>
-
-<text x="60" y="174" class="label">01  업무 이벤트 기반 추천</text>
-<rect x="60" y="200" width="265" height="215" rx="10" class="box"/>
-<text x="82" y="244" class="h">업무 이벤트</text>
-<text x="82" y="286" class="b">보고서 확정 · 딜 변경</text>
-<text x="82" y="319" class="b">일정 등록 · CS 처리</text>
-<text x="82" y="371" class="note">서버가 대상 딜 입력 준비</text>
-<path d="M325 305H365" class="line"/>
-<rect x="375" y="200" width="255" height="215" rx="10" class="agent"/>
-<text x="397" y="244" class="h">계약관리 Agent</text>
-<text x="397" y="286" class="b">영업현황 · 확정 보고서</text>
-<text x="397" y="319" class="b">서버 계산 위험 신호</text>
-<text x="397" y="371" class="note">미팅 이유 · 기간 · 소요 시간</text>
-<path d="M630 305H670" class="line"/>
-<rect x="680" y="200" width="265" height="215" rx="10" class="agent"/>
-<text x="702" y="244" class="h">일정관리 Agent</text>
-<text x="702" y="286" class="b">담당자 기존 일정 반영</text>
-<text x="702" y="319" class="b">후보 생성 · 서버 후처리</text>
-<text x="702" y="371" class="note">시간 · 겹침 · 소요 시간 검사</text>
-<path d="M945 305H985" class="line"/>
-<rect x="995" y="200" width="230" height="215" rx="10" class="box"/>
-<text x="1017" y="244" class="h">추천 저장·조회</text>
-<text x="1017" y="286" class="b">결과를 DB에 저장</text>
-<text x="1017" y="319" class="b">캘린더에서 조회</text>
-<text x="1017" y="371" class="note">유효 후보 최대 5개</text>
-<path d="M1225 305H1265" class="line"/>
-<rect x="1275" y="200" width="265" height="215" rx="10" class="user"/>
-<text x="1297" y="244" class="h">사용자 선택</text>
-<text x="1297" y="286" class="b">후보 확인 · 일정 등록</text>
-<text x="1297" y="319" class="b">추천 중복 등록 방어</text>
-<text x="1297" y="371" class="note">등록 후 충돌 시 경고</text>
-
-<text x="60" y="473" class="label">02  자료·일정이 바뀌면 백그라운드 갱신을 예약</text>
-<rect x="60" y="500" width="430" height="190" rx="10" class="box"/>
-<text x="82" y="541" class="h">갱신 트리거</text>
-<text x="82" y="582" class="b">자료 처리 완료 · 요약 승인</text>
-<text x="82" y="617" class="b">자료 삭제 · 연결 변경</text>
-<text x="82" y="655" class="note">미팅 등록·수정 · 딜 상품 변경</text>
-<path d="M490 595H530" class="line"/>
-<rect x="540" y="500" width="470" height="190" rx="10" class="box"/>
-<text x="562" y="541" class="h">갱신 예약</text>
-<text x="562" y="582" class="b">영향받는 미래 미팅만 계산</text>
-<text x="562" y="617" class="b">source revision = 검색 대상 지문</text>
-<text x="562" y="655" class="note">DB 커밋 이후에만 · LLM 을 기다리지 않음</text>
-<path d="M1010 595H1050" class="line"/>
-<rect x="1060" y="500" width="480" height="190" rx="10" class="queue"/>
-<text x="1082" y="541" class="h">AgentRun 큐</text>
-<text x="1082" y="582" class="b">멱등키 = 미팅 ID + revision</text>
-<text x="1082" y="617" class="b">기존 worker 가 선점·실행</text>
-<text x="1082" y="655" class="note">새 테이블·컬럼 없음 · 재시작에 안전</text>
-<path d="M1407 415V452H775V489" class="line"/>
-<text x="963" y="444" class="note">일정 등록도 같은 예약 경로를 탄다</text>
-
-<text x="60" y="748" class="label">03  브리핑 생성과 게시</text>
-<rect x="60" y="775" width="290" height="190" rx="10" class="box"/>
-<text x="82" y="816" class="h">자료실 청크</text>
-<text x="82" y="857" class="b">팀 · 열람 권한 검사</text>
-<text x="82" y="892" class="b">삭제 제외 · 최신 파일</text>
-<text x="82" y="930" class="note">pgvector + 요약 저장</text>
-<path d="M350 820H380" class="line"/>
-<path d="M350 920H380" class="line"/>
-<rect x="390" y="775" width="340" height="88" rx="10" class="box"/>
-<text x="412" y="812" class="h">관련 자료 검색</text>
-<text x="412" y="847" class="note">키워드 + pgvector 융합 · 상위 5청크</text>
-<rect x="390" y="877" width="340" height="88" rx="10" class="box"/>
-<text x="412" y="914" class="h">제품 자료 조회</text>
-<text x="412" y="949" class="note">딜 상품 · 견적 품목 · RAG 아님</text>
-<path d="M730 819H770" class="line"/>
-<path d="M730 921H770" class="line"/>
-<rect x="780" y="775" width="380" height="190" rx="10" class="agent"/>
-<text x="802" y="816" class="h">계약관리 Agent</text>
-<text x="802" y="857" class="b">브리핑 본문 생성</text>
-<text x="802" y="892" class="b">조회 문서 ID 로 출처 검증</text>
-<text x="802" y="930" class="note">본문·제품 자료·관련 자료를 한 스냅샷에</text>
-<path d="M1160 870H1200" class="line"/>
-<rect x="1210" y="775" width="330" height="190" rx="10" class="user"/>
-<text x="1232" y="816" class="h">미팅 상세</text>
-<text x="1232" y="857" class="b">조회만 · 생성 요청 없음</text>
-<text x="1232" y="892" class="b">최신 성공 브리핑 즉시 표시</text>
-<text x="1232" y="930" class="note">갱신 중에도 본문을 가리지 않음</text>
-<path d="M1100 690V764" class="line"/>
-<path d="M970 775V705H560" class="dash"/>
-<text x="600" y="733" class="note">revision 이 달라졌으면 후속 갱신을 예약</text>
-
-<rect x="60" y="1015" width="1480" height="82" rx="8" fill="#edf2f7"/>
-<text x="82" y="1050" class="h">공통 실행 기반</text>
-<text x="340" y="1050" class="b">AgentRun / worker · 작업 선점 · 상태·결과 저장 · 오류·재시도 관리</text>
-<text x="82" y="1081" class="note">LLM 호출: 공통 generate_structured() · OpenAI 호환 API · Pydantic 출력 검증</text>
-<text x="60" y="1135" class="note">정상 경로 요약 · 제안/후보가 없으면 중단 가능 · 브리핑은 수동 등록 일정에도 생성됩니다</text>
-<text x="60" y="1162" class="note">늦게 끝난 옛 실행은 더 새 자료로 만든 브리핑을 덮지 않고, 갱신이 실패해도 마지막 성공 브리핑은 남습니다.</text>
-<text x="60" y="1189" class="note">제품 자료가 화면에 보여도 브리핑 본문이 그 자료를 인용했다는 뜻은 아닙니다.</text>
+<desc>업무 변경에서 미팅 추천과 사용자 선택으로 이어지는 흐름, 브리핑 자동 갱신과 자료 조회 구조.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#345578"/></marker></defs>
+<style>text{font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;fill:#12263f}.title{font-size:40px;font-weight:700}.heading{font-size:27px;font-weight:700}.body{font-size:23px;fill:#435b75}.note{font-size:20px;fill:#5f7185}.section{font-size:23px;font-weight:700;fill:#1b5fb0}.line{fill:none;stroke:#345578;stroke-width:3;marker-end:url(#arrow)}</style>
+<rect width="1600" height="1120" fill="white"/>
+<text x="60" y="70" class="title">계약·일정 관리 에이전트 아키텍처</text>
+<text x="60" y="112" class="body">영업현황으로 미팅을 추천하고, 자료 변경에 맞춰 준비용 브리핑을 갱신합니다.</text>
+<text x="60" y="155" class="section">01  업무 변경 → 미팅 추천 → 사용자 선택</text>
+<rect x="60" y="180" width="260" height="180" rx="12" fill="#f3f7fc" stroke="#7991ad" stroke-width="2"/>
+<text x="82" y="224" class="heading">업무 이벤트</text>
+<text x="82" y="268" class="body">보고서 확정 · 딜 변경</text>
+<text x="82" y="302" class="body">일정 등록 · CS 처리</text>
+<rect x="365" y="180" width="260" height="180" rx="12" fill="#e7f0ff" stroke="#1b5fb0" stroke-width="2"/>
+<text x="387" y="224" class="heading">계약관리 Agent</text>
+<text x="387" y="268" class="body">영업현황 · 위험 확인</text>
+<text x="387" y="302" class="body">미팅 필요성 · 이유 제안</text>
+<rect x="670" y="180" width="260" height="180" rx="12" fill="#e7f0ff" stroke="#1b5fb0" stroke-width="2"/>
+<text x="692" y="224" class="heading">일정관리 Agent</text>
+<text x="692" y="268" class="body">기존 일정 · 요청 조건</text>
+<text x="692" y="302" class="body">후보 생성 · 조건 검사</text>
+<rect x="975" y="180" width="260" height="180" rx="12" fill="#f3f7fc" stroke="#7991ad" stroke-width="2"/>
+<text x="997" y="224" class="heading">추천 저장·조회</text>
+<text x="997" y="268" class="body">유효 후보 최대 5개</text>
+<text x="997" y="302" class="body">캘린더에서 확인</text>
+<rect x="1280" y="180" width="260" height="180" rx="12" fill="#fff5df" stroke="#b78022" stroke-width="2"/>
+<text x="1302" y="224" class="heading">사용자 선택</text>
+<text x="1302" y="268" class="body">후보 선택 · 일정 등록</text>
+<text x="1302" y="302" class="body">중복 등록 방지</text>
+<path d="M320 270H355" class="line"/>
+<path d="M625 270H660" class="line"/>
+<path d="M930 270H965" class="line"/>
+<path d="M1235 270H1270" class="line"/>
+<text x="60" y="395" class="note">미팅 제안이나 유효 후보가 없으면 추천 없이 종료될 수 있습니다.</text>
+<text x="60" y="460" class="section">02  자료·일정 변경 → 브리핑 갱신 예약</text>
+<rect x="60" y="485" width="430" height="165" rx="12" fill="#f3f7fc" stroke="#7991ad" stroke-width="2"/>
+<text x="82" y="529" class="heading">갱신 트리거</text>
+<text x="82" y="573" class="body">자료 처리 · 요약 승인 · 삭제</text>
+<text x="82" y="607" class="body">미팅 · 자료 연결 · 딜 정보 변경</text>
+<rect x="540" y="485" width="470" height="165" rx="12" fill="#f3f7fc" stroke="#7991ad" stroke-width="2"/>
+<text x="562" y="529" class="heading">서버가 갱신 예약</text>
+<text x="562" y="573" class="body">변경과 관련된 미팅 확인</text>
+<text x="562" y="607" class="body">동일한 자료 상태의 중복 요청 방지</text>
+<rect x="1060" y="485" width="480" height="165" rx="12" fill="#eef7ef" stroke="#3f8a55" stroke-width="2"/>
+<text x="1082" y="529" class="heading">AgentRun 큐 · worker</text>
+<text x="1082" y="573" class="body">예약된 브리핑 생성 작업 실행</text>
+<text x="1082" y="607" class="body">생성 중 자료가 바뀌면 후속 갱신</text>
+<path d="M490 568H530" class="line"/>
+<path d="M1010 568H1050" class="line"/>
+<path d="M1410 360V420H775V475" class="line"/>
+<text x="970" y="410" class="note">일정 등록 후 브리핑 예약</text>
+<text x="60" y="722" class="section">03  자료 확인 → 브리핑 생성 → 미팅 상세</text>
+<rect x="60" y="750" width="410" height="145" rx="12" fill="#f3f7fc" stroke="#7991ad" stroke-width="2"/>
+<text x="82" y="794" class="heading">관련 자료 검색</text>
+<text x="82" y="838" class="body">키워드 + 벡터 검색(RAG)</text>
+<text x="82" y="872" class="body">상위 5개 청크 · 열람 권한 확인</text>
+<rect x="60" y="915" width="410" height="125" rx="12" fill="#f3f7fc" stroke="#7991ad" stroke-width="2"/>
+<text x="82" y="959" class="heading">제품 자료 조회</text>
+<text x="82" y="1003" class="body">딜 상품 · 견적 품목의 연결 자료</text>
+<rect x="540" y="750" width="470" height="145" rx="12" fill="#e7f0ff" stroke="#1b5fb0" stroke-width="2"/>
+<text x="562" y="794" class="heading">계약관리 Agent</text>
+<text x="562" y="838" class="body">일정 · 영업현황 · 검색 자료 활용</text>
+<text x="562" y="872" class="body">미팅 준비용 브리핑 생성</text>
+<rect x="1060" y="750" width="480" height="145" rx="12" fill="#fff5df" stroke="#b78022" stroke-width="2"/>
+<text x="1082" y="794" class="heading">미팅 상세</text>
+<text x="1082" y="838" class="body">브리핑 · 제품 자료 · 관련 자료</text>
+<text x="1082" y="872" class="body">저장된 결과를 함께 표시</text>
+<path d="M470 822H530" class="line"/>
+<path d="M1010 822H1050" class="line"/>
+<path d="M1300 650V685H775V740" class="line"/>
+<path d="M470 980H1300V905" class="line"/>
+<text x="600" y="963" class="note">제품 자료는 연결 관계로 조회해 브리핑과 함께 저장</text>
+<text x="540" y="1025" class="note">갱신 중에도 기존 브리핑 표시 · 실패 시 마지막 성공 결과 유지</text>
 </svg>
