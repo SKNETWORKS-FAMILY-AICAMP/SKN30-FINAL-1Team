@@ -286,6 +286,9 @@ def test_period_uses_frozen_submissions_directly_and_preserves_output(monkeypatc
         assert f"/skills/{period.PERIOD_WRITER_ROLES[kind]}/SKILL.md" in harness.skill_files(
             call["skill_role"]
         )
+        report_style = harness.skill_files(call["skill_role"])["/skills/report-style/SKILL.md"]
+        assert "해당사항 없음 (제공된 자료에 관련 내용 없음)" in report_style["content"]
+        assert "PeriodSourceDigest" in report_style["content"]
         assert period.GUIDANCE_CONTRACT in effective_instructions(call)
         assert call["role"] in {period.PERIOD_WRITER_ROLES[kind], harness.REVIEWER_ROLE}
     assert seen[0]["schema"] is ReportDraftOutput
@@ -343,7 +346,7 @@ def test_period_action_tail_keeps_bullets_and_narrative_rules_through_repair(
         assert "핵심어 중심의 Markdown 순서 없는 목록" in instructions
         assert "합니다체" in instructions
         assert "담당자·기한·완료 기준" in instructions
-        assert f"- {label} 미확인" in instructions
+        assert "- 해당사항 없음" in instructions
     assert seen[1]["role"] == harness.REVIEWER_ROLE
     assert result.fields[0].value == body
     assert result.fields[0].value.split(f"**{label}**\n\n", 1)[1].startswith("- ")
