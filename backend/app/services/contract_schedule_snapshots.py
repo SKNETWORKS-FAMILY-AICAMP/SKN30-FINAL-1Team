@@ -16,11 +16,11 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.agent import AgentRun
-from app.models.content import Report, ReportDeal
+from app.models.content import Document, Report, ReportDeal
 from app.models.crm import Activity, CustomerCompany, SupportRequest
-from app.models.sales import SalesDeal, SalesPipelineStage
+from app.models.sales import Product, SalesDeal, SalesPipelineStage
 from app.models.workspace import Member
-from app.services import sales_context
+from app.services import activity_documents, sales_context
 from app.services.embeddings import EmbeddingError
 from app.services.report_sources import _body_values, _shared_body
 from app.services.storage import StorageError
@@ -50,6 +50,8 @@ _BRIEFING_QUERY_MAX_CHARS = 500
 _OPEN_SUPPORT_STATUSES = ("received", "diagnosing", "in_progress")
 # 청크 하나가 최대 1,600자라 5건이면 문맥 블록 상한(12,000자) 안에 든다.
 _BRIEFING_DOCUMENT_LIMIT = 5
+# 일정에 딜이 직접 연결되지 않았을 때 같은 고객사의 최근 열린 딜을 후보로 제공한다.
+_BRIEFING_DEAL_LIMIT = 5
 
 
 def _seoul_iso(value: datetime | None) -> str | None:
@@ -91,10 +93,14 @@ async def _company_or_404(
 
 
 async def _open_deals(
-    db: AsyncSession, member: Member, customer_company_id: UUID
+    db: AsyncSession,
+    member: Member,
+    customer_company_id: UUID,
+    *,
+    limit: int | None = None,
 ) -> list[tuple[SalesDeal, SalesPipelineStage]]:
     """이 회사에서 아직 끝나지 않은 딜을 단계 정보와 함께 가져온다."""
-    result = await db.execute(
+    statement = (
         select(SalesDeal, SalesPipelineStage)
         .join(
             SalesPipelineStage,
@@ -109,7 +115,11 @@ async def _open_deals(
             SalesDeal.deleted_at.is_(None),
             SalesPipelineStage.phase_code != "closed",
         )
+        .order_by(SalesDeal.created_at.desc(), SalesDeal.id)
     )
+    if limit is not None:
+        statement = statement.limit(limit)
+    result = await db.execute(statement)
     return list(result.all())
 
 
@@ -320,6 +330,7 @@ async def _recent_finalized_reports(
     member: Member,
     deal_ids: list[UUID],
     required_report_id: UUID | None = None,
+    limit: int = 5,
 ) -> list[dict[str, Any]]:
     """작성자가 확정한(submitted) 보고서까지 근거로 쓴다.
 
@@ -341,7 +352,7 @@ async def _recent_finalized_reports(
         )
         .group_by(Report.id)
         .order_by(*priority, Report.report_date.desc(), Report.id)
-        .limit(5)
+        .limit(limit)
         .subquery()
     )
     result = await db.execute(
@@ -486,7 +497,12 @@ def _briefing_search_query(
     deals: list[tuple[SalesDeal, SalesPipelineStage]],
 ) -> str:
     """자료실을 찾아볼 검색어. LLM 을 한 번 더 부르지 않고 결정적으로 만든다."""
-    parts = [company.name, activity.title, *(deal.title for deal, _stage in deals)]
+    parts = [
+        company.name,
+        activity.title,
+        *(deal.title for deal, _stage in deals if deal.id == activity.sales_deal_id),
+        activity.note,
+    ]
     # 자료실 검색 API 의 q 상한과 같은 길이로 자른다.
     return " ".join(part for part in parts if part)[:_BRIEFING_QUERY_MAX_CHARS]
 
@@ -496,6 +512,7 @@ async def _briefing_document_context(
     company: CustomerCompany,
     activity: Activity,
     deals: list[tuple[SalesDeal, SalesPipelineStage]],
+    member: Member,
 ) -> dict[str, Any]:
     """자료요약 Agent 가 저장한 요약·근거를 브리핑 입력 형태로 가져온다.
 
@@ -503,8 +520,34 @@ async def _briefing_document_context(
     데이터가 없어도 최소 동작한다" 원칙에 따라 빈 문맥으로 되돌린다.
     """
     query = _briefing_search_query(company, activity, deals)
+    products = []
     try:
-        return await sales_context.retrieve_briefing_context(
+        product_ids = await activity_documents.product_ids_for_deals(
+            db,
+            team_id=company.team_id,
+            sales_deal_ids=[deal.id for deal, _stage in deals],
+        )
+        products = await activity_documents.list_documents(
+            db,
+            team_id=company.team_id,
+            scopes=[Document.product_id.in_(product_ids)] if product_ids else [],
+            member=member,
+        )
+        if product_ids:
+            names = (
+                (
+                    await db.execute(
+                        select(Product.name).where(
+                            Product.id.in_(product_ids), Product.team_id == company.team_id
+                        )
+                    )
+                )
+                .scalars()
+                .all()
+            )
+            query = " ".join([query[:350], *names])[:_BRIEFING_QUERY_MAX_CHARS]
+        search_info = {}
+        context = await sales_context.retrieve_briefing_context(
             db,
             team_id=company.team_id,
             query=query,
@@ -512,9 +555,21 @@ async def _briefing_document_context(
             # 자료는 딜에만 붙기도 하고 고객사에만 붙기도 해서 둘 다 넘긴다(OR).
             sales_deal_id=activity.sales_deal_id,
             customer_company_id=company.id,
+            product_ids=product_ids,
+            search_info=search_info,
+            member=member,
         )
+        return {**context, "product_documents": products, "search": search_info}
     except (SQLAlchemyError, EmbeddingError, StorageError):
-        return {"query": query, "summaries": [], "sources": []}
+        # A failed SQL statement must not leave the worker session in an aborted transaction.
+        await db.rollback()
+        return {
+            "query": query,
+            "summaries": [],
+            "sources": [],
+            "product_documents": products,
+            "search": {"method": "none", "status": "failed"},
+        }
 
 
 async def build_briefing_snapshot(
@@ -562,28 +617,27 @@ async def build_briefing_snapshot(
 
     customer_company_id = company.id
     company = await _company_or_404(db, member, customer_company_id)
-    deals = await _open_deals(db, member, customer_company_id)
+    deals = await _open_deals(
+        db,
+        member,
+        customer_company_id,
+        limit=None if activity.sales_deal_id else _BRIEFING_DEAL_LIMIT,
+    )
+    if activity.sales_deal_id is not None:
+        deals = [(deal, stage) for deal, stage in deals if deal.id == activity.sales_deal_id]
 
-    # 다음 미팅 제안(build_next_meeting_snapshot)과 같은 규칙으로 계산한다. 브리핑 프롬프트가
-    # "risks 는 입력의 risk_signals 에 있는 항목만 사용한다"고 지시하므로, 이 값을 빼면 LLM 이
-    # 지시를 지킬수록 risks 가 반드시 빈 목록이 된다.
     deal_ids = [deal.id for deal, _stage in deals]
-    last_activity = await _last_activity_by_deal(db, member, deal_ids)
-    today = datetime.now(UTC).date()
-
-    risk_signals: list[dict[str, Any]] = []
-    for deal, stage in deals:
-        risk_signals.extend(_deal_risk_signals(deal, stage, last_activity.get(deal.id), today))
-    # C/S 미해결은 딜이 아니라 고객사에 붙는 신호라 함께 넣는다.
-    risk_signals.extend(await _unresolved_support_signals(db, member, customer_company_id))
+    recent_reports = await _recent_finalized_reports(db, member, deal_ids, limit=10)
 
     return {
         "customer_company": {"id": str(company.id), "name": company.name},
         "sales_deals": [_deal_summary(deal, stage) for deal, stage in deals],
-        "risk_signals": risk_signals,
+        "recent_reports": recent_reports,
         "approved_next_meeting": {
             "activity_id": str(activity.id),
             "sales_deal_id": str(activity.sales_deal_id) if activity.sales_deal_id else None,
+            "candidate_sales_deal_ids": [str(deal.id) for deal, _stage in deals],
+            "deal_scope": "linked" if activity.sales_deal_id else "recent_company_deals",
             "title": activity.title,
             # 화면이 서울 시간으로 보여 주는 미팅을 LLM 이 UTC 로 받아 브리핑에 그대로
             # 옮겨 적으면, 같은 미팅의 시각이 화면과 본문에서 아홉 시간 어긋나 보인다.
@@ -593,7 +647,7 @@ async def build_briefing_snapshot(
         },
         # 구조화된 조회 결과를 그대로 둔다. 이 스냅샷은 agent_run.input_snapshot 으로
         # 저장되므로, 실행 시점에 어떤 근거를 봤는지가 그대로 남는다.
-        "document_context": await _briefing_document_context(db, company, activity, deals),
+        "document_context": await _briefing_document_context(db, company, activity, deals, member),
     }
 
 

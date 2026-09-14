@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Link } from 'react-router'
 
 import Button, { buttonClass } from '@/components/Button'
-import DocumentSummaryView from '@/components/DocumentSummaryView'
 import Drawer from '@/components/Drawer'
 import Popover from '@/components/Popover'
 import Skeleton, { InlineLoader } from '@/components/Skeleton'
@@ -12,12 +11,12 @@ import { statusScope } from '@/shared/agenda'
 import { useAgendaReportLink } from '@/shared/agendaReport'
 import { RISK_LABEL } from '@/shared/riskLabels'
 import { useShowOwner } from '@/shared/scope'
-import type { ActivityDocument, AgendaItem } from '@/types'
+import type { AgendaItem, ContractBriefingOutput, ContractRisk, SourceRef } from '@/types'
 import { fmtDay, parseISO } from '@/utils/date'
 import { won } from '@/utils/format'
 
 import { useRelatedDeal } from '../../useDashboard'
-import useActivityDocuments from '../../useActivityDocuments'
+import BriefingMaterials from './BriefingMaterials'
 import useAiBriefing from '../../useAiBriefing'
 
 import styles from './RecordDrawer.module.scss'
@@ -29,7 +28,8 @@ import styles from './RecordDrawer.module.scss'
  * 어긋날 수 있는데, 그때 글이 깨지는 것보다 강조가 빠지는 편이 낫습니다. 짝이 안 맞아
  * 남은 대괄호는 화면에 새지 않도록 지웁니다.
  */
-function highlightChecks(summary: string) {
+function highlightChecks(summary?: string) {
+  if (!summary) return null
   return summary.split(/\[\[(.+?)\]\]/g).map((part, index) =>
     index % 2 === 1 ? (
       <mark key={index} className={styles.check}>
@@ -39,6 +39,65 @@ function highlightChecks(summary: string) {
       part.replace(/\[\[|\]\]/g, '')
     ),
   )
+}
+
+interface BriefingViewHighlight {
+  title: string
+  body: string
+  suggestedActions: string[]
+  sourceRefs: SourceRef[]
+}
+
+interface BriefingView {
+  highlights: BriefingViewHighlight[]
+  missingInformation: string[]
+  risks: ContractRisk[]
+}
+
+/** 새 highlights 형식과 DB에 남은 구 contract_summary 형식을 한 화면 모델로 맞춥니다. */
+function briefingView(content: ContractBriefingOutput | null | undefined): BriefingView | null {
+  if (!content || typeof content !== 'object') return null
+  if ('highlights' in content) {
+    const highlights = Array.isArray(content.highlights) ? content.highlights : []
+    return {
+      highlights: highlights
+        .filter((highlight) => highlight && typeof highlight === 'object')
+        .map((highlight) => ({
+          title: typeof highlight.title === 'string' ? highlight.title : '',
+          body: typeof highlight.body === 'string' ? highlight.body : '',
+          suggestedActions: Array.isArray(highlight.suggested_actions)
+            ? highlight.suggested_actions.filter(
+                (value): value is string => typeof value === 'string',
+              )
+            : [],
+          sourceRefs: Array.isArray(highlight.source_refs) ? highlight.source_refs : [],
+        }))
+        .filter((highlight) => highlight.title || highlight.body),
+      missingInformation: Array.isArray(content.missing_information)
+        ? content.missing_information.filter((value): value is string => typeof value === 'string')
+        : [],
+      risks: [],
+    }
+  }
+  return {
+    highlights:
+      typeof content.contract_summary === 'string' && content.contract_summary
+        ? [
+            {
+              title: '',
+              body: content.contract_summary,
+              suggestedActions: Array.isArray(content.recommended_actions)
+                ? content.recommended_actions
+                : [],
+              sourceRefs: Array.isArray(content.source_refs) ? content.source_refs : [],
+            },
+          ]
+        : [],
+    missingInformation: Array.isArray(content.missing_information)
+      ? content.missing_information
+      : [],
+    risks: Array.isArray(content.risks) ? content.risks : [],
+  }
 }
 
 interface Props {
@@ -67,38 +126,13 @@ export default function RecordDrawer({ item, onClose, onEdit, onDelete }: Props)
     loading: briefingLoading,
     error: briefingError,
   } = useAiBriefing({ activityId: item.id, eligible: !!item.customerContactId })
-  const {
-    documents,
-    loading: documentsLoading,
-    error: documentsError,
-  } = useActivityDocuments(item.id)
+  const briefingContent = briefingView(briefing?.content)
   // 인용 여부는 목록을 거르는 조건이 아니라 줄에 붙는 표시입니다. 브리핑이 인용을
   // 빠뜨려도 자료 자체는 보여야 하고, 브리핑이 실패해도 목록은 남아야 합니다.
   const citedDocumentIds = new Set(
-    (briefing?.content?.source_refs ?? [])
+    (briefingContent?.highlights.flatMap((highlight) => highlight.sourceRefs) ?? [])
       .filter((ref) => ref.type === 'document')
       .map((ref) => ref.id),
-  )
-  const documentRow = (document: ActivityDocument) => (
-    <li key={document.document_id}>
-      <span className={styles.sourceName}>
-        {document.file_name}
-        {citedDocumentIds.has(document.document_id) && (
-          <i className={styles.citedTag}>브리핑에 인용됨</i>
-        )}
-      </span>
-      {/* 요약은 길어서 목록을 밀어냅니다. 접어 두고 눌러야 펴지게 합니다. */}
-      {document.summary_markdown && (
-        <details className={styles.sourceSummary}>
-          <summary>자료요약 보기</summary>
-          {/* 여기는 요약 마크다운만 옵니다. 자료실 드로어와 같은 컴포넌트로 그립니다. */}
-          <DocumentSummaryView
-            markdown={document.summary_markdown}
-            className={styles.summaryBody}
-          />
-        </details>
-      )}
-    </li>
   )
   const [menuOpen, setMenuOpen] = useState(false)
   const showOwner = useShowOwner()
@@ -288,7 +322,30 @@ export default function RecordDrawer({ item, onClose, onEdit, onDelete }: Props)
         )}
 
         <section className={`${styles.block} ${styles.full}`}>
-          <h3>🤖 AI 브리핑</h3>
+          <h3>
+            🤖 AI 브리핑
+            {/* 갱신 중이라는 표시는 제목 옆에만 둡니다. 본문은 그대로 두고 읽게 합니다. */}
+            {briefing?.refreshing && <span className={styles.refreshTag}>최신 자료 반영 중</span>}
+          </h3>
+          {item.customerContactId && (
+            <div
+              className={`${styles.briefingScope} ${
+                item.salesDealId ? styles.briefingScopeLinked : styles.briefingScopeCompany
+              }`}
+              role="status"
+            >
+              <strong>
+                {item.salesDealId
+                  ? '연결된 영업 딜 기준'
+                  : '동일 고객사의 최근 영업 딜 기준'}
+              </strong>
+              <span>
+                {item.salesDealId
+                  ? '이 일정에 지정된 딜의 정보를 사용합니다.'
+                  : '일정에 지정된 딜이 없어 최근 열린 딜을 최대 5건 확인합니다.'}
+              </span>
+            </div>
+          )}
           {!item.customerContactId ? (
             <p className={styles.note}>
               담당자 연락처가 연결되지 않아 AI 브리핑을 만들 수 없습니다.
@@ -299,56 +356,70 @@ export default function RecordDrawer({ item, onClose, onEdit, onDelete }: Props)
             </p>
           ) : briefingLoading ? (
             <Skeleton height={72} radius="var(--r-md)" />
-          ) : briefing === null ? (
-            <p className={styles.note}>브리핑을 생성하는 중입니다…</p>
-          ) : briefing.status === 'failed' ? (
-            <p className={styles.note} role="alert">
-              브리핑 생성에 실패했습니다{briefing.error ? `: ${briefing.error}` : ''}
+          ) : briefing === null || (briefing.status !== 'completed' && !briefing.content) ? (
+            // 아직 한 번도 완성된 적이 없을 때만 준비 중을 보여줍니다. 실패까지 여기서
+            // 알립니다 — 보여줄 이전 결과가 없기 때문입니다.
+            <p className={styles.note} role={briefing?.status === 'failed' ? 'alert' : undefined}>
+              {briefing?.status === 'failed'
+                ? `브리핑 생성에 실패했습니다${briefing.error ? `: ${briefing.error}` : ''}`
+                : 'AI 브리핑 준비 중입니다…'}
             </p>
-          ) : briefing.status !== 'completed' || !briefing.content ? (
-            <p className={styles.note}>브리핑을 생성하는 중입니다…</p>
+          ) : !briefingContent ? (
+            <p className={styles.note}>AI 브리핑 준비 중입니다…</p>
           ) : (
             <>
-              <p className={styles.note}>{highlightChecks(briefing.content.contract_summary)}</p>
-              {briefing.content.risks.length > 0 && (
+              {/* 마지막 성공 브리핑은 그대로 두고, 실패는 작게만 알립니다. */}
+              {briefing.refresh_error && (
+                <p className={styles.refreshError} role="status">
+                  최신 자료로 다시 만들지 못했습니다. 이전 브리핑을 보여드립니다.
+                </p>
+              )}
+              {briefingContent.highlights.length > 0 ? (
+                briefingContent.highlights.map((highlight, index) => (
+                  <div className={styles.highlight} key={`${highlight.title}-${index}`}>
+                    {highlight.title && <h4>{highlight.title}</h4>}
+                    {highlight.body && (
+                      <p className={styles.note}>{highlightChecks(highlight.body)}</p>
+                    )}
+                    {highlight.suggestedActions.length > 0 && (
+                      <ul className={styles.actions}>
+                        {highlight.suggestedActions.map((action, actionIndex) => (
+                          <li key={actionIndex}>{action}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <p className={styles.note}>표시할 브리핑 내용이 없습니다.</p>
+              )}
+              {briefingContent.risks.length > 0 && (
                 <div className={styles.pills}>
-                  {briefing.content.risks.map((risk, index) => (
+                  {briefingContent.risks.map((risk, index) => (
                     <i key={`${risk.code}-${index}`} className={styles.pill}>
                       {RISK_LABEL[risk.code]}
                     </i>
                   ))}
                 </div>
               )}
-              {briefing.content.recommended_actions.length > 0 && (
-                <ul className={styles.actions}>
-                  {briefing.content.recommended_actions.map((action, index) => (
-                    <li key={index}>{action}</li>
-                  ))}
-                </ul>
+              {briefingContent.missingInformation.length > 0 && (
+                <div className={styles.missingInformation}>
+                  <h4>확인이 필요한 정보</h4>
+                  <ul className={styles.actions}>
+                    {briefingContent.missingInformation.map((information, index) => (
+                      <li key={index}>{information}</li>
+                    ))}
+                  </ul>
+                </div>
               )}
             </>
           )}
-        </section>
-
-        <section className={`${styles.block} ${styles.full}`}>
-          <h3>📎 관련 자료</h3>
-          {documentsLoading ? (
-            <Skeleton height={40} radius="var(--r-md)" />
-          ) : documentsError ? (
-            <p className={styles.note} role="alert">
-              {documentsError}
-            </p>
-          ) : documents.related.length === 0 ? (
-            <p className={styles.note}>이 고객사·딜에 연결된 자료가 없습니다.</p>
-          ) : (
-            <ul className={styles.sourceList}>{documents.related.map(documentRow)}</ul>
-          )}
-
-          {documents.product.length > 0 && (
-            <div className={styles.sources}>
-              <p className={styles.sourcesTitle}>📦 제품 자료</p>
-              <ul className={styles.sourceList}>{documents.product.map(documentRow)}</ul>
-            </div>
+          {!briefingLoading && briefing && (
+            <BriefingMaterials
+              documents={briefing.documents}
+              citedDocumentIds={citedDocumentIds}
+              hasDeal={!!item.salesDealId}
+            />
           )}
         </section>
 

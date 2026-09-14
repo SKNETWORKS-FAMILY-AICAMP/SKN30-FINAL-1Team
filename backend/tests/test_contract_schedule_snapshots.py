@@ -11,7 +11,7 @@ from sqlalchemy.exc import MultipleResultsFound
 
 from app.agents import contract_management
 from app.models.agent import AgentRun
-from app.models.crm import Activity, CustomerCompany, SupportRequest
+from app.models.crm import Activity, CustomerCompany
 from app.models.sales import SalesDeal, SalesPipelineStage
 from app.models.workspace import Member
 from app.services import contract_schedule_snapshots as snapshots
@@ -58,6 +58,9 @@ class _Db:
         self.statements.append(statement)
         assert self.results, "예상보다 많은 쿼리가 실행되었습니다."
         return self.results.pop(0)
+
+    async def rollback(self):
+        pass
 
 
 def _member() -> Member:
@@ -967,14 +970,15 @@ async def test_next_meeting_snapshot_rejects_a_deal_outside_the_company():
 # ---- build_briefing_snapshot: 자료요약 RAG 연결 ----
 
 
-def _briefing_db(member, company, activity, deals, *, last_activity=None, support=None):
-    """build_briefing_snapshot 이 순서대로 실행하는 다섯 쿼리에 대한 답."""
+def _briefing_db(member, company, activity, deals, *, reports=None):
+    """build_briefing_snapshot 이 순서대로 실행하는 DB 조회에 답한다."""
     return _Db(
         _Result(rows=[(activity, company)]),  # 일정 + 고객사
         _Result(scalar=company),  # _company_or_404
         _Result(rows=deals),  # _open_deals
-        _Result(rows=last_activity or []),  # _last_activity_by_deal
-        _Result(scalar_values=support or []),  # _unresolved_support_signals
+        _Result(rows=reports or []),  # _recent_finalized_reports
+        _Result(scalar_values=[]),  # 딜 대표 제품
+        _Result(scalar_values=[]),  # 견적 제품
     )
 
 
@@ -1022,43 +1026,49 @@ async def test_briefing_snapshot_searches_documents_by_deal_and_company(monkeypa
     assert captured["team_id"] == member.team_id
     # 검색어는 결정적으로 조립한다 — 여기서 LLM 을 한 번 더 부르지 않는다.
     assert captured["query"] == "테스트 병원 계약 갱신 미팅 초음파 장비 계약"
-    assert snapshot["document_context"] == context
+    assert snapshot["document_context"]["sources"] == context["sources"]
+    assert snapshot["document_context"]["product_documents"] == []
     assert "sales_deal.customer_company_id = public.customer_company.id" in str(db.statements[0])
 
 
 @pytest.mark.anyio
-async def test_briefing_snapshot_carries_deal_risk_signals(monkeypatch):
-    """브리핑 프롬프트는 risk_signals 에 있는 위험만 쓰라고 지시한다 — 근거를 같이 실어야 한다."""
+async def test_briefing_snapshot_uses_recent_company_deals_when_activity_has_no_deal(monkeypatch):
     member, company, deal, activity = _briefing_fixture()
-    deal.contract_ends_on = date.today() + timedelta(days=3)
+    activity.sales_deal_id = None
+    captured = {}
 
-    async def _retrieve(_db, **_kwargs):
+    async def _retrieve(_db, **kwargs):
+        captured.update(kwargs)
         return {"query": "", "summaries": [], "sources": []}
 
     monkeypatch.setattr(snapshots.sales_context, "retrieve_briefing_context", _retrieve)
+    db = _briefing_db(member, company, activity, [(deal, _stage())])
 
-    snapshot = await snapshots.build_briefing_snapshot(
-        _briefing_db(member, company, activity, [(deal, _stage())]),
-        member,
-        activity.id,
-    )
+    snapshot = await snapshots.build_briefing_snapshot(db, member, activity.id)
 
-    codes = [signal["code"] for signal in snapshot["risk_signals"]]
-    assert "contract_expiring" in codes
+    assert [item["id"] for item in snapshot["sales_deals"]] == [str(deal.id)]
+    assert snapshot["approved_next_meeting"]["sales_deal_id"] is None
+    assert snapshot["approved_next_meeting"]["candidate_sales_deal_ids"] == [str(deal.id)]
+    assert snapshot["approved_next_meeting"]["deal_scope"] == "recent_company_deals"
+    assert captured["customer_company_id"] == company.id
+    open_deals_query = db.statements[2].compile(dialect=postgresql.dialect())
+    assert 5 in open_deals_query.params.values()
 
 
 @pytest.mark.anyio
-async def test_briefing_snapshot_carries_unresolved_support_signals(monkeypatch):
-    """C/S 미해결은 딜이 아니라 고객사에 붙는 신호다 — 브리핑에도 같이 실어야 한다."""
+async def test_briefing_snapshot_carries_ten_recent_reports_instead_of_risks(monkeypatch):
     member, company, deal, activity = _briefing_fixture()
-    support = SupportRequest(
+    report = SimpleNamespace(
         id=uuid4(),
-        team_id=member.team_id,
-        customer_company_id=company.id,
+        source_activity_id=None,
+        report_date=date(2026, 9, 1),
+        common_body=None,
+        unassigned_body=None,
+    )
+    section = SimpleNamespace(
         sales_deal_id=deal.id,
-        title="장비 오작동 접수",
-        status_code="in_progress",
-        is_urgent=True,
+        title="계약 협의",
+        body="고객이 납기 확인을 요청했습니다.",
     )
 
     async def _retrieve(_db, **_kwargs):
@@ -1066,14 +1076,16 @@ async def test_briefing_snapshot_carries_unresolved_support_signals(monkeypatch)
 
     monkeypatch.setattr(snapshots.sales_context, "retrieve_briefing_context", _retrieve)
 
-    snapshot = await snapshots.build_briefing_snapshot(
-        _briefing_db(member, company, activity, [(deal, _stage())], support=[support]),
-        member,
-        activity.id,
-    )
+    db = _briefing_db(member, company, activity, [(deal, _stage())], reports=[(report, section)])
+    snapshot = await snapshots.build_briefing_snapshot(db, member, activity.id)
 
-    codes = [signal["code"] for signal in snapshot["risk_signals"]]
-    assert "unresolved_support" in codes
+    assert snapshot["recent_reports"][0]["id"] == str(report.id)
+    assert snapshot["recent_reports"][0]["content"]["values"] == {
+        "body": "고객이 납기 확인을 요청했습니다."
+    }
+    assert "risk_signals" not in snapshot
+    report_query = db.statements[3].compile(dialect=postgresql.dialect())
+    assert 10 in report_query.params.values()
 
 
 @pytest.mark.anyio
