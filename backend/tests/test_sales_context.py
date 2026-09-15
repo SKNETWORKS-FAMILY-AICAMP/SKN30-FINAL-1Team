@@ -44,13 +44,14 @@ async def test_retrieve_briefing_context_combines_matching_source_and_summary(mo
         summary_markdown="# 문서 요약\n\n계약금은 선납한다.",
         summary_payload={"summary": "계약금은 선납한다."},
     )
+    document = SimpleNamespace(id=document_id, category_code="계약서", sales_deal_id=None)
 
     async def _search(*_args, **_kwargs):
         return [(chunk, 0.91)]
 
     monkeypatch.setattr(document_processing, "search_chunks", _search)
     context = await sales_context.retrieve_briefing_context(
-        _Db([(file_row, document_id)]),
+        _Db([(file_row, document)]),
         team_id=team_id,
         query="계약금",
     )
@@ -58,6 +59,7 @@ async def test_retrieve_briefing_context_combines_matching_source_and_summary(mo
     assert context["query"] == "계약금"
     assert context["sources"][0]["file_name"] == "계약서.docx"
     assert context["sources"][0]["score"] == 0.91
+    assert context["sources"][0]["category_code"] == "계약서"
     assert context["summaries"][0]["summary_payload"]["summary"] == "계약금은 선납한다."
 
 
@@ -146,6 +148,8 @@ async def test_briefing_context_is_json_serializable(monkeypatch):
     file_row = SimpleNamespace(
         id=file_id, file_name="계약서.pdf", summary_markdown="## 요약", summary_payload=None
     )
+    deal_id = uuid4()
+    document = SimpleNamespace(id=document_id, category_code="계약서", sales_deal_id=deal_id)
 
     async def _search(*_args, **_kwargs):
         return [(chunk, 0.9)]
@@ -153,7 +157,7 @@ async def test_briefing_context_is_json_serializable(monkeypatch):
     monkeypatch.setattr(document_processing, "search_chunks", _search)
 
     context = await sales_context.retrieve_briefing_context(
-        _Db([(file_row, document_id)]),
+        _Db([(file_row, document)]),
         team_id=uuid4(),
         query="계약금",
         sales_deal_id=uuid4(),
@@ -162,6 +166,7 @@ async def test_briefing_context_is_json_serializable(monkeypatch):
     json.dumps(context)  # 여기서 TypeError 가 나면 브리핑 실행을 만들 수 없다.
     assert context["sources"][0]["chunk_id"] == str(chunk_id)
     assert context["summaries"][0]["document_id"] == str(document_id)
+    assert context["summaries"][0]["sales_deal_id"] == str(deal_id)
 
 
 def test_latest_completed_file_excludes_older_versions():

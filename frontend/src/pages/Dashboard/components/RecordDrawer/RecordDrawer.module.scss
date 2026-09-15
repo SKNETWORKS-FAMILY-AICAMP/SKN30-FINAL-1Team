@@ -333,6 +333,34 @@
   margin-top: var(--s3);
 }
 
+.briefingReferences {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin-top: var(--s3);
+
+  button {
+    padding: 3px var(--s2);
+    border: 1px solid var(--line);
+    border-radius: var(--r-pill);
+    background: var(--surface);
+    color: var(--blue-ink);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+      border-color: var(--blue);
+      background: var(--blue-tint);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--blue);
+      outline-offset: 2px;
+    }
+  }
+}
+
 /*
  * AI 브리핑의 추천 행동 목록.
  *
@@ -786,6 +814,76 @@
   color: var(--muted);
   font-size: 11px;
   font-style: normal;
+}
+
+.sourceComparisons {
+  margin: 0 26px var(--s2) 30px;
+  padding: var(--s2) var(--s3);
+  border-left: 2px solid #a5b4fc;
+  background: #f8f9ff;
+
+  dl {
+    display: grid;
+    gap: 6px;
+    margin: 6px 0 0;
+  }
+
+  dl > div {
+    display: grid;
+    grid-template-columns: minmax(76px, 0.7fr) minmax(0, 2fr) auto;
+    align-items: baseline;
+    gap: var(--s2);
+  }
+
+  dt {
+    color: var(--ink-2);
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  dd {
+    display: flex;
+    min-width: 0;
+    align-items: baseline;
+    gap: 6px;
+    margin: 0;
+    font-size: 11px;
+
+    span {
+      color: var(--muted);
+      text-decoration: line-through;
+    }
+
+    b {
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    strong {
+      color: var(--ink);
+      overflow-wrap: anywhere;
+    }
+  }
+
+  small {
+    color: var(--muted);
+    font-size: 10px;
+    white-space: nowrap;
+  }
+}
+
+.sourceComparisonTitle,
+.sourceComparisonHint {
+  margin: 0;
+  color: #5145a0;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.sourceComparisonHint {
+  margin-top: 7px;
+  color: var(--muted);
+  font-weight: 400;
 }
 
 // 왼쪽 선 하나로 지난 접촉을 시간순으로 세웁니다.

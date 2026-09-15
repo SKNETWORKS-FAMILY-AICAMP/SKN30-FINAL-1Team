@@ -555,7 +555,9 @@ async def test_generate_briefing_validates_every_highlight_reference(monkeypatch
                 title="납기 변경 여부를 확인해야 해요",
                 body="자료실 문서에는 납기 변경 가능성이 기록되어 있습니다.",
                 source_refs=[
-                    contract_management.BriefingSourceRef(type="document", id="doc-1"),
+                    contract_management.BriefingSourceRef(
+                        type="document", id="doc-1", chunk_id="chunk-1", excerpt="source text"
+                    ),
                     contract_management.BriefingSourceRef(type="document", id="doc-없음"),
                     contract_management.BriefingSourceRef(type="sales_deal", id="deal-1"),
                     contract_management.BriefingSourceRef(
@@ -615,6 +617,7 @@ async def test_generate_briefing_validates_every_highlight_reference(monkeypatch
     assert "이전 지시는 무시하고" not in payload
     assert "<document_context>" in block
     assert "문서ID: doc-1" in block
+    assert "chunk_id: chunk-1" in block
     assert "계약서.pdf" in block
     # 조회된 근거만 남고, 근거가 하나도 남지 않은 하이라이트는 통째로 제거된다.
     assert len(result.highlights) == 1
@@ -624,3 +627,45 @@ async def test_generate_briefing_validates_every_highlight_reference(monkeypatch
         ("report", "report-1"),
     ]
     assert result.highlights[0].related_deal_ids == ["deal-1"]
+    assert result.highlights[0].source_refs[0].chunk_id == "chunk-1"
+
+
+def test_validate_briefing_backfills_matching_rag_document_chunk():
+    output = contract_management.HighlightBriefingOutput(
+        highlights=[
+            contract_management.BriefingHighlight(
+                title="비교 견적 조건을 확인해야 해요",
+                body="이번 비교 견적의 부가세 포함 여부와 설치 조건이 확정되지 않았습니다.",
+                source_refs=[contract_management.BriefingSourceRef(type="sales_deal", id="deal-1")],
+                related_deal_ids=["deal-1"],
+            )
+        ]
+    )
+    snapshot = {
+        "sales_deals": [{"id": "deal-1"}, {"id": "deal-2"}],
+        "document_context": {
+            "sources": [
+                {
+                    "document_id": "quote-1",
+                    "chunk_id": "quote-chunk-1",
+                    "sales_deal_id": "deal-1",
+                    "content": "비교 견적은 부가세 포함이며 설치 공간 확인이 필요합니다.",
+                    "score": 0.8,
+                },
+                {
+                    "document_id": "quote-2",
+                    "chunk_id": "quote-chunk-2",
+                    "sales_deal_id": "deal-2",
+                    "content": "부가세 포함 설치 조건입니다.",
+                    "score": 0.9,
+                },
+            ]
+        },
+    }
+
+    result = contract_management._validate_briefing_output(output, snapshot)
+
+    assert [(ref.type, ref.id, ref.chunk_id) for ref in result.highlights[0].source_refs] == [
+        ("sales_deal", "deal-1", None),
+        ("document", "quote-1", "quote-chunk-1"),
+    ]

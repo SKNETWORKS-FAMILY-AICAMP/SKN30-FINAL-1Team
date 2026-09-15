@@ -12,6 +12,11 @@ async def visible_documents(db, *, team_id: UUID, context: dict, member=None) ->
     products = context.get("product_documents") or []
     sources = context.get("sources") or []
     summaries = {item["file_id"]: item for item in context.get("summaries") or []}
+    differences_by_document: dict[str, list[dict]] = {}
+    for difference in context.get("contract_differences") or []:
+        document_id = str(difference.get("document_id") or "")
+        if document_id:
+            differences_by_document.setdefault(document_id, []).append(difference)
     file_ids = set()
     for item in [*products, *sources]:
         try:
@@ -57,11 +62,13 @@ async def visible_documents(db, *, team_id: UUID, context: dict, member=None) ->
                     "summary_markdown"
                 ),
                 "excerpts": [],
+                "contract_differences": differences_by_document.get(key, []),
             },
         )
         item["excerpts"].append(
             {
                 "content": source.get("content", ""),
+                "chunk_id": source.get("chunk_id"),
                 "page_start": source.get("page_start"),
                 "page_end": source.get("page_end"),
             }

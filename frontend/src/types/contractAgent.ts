@@ -26,6 +26,8 @@ export interface ContractRisk {
 export interface SourceRef {
   type: 'sales_deal' | 'report' | 'support_request' | 'activity' | 'document'
   id: string
+  excerpt?: string | null
+  chunk_id?: string | null
 }
 
 export interface BriefingHighlight {

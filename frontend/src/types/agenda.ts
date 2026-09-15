@@ -178,7 +178,28 @@ export interface BriefingDocument {
   file_id: string
   file_name: string
   summary_markdown: string | null
-  excerpts?: { content: string; page_start: number | null; page_end: number | null }[]
+  excerpts?: {
+    content: string
+    chunk_id?: string | null
+    page_start: number | null
+    page_end: number | null
+  }[]
+  contract_differences?: BriefingDocumentDifference[]
+}
+
+export interface BriefingDocumentDifference {
+  sales_deal_id: string
+  sales_deal_title: string
+  field_code: 'contract_amount' | 'contract_ends_on' | 'contract_payment_terms'
+  field_label: string
+  current_value: string | null
+  document_value: string
+  document_id: string
+  file_id: string
+  file_name: string
+  page_start: number | null
+  page_end: number | null
+  evidence: string | null
 }
 
 export interface BriefingDocuments {

@@ -23,7 +23,12 @@ from app.models.content import Document, Report, ReportDeal
 from app.models.crm import Activity, CustomerCompany, CustomerContact, SupportRequest
 from app.models.sales import Product, SalesDeal, SalesPipelineStage
 from app.models.workspace import Member
-from app.services import activity_documents, report_context, sales_context
+from app.services import (
+    activity_documents,
+    contract_document_comparison,
+    report_context,
+    sales_context,
+)
 from app.services.embeddings import EmbeddingError
 from app.services.report_sources import _body_values, _shared_body
 from app.services.storage import StorageError
@@ -316,7 +321,9 @@ def _deal_summary(deal: SalesDeal, stage: SalesPipelineStage) -> dict[str, Any]:
         "stage_phase_code": stage.phase_code,
         "stage_outcome_code": stage.outcome_code,
         "deal_amount": deal.deal_amount,
+        "contract_amount": deal.contract_amount,
         "contract_ends_on": deal.contract_ends_on.isoformat() if deal.contract_ends_on else None,
+        "contract_payment_terms": deal.contract_payment_terms,
         "quote_valid_until": (
             deal.quote_valid_until.isoformat() if deal.quote_valid_until else None
         ),
@@ -580,8 +587,14 @@ def _briefing_search_query(
         json.dumps(recent_reports, ensure_ascii=False),
         *(deal.title for deal, _stage in deals),
     ]
-    # 자료실 검색 API 의 q 상한과 같은 길이로 자른다.
-    return " ".join(part for part in parts if part)[:_BRIEFING_QUERY_MAX_CHARS]
+    # 기존 검색어 순서는 유지하고, 계약서 비교에 필요한 세 필드 검색어가 긴 보고서에
+    # 밀려 잘리지 않도록 뒤쪽 자리를 따로 확보한다.
+    contract_terms = (
+        "계약금액 총계약대금 계약종료일 계약만료일 지급조건 대금지급기일 결제조건"
+    )
+    available = _BRIEFING_QUERY_MAX_CHARS - len(contract_terms) - 1
+    base = " ".join(part for part in parts if part)[:available].rstrip()
+    return f"{base} {contract_terms}".strip()
 
 
 async def _briefing_document_context(
@@ -713,9 +726,19 @@ async def build_briefing_snapshot(
         )
     ).scalar_one_or_none() is not None
 
+    deal_summaries = [_deal_summary(deal, stage) for deal, stage in deals]
+    document_context = await _briefing_document_context(
+        db, company, activity, deals, recent_reports, member
+    )
+    # 비교값은 AI 브리핑 출력이 아니라 관련 자료 표시 데이터에 둔다. 본문 출력 스키마는
+    # 그대로 유지하고, RAG로 찾은 계약서 행 아래에서만 계약관리 값과 원문 값을 보여준다.
+    document_context["contract_differences"] = contract_document_comparison.build_differences(
+        document_context, deal_summaries
+    )
+
     return {
         "customer_company": {"id": str(company.id), "name": company.name},
-        "sales_deals": [_deal_summary(deal, stage) for deal, stage in deals],
+        "sales_deals": deal_summaries,
         "recent_reports": recent_reports,
         "has_older_reports": len(recent_candidates) > 3,
         "briefing_mode": "relationship" if has_prior_meeting else "first_meeting",
@@ -742,9 +765,7 @@ async def build_briefing_snapshot(
         },
         # 구조화된 조회 결과를 그대로 둔다. 이 스냅샷은 agent_run.input_snapshot 으로
         # 저장되므로, 실행 시점에 어떤 근거를 봤는지가 그대로 남는다.
-        "document_context": await _briefing_document_context(
-            db, company, activity, deals, recent_reports, member
-        ),
+        "document_context": document_context,
     }
 
 

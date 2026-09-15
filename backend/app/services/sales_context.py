@@ -55,7 +55,7 @@ async def retrieve_briefing_context(
     file_ids = list(dict.fromkeys(row.file_id for row, _ in matches))
     scopes = document_processing.document_scopes(sales_deal_id, customer_company_id, product_ids)
     summary_result = await db.execute(
-        select(FileRow, Document.id)
+        select(FileRow, Document)
         .join(Document, Document.id == FileRow.document_id)
         .where(
             FileRow.id.in_(file_ids),
@@ -68,12 +68,12 @@ async def retrieve_briefing_context(
             document_processing.latest_completed_file(),
         )
     )
-    files = {row.id: (row, document_uuid) for row, document_uuid in summary_result.all()}
+    files = {row.id: (row, document) for row, document in summary_result.all()}
 
     sources: list[dict[str, object]] = []
     summary_file_ids: list[UUID] = []
     for chunk, score in matches:
-        file_row, _ = files.get(chunk.file_id, (None, None))
+        file_row, document = files.get(chunk.file_id, (None, None))
         if file_row is None:
             continue
         sources.append(
@@ -84,6 +84,8 @@ async def retrieve_briefing_context(
                 "document_id": str(chunk.document_id),
                 "file_id": str(chunk.file_id),
                 "file_name": file_row.file_name,
+                "category_code": document.category_code,
+                "sales_deal_id": (str(document.sales_deal_id) if document.sales_deal_id else None),
                 "chunk_no": chunk.chunk_no,
                 "page_start": getattr(chunk, "page_start", None),
                 "page_end": getattr(chunk, "page_end", None),
@@ -100,8 +102,12 @@ async def retrieve_briefing_context(
         {
             # sources 와 같은 이유로 문자열로 내보낸다.
             "file_id": str(file_id),
-            "document_id": str(files[file_id][1]),
+            "document_id": str(files[file_id][1].id),
             "file_name": files[file_id][0].file_name,
+            "category_code": files[file_id][1].category_code,
+            "sales_deal_id": (
+                str(files[file_id][1].sales_deal_id) if files[file_id][1].sales_deal_id else None
+            ),
             "summary_markdown": files[file_id][0].summary_markdown,
             "summary_payload": files[file_id][0].summary_payload,
         }
@@ -161,6 +167,7 @@ def to_briefing_prompt_block(
                     f"{_prompt_value(item.get('file_name', ''))} "
                     f"{_page_label(item.get('page_start'), item.get('page_end'))} "
                     f"[문서ID: {_prompt_value(item.get('document_id', ''))}] "
+                    f"[chunk_id: {_prompt_value(item.get('chunk_id', ''))}] "
                     f"(score={item.get('score', '')})",
                     f"  내용: {_prompt_value(item.get('content', ''))}",
                 ]

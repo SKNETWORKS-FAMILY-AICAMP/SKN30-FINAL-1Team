@@ -120,6 +120,8 @@ class DocumentBriefingSourceRead(BaseModel):
     document_id: UUID
     file_id: UUID
     file_name: str
+    category_code: str | None = None
+    sales_deal_id: UUID | None = None
     chunk_no: int
     page_start: int | None = None
     page_end: int | None = None
@@ -135,6 +137,8 @@ class DocumentBriefingSummaryRead(BaseModel):
     file_id: UUID
     document_id: UUID
     file_name: str
+    category_code: str | None = None
+    sales_deal_id: UUID | None = None
     summary_markdown: str
     summary_payload: dict[str, Any] | None
 

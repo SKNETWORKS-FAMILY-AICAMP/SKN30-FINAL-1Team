@@ -51,6 +51,12 @@ interface BriefingView {
   risks: ContractRisk[]
 }
 
+interface DocumentCitation {
+  excerpt: string | null
+  pageStart: number | null
+  pageEnd: number | null
+}
+
 /** 새 highlights 형식과 DB에 남은 구 contract_summary 형식을 한 화면 모델로 맞춥니다. */
 function briefingView(content: ContractBriefingOutput | null | undefined): BriefingView | null {
   if (!content || typeof content !== 'object') return null
@@ -158,6 +164,7 @@ export default function RecordDrawer({ item, onClose, onEdit, onDelete }: Props)
     tab: 'summary' | 'source'
     file: File | null
     text: { body: string; markdown: boolean; extracted: boolean } | null
+    citation: DocumentCitation | null
     loading: boolean
     error: string | null
   } | null>(null)
@@ -222,14 +229,15 @@ export default function RecordDrawer({ item, onClose, onEdit, onDelete }: Props)
    * 자료를 옆에 폅니다. 요약은 브리핑에 이미 실려 와 기다릴 것이 없어 바로 펴고,
    * 원본은 그 탭을 눌렀을 때 받아 옵니다.
    */
-  async function openSource(doc: BriefingDocument) {
+  async function openSource(doc: BriefingDocument, citation: DocumentCitation | null = null) {
     setSourceError(null)
-    if (hasSummaryView(doc)) {
+    if (hasSummaryView(doc) && !citation) {
       setSource({
         document: doc,
         tab: 'summary',
         file: null,
         text: null,
+        citation,
         loading: false,
         error: null,
       })
@@ -240,7 +248,14 @@ export default function RecordDrawer({ item, onClose, onEdit, onDelete }: Props)
     setOpeningId(doc.document_id)
     try {
       const loaded = await loadSource(doc)
-      setSource({ document: doc, tab: 'source', ...loaded, loading: false, error: null })
+      setSource({
+        document: doc,
+        tab: 'source',
+        ...loaded,
+        citation,
+        loading: false,
+        error: null,
+      })
     } catch (reason: unknown) {
       setSourceError({ documentId: doc.document_id, message: sourceFailure(reason) })
     } finally {
@@ -270,6 +285,35 @@ export default function RecordDrawer({ item, onClose, onEdit, onDelete }: Props)
     } catch (reason: unknown) {
       settle({ error: sourceFailure(reason) })
     }
+  }
+
+  function documentReferences(refs: SourceRef[]) {
+    const documents = briefing?.documents?.related ?? []
+    return refs.flatMap((ref) => {
+      if (ref.type !== 'document' || !ref.chunk_id) return []
+      const document = documents.find((item) => item.document_id === ref.id)
+      const excerpt = document?.excerpts?.find((item) => item.chunk_id === ref.chunk_id)
+      if (!document || !excerpt) return []
+      const pageStart = excerpt.page_start
+      const pageEnd = excerpt.page_end
+      const page = pageStart
+        ? pageEnd && pageEnd !== pageStart
+          ? `${pageStart}-${pageEnd}페이지`
+          : `${pageStart}페이지`
+        : '원문'
+      return [
+        {
+          key: `${ref.id}-${ref.chunk_id}`,
+          label: `${document.file_name} · ${page}`,
+          onOpen: () =>
+            void openSource(document, {
+              excerpt: ref.excerpt ?? excerpt.content ?? null,
+              pageStart,
+              pageEnd,
+            }),
+        },
+      ]
+    })
   }
 
   const at = item.contact.lastIndexOf(' ')
@@ -323,6 +367,14 @@ export default function RecordDrawer({ item, onClose, onEdit, onDelete }: Props)
                     : 'idle'
             }
             sourceError={source.error}
+            initialPage={source.citation?.pageStart}
+            citation={
+              source.citation && {
+                excerpt: source.citation.excerpt,
+                pageStart: source.citation.pageStart,
+                pageEnd: source.citation.pageEnd,
+              }
+            }
             // 여닫는 자리가 '자료 보기' 한 곳이라 접기가 아니라 닫기로 읽힙니다.
             dismiss="close"
             onCollapse={closeSource}
@@ -556,6 +608,7 @@ export default function RecordDrawer({ item, onClose, onEdit, onDelete }: Props)
                         title: highlight.title,
                         body: highlight.body,
                         actions: highlight.suggestedActions,
+                        references: documentReferences(highlight.sourceRefs),
                       }))}
                       risks={briefingContent.risks.map((risk) => RISK_LABEL[risk.code])}
                       missingInformation={briefingContent.missingInformation}

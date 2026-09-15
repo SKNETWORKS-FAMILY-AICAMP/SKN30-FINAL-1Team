@@ -23,6 +23,7 @@ export interface BriefingBlock {
   title: string
   body: string
   actions: string[]
+  references?: { key: string; label: string; onOpen: () => void }[]
 }
 
 function reducedMotion() {
@@ -129,6 +130,15 @@ export default function BriefingStream({
           )}
           {shown.actions.length > 0 && (
             <ul className={styles.actions}>{shown.actions.map(item)}</ul>
+          )}
+          {shown.body.done && blocks[index].references && blocks[index].references!.length > 0 && (
+            <div className={styles.briefingReferences} aria-label="참고 문서">
+              {blocks[index].references!.map((reference) => (
+                <button key={reference.key} type="button" onClick={reference.onOpen}>
+                  {reference.label}
+                </button>
+              ))}
+            </div>
           )}
         </div>
       ))}

@@ -25,6 +25,7 @@ export default function BriefingMaterials({
   const row = (document: BriefingDocument) => {
     const opening = openingDocumentId === document.document_id
     const error = sourceError?.documentId === document.document_id ? sourceError.message : null
+    const differences = document.contract_differences ?? []
     return (
       <li key={document.document_id} className={styles.sourceItem}>
         {/* 줄 전체가 버튼입니다. 파일명이 곧 버튼 이름이라 무엇을 여는지가 그대로 읽힙니다. */}
@@ -43,7 +44,33 @@ export default function BriefingMaterials({
           )}
           <ChevronRightIcon className={styles.sourceChevron} width={14} height={14} />
         </button>
-        {/* 발췌와 요약은 옆 패널의 탭으로 옮겼습니다. 목록에는 열지 못한 사유만 답니다. */}
+        {differences.length > 0 && (
+          <div className={styles.sourceComparisons} aria-label="계약서와 계약관리 값 비교">
+            <p className={styles.sourceComparisonTitle}>계약관리와 다른 값</p>
+            <dl>
+              {differences.map((difference) => {
+                const page = difference.page_start
+                  ? difference.page_end && difference.page_end !== difference.page_start
+                    ? `${difference.page_start}–${difference.page_end}페이지`
+                    : `${difference.page_start}페이지`
+                  : null
+                return (
+                  <div key={`${difference.sales_deal_id}-${difference.field_code}`}>
+                    <dt>{difference.field_label}</dt>
+                    <dd>
+                      <span>{difference.current_value ?? '미입력'}</span>
+                      <b aria-hidden="true">→</b>
+                      <strong>{difference.document_value}</strong>
+                    </dd>
+                    {page && <small>{page}</small>}
+                  </div>
+                )
+              })}
+            </dl>
+            <p className={styles.sourceComparisonHint}>파일을 열어 원문을 확인해 주세요.</p>
+          </div>
+        )}
+        {/* 발췌와 요약은 옆 패널의 탭으로 옮겼습니다. 목록에는 비교값과 오류만 답니다. */}
         {error && (
           <p className={`${styles.sourceDetail} ${styles.note}`} role="alert">
             {error}
