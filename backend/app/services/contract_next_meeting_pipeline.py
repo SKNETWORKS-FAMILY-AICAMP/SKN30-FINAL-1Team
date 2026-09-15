@@ -116,6 +116,7 @@ async def _run_pipeline(
         durable_refs = {
             **source_refs,
             "durable_pipeline": True,
+            "_worker_pool": settings.app_env,
             "customer_company_id": str(deal.customer_company_id),
             "sales_deal_id": str(sales_deal_id),
             "excluded_dates": [value.isoformat() for value in (excluded_dates or [])],
@@ -234,6 +235,7 @@ async def resume_completed(run_id: UUID) -> bool:
                     prompt_version=schedule_management.PROMPT_VERSION,
                     source_refs={
                         "durable_pipeline": True,
+                        "_worker_pool": settings.app_env,
                         "sales_deal_id": str(sales_deal_id),
                         "parent_run_id": str(run.id),
                         "excluded_dates": [value.isoformat() for value in excluded_dates],

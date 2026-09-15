@@ -47,6 +47,7 @@ from app.services import (
     briefing_refresh,
     contract_next_meeting_pipeline,
     report_attachments,
+    report_context,
     report_sources,
     report_submissions,
     storage,
@@ -1370,6 +1371,7 @@ async def finalize_report(
             sales_deal_id,
             {"report_id": str(read.id), "sales_deal_id": str(sales_deal_id)},
         )
+    background.add_task(report_context.embed_submission_quietly, submission.id)
     return read
 
 

@@ -138,7 +138,6 @@ export default function useAiSuggestions(addEvent: AddEvent) {
         dept: suggestion.dept,
         contact: suggestion.contact,
         place: suggestion.place,
-        salesDealId: suggestion.id,
         customerContactId: suggestion.customerContactId,
         scheduleManagementRunId: suggestion.scheduleRunId,
       })
