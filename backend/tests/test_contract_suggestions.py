@@ -151,6 +151,12 @@ def _suggestion(deal: SalesDeal, schedule_run_id: UUID, *, status_code: str = "p
     return ContractNextMeetingSuggestion(
         id=uuid4(),
         team_id=deal.team_id,
+        scope_key=f"deal:{deal.id}",
+        customer_company_id=deal.customer_company_id,
+        customer_contact_id=deal.customer_contact_id,
+        owner_member_id=deal.owner_member_id,
+        source_report_id=None,
+        source_activity_id=None,
         sales_deal_id=deal.id,
         schedule_management_run_id=schedule_run_id,
         target_date=datetime(2026, 9, 20).date(),
@@ -192,7 +198,7 @@ def test_list_returns_one_stored_date_without_calling_the_llm():
     )
     suggestion = _suggestion(deal, schedule_run.id)
     db = _Db(
-        _Result(rows=[(suggestion, deal, company.name, member.display_name)]),
+        _Result(rows=[(suggestion, deal, company.name, None, member.display_name)]),
         _Result(scalar_values=[schedule_run]),
         _Result(scalar_values=[next_meeting_run]),
     )
@@ -221,7 +227,7 @@ def test_list_skips_suggestions_whose_run_has_not_finished():
     running_run = _run(member.team_id, agent_code="schedule_management", status_code="running")
     suggestion = _suggestion(deal, running_run.id)
     db = _Db(
-        _Result(rows=[(suggestion, deal, company.name, member.display_name)]),
+        _Result(rows=[(suggestion, deal, company.name, None, member.display_name)]),
         _Result(scalar_values=[running_run]),
     )
 
@@ -230,6 +236,67 @@ def test_list_skips_suggestions_whose_run_has_not_finished():
 
     assert response.status_code == 200
     assert response.json() == []
+
+
+def test_list_returns_a_company_report_suggestion_without_a_deal():
+    member = _member()
+    company = _company(member.team_id)
+    next_meeting_run = _run(
+        member.team_id,
+        agent_code="contract_management_next_meeting",
+        output={
+            "risks": [],
+            "next_meeting_suggestion": {
+                "sales_deal_id": None,
+                "reason": "보고서에서 다음 방문을 합의했습니다.",
+            },
+        },
+    )
+    schedule_run = _run(
+        member.team_id,
+        agent_code="schedule_management",
+        parent_run_id=next_meeting_run.id,
+        output={"decision": "valid", "reason_code": "recommendation_valid"},
+    )
+    suggestion = ContractNextMeetingSuggestion(
+        id=uuid4(),
+        team_id=member.team_id,
+        scope_key=f"company:{company.id}",
+        customer_company_id=company.id,
+        customer_contact_id=None,
+        owner_member_id=member.id,
+        source_report_id=uuid4(),
+        source_activity_id=uuid4(),
+        sales_deal_id=None,
+        schedule_management_run_id=schedule_run.id,
+        target_date=datetime(2026, 9, 25).date(),
+        target_time=None,
+        selected_duration_minutes=None,
+        excluded_dates=[],
+        refresh_reason=None,
+        applied_activity_id=None,
+        status_code="pending",
+        created_at=NOW,
+        updated_at=NOW,
+    )
+    db = _Db(
+        _Result(rows=[(suggestion, None, company.name, None, member.display_name)]),
+        _Result(scalar_values=[schedule_run]),
+        _Result(scalar_values=[next_meeting_run]),
+    )
+
+    with _client(db, member) as client:
+        response = client.get(
+            "/api/contract-next-meeting-suggestions", headers={"Origin": ORIGIN}
+        )
+
+    assert response.status_code == 200
+    [item] = response.json()
+    assert item["id"] == str(suggestion.id)
+    assert item["sales_deal_id"] is None
+    assert item["sales_deal_title"] is None
+    assert item["customer_company_id"] == str(company.id)
+    assert item["reason"] == "보고서에서 다음 방문을 합의했습니다."
 
 
 def test_manager_sees_the_whole_team_and_empty_list_skips_extra_queries():
@@ -262,7 +329,7 @@ def test_reject_replaces_the_suggestion_and_excludes_the_old_date(monkeypatch):
 
     with _client(db, member) as client:
         response = client.post(
-            f"/api/contract-next-meeting-suggestions/{deal.id}/reject",
+            f"/api/contract-next-meeting-suggestions/{suggestion.id}/reject",
             headers={"Origin": ORIGIN},
         )
 
@@ -276,7 +343,7 @@ def test_reject_replaces_the_suggestion_and_excludes_the_old_date(monkeypatch):
     repeat_db = _Db(_Result(rows=[(already, deal)]))
     with _client(repeat_db, member) as client:
         response = client.post(
-            f"/api/contract-next-meeting-suggestions/{deal.id}/reject",
+            f"/api/contract-next-meeting-suggestions/{already.id}/reject",
             headers={"Origin": ORIGIN},
         )
 
@@ -289,11 +356,12 @@ def test_reject_hides_other_owners_suggestion_as_not_found():
     other = _member(team_id=member.team_id)
     company = _company(member.team_id)
     deal = _deal(other, company)
-    db = _Db(_Result(rows=[(_suggestion(deal, uuid4()), deal)]))
+    suggestion = _suggestion(deal, uuid4())
+    db = _Db(_Result(rows=[(suggestion, deal)]))
 
     with _client(db, member) as client:
         response = client.post(
-            f"/api/contract-next-meeting-suggestions/{deal.id}/reject",
+            f"/api/contract-next-meeting-suggestions/{suggestion.id}/reject",
             headers={"Origin": ORIGIN},
         )
 
@@ -318,7 +386,7 @@ def test_reject_keeps_the_card_when_regeneration_queue_fails(monkeypatch):
 
     with _client(db, member) as client:
         response = client.post(
-            f"/api/contract-next-meeting-suggestions/{deal.id}/reject",
+            f"/api/contract-next-meeting-suggestions/{suggestion.id}/reject",
             headers={"Origin": ORIGIN},
         )
 
@@ -350,7 +418,7 @@ def test_apply_date_only_requires_a_supported_duration():
     db = _Db(_Result(rows=[(suggestion, deal)]))
     with _client(db, member) as client:
         response = client.post(
-            f"/api/contract-next-meeting-suggestions/{deal.id}/apply",
+            f"/api/contract-next-meeting-suggestions/{suggestion.id}/apply",
             headers={"Origin": ORIGIN},
             json={"duration_minutes": 60},
         )

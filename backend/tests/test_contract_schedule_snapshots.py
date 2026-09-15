@@ -358,6 +358,7 @@ async def test_build_next_meeting_snapshot_with_no_open_deals():
         _Result(scalar=company),  # _company_or_404
         _Result(rows=[]),  # _open_deals
         _Result(scalar_values=[]),  # _unresolved_support_signals
+        _Result(rows=[]),  # 고객사 확정 보고서
     )
 
     snapshot = await snapshots.build_next_meeting_snapshot(db, member, company.id)
@@ -528,6 +529,8 @@ async def test_contract_report_context_includes_shared_bodies_without_ml_or_ai(m
         assert json.loads(kwargs["input_text"])["recent_approved_reports"] == recent
         assert "해당 딜의 확정 사실·약속·계약 조건으로 배정하지 말고" in kwargs["instructions"]
         assert "모든 선택 딜에 명시적으로 적용된 합의·조건은" in kwargs["instructions"]
+        assert "딜 연결을 요구하거나" in kwargs["instructions"]
+        assert "sales_deal_id는 null로 두고" in kwargs["instructions"]
         return contract_management.NextMeetingProposalOutput()
 
     monkeypatch.setattr(contract_management, "generate_structured", generate)

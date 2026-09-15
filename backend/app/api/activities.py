@@ -782,12 +782,11 @@ async def _claim_suggestion(
         ContractNextMeetingSuggestion.team_id == member.team_id,
     ]
     if member.role_code == "member":
-        conditions.append(SalesDeal.owner_member_id == member.id)
+        conditions.append(ContractNextMeetingSuggestion.owner_member_id == member.id)
 
     suggestion = (
         await db.execute(
             select(ContractNextMeetingSuggestion)
-            .join(SalesDeal, SalesDeal.id == ContractNextMeetingSuggestion.sales_deal_id)
             .where(*conditions)
             # 딜은 범위를 거는 데만 쓴다 — of 를 빼면 조인한 딜 행까지 함께 잠근다.
             .with_for_update(of=ContractNextMeetingSuggestion)

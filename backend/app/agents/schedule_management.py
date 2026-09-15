@@ -53,7 +53,8 @@ class ScheduleManagementOutput(BaseModel):
 class _ScheduleLLMInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    sales_deal_id: str
+    sales_deal_id: str | None = None
+    customer_company_id: str | None = None
     target_date: date
     target_time: time | None = None
     recommendation_status: Literal["pending", "rejected", "accepted", "expired"] = "pending"
@@ -123,6 +124,7 @@ async def run(snapshot: dict) -> ScheduleManagementOutput:
     value = _ScheduleLLMInput.model_validate(
         {
             "sales_deal_id": snapshot.get("sales_deal_id"),
+            "customer_company_id": snapshot.get("customer_company_id"),
             "target_date": snapshot.get("target_date"),
             "target_time": snapshot.get("target_time"),
             "recommendation_status": snapshot.get("recommendation_status", "pending"),

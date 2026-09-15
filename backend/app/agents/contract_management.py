@@ -36,7 +36,7 @@ def _now() -> datetime:
 # 프롬프트는 라우터가 아니라 이 에이전트 파일에서만 관리한다.
 # 내용을 바꾸면 실행 이력에서 구분할 수 있도록 버전도 함께 올린다.
 SELECT_CANDIDATES_PROMPT_VERSION = "contract_management.select_candidates.v2"
-PROPOSE_NEXT_MEETING_PROMPT_VERSION = "contract_management.propose_next_meeting.v6"
+PROPOSE_NEXT_MEETING_PROMPT_VERSION = "contract_management.propose_next_meeting.v8"
 GENERATE_BRIEFING_PROMPT_VERSION = "contract_management.generate_briefing.v12"
 
 SELECT_CANDIDATES_SYSTEM_PROMPT = """너는 B2B 영업·계약관리를 보조하는 AI다.
@@ -74,8 +74,17 @@ content.meeting_shared.common_report는 회사·미팅의 공통 맥락이다. �
 그 대상 범위와 조건을 유지해 해석하라. source_activity_id가 같으면 같은 미팅의 공통 내용을
 반복 전달한 것이다.
 content.meeting_shared.unassigned_report는 '딜 미지정 · 확인 필요' 내용이다. 내용을 버리지
-말되 해당 딜의 확정 사실·약속·계약 조건으로 배정하지 말고 필요하면 missing_information에
-귀속 확인이 필요하다고 남겨라. 공통·미지정 내용만으로 새로운 위험 신호를 만들지 마라.
+말되 해당 딜의 확정 사실·약속·계약 조건으로 배정하지 말고, 딜 귀속이 필요한 내용은
+missing_information에 남겨라. 다만 고객사와 합의한 다음 미팅
+일정은 딜 귀속이 없어도 고객사 일정으로 사용할 수 있다. sales_deals가 비어 있어도 정상이며,
+이 경우 next_meeting_suggestion.sales_deal_id는 null로 둔다.
+
+최우선 규칙: 최신 보고서에 고객사와 합의한 미래의 다음 미팅 날짜가 있으면 반드시
+next_meeting_suggestion을 반환한다. 이 규칙은 연결된 영업 딜이 전혀 없거나, 보고서가
+특정 딜에 연결되지 않은 경우에도 똑같이 적용한다. 이때 sales_deal_id는 null로 두고
+고객사 공통 일정으로 제안한다. 딜 연결을 요구하거나, 딜이 없다는 이유로
+next_meeting_suggestion을 null로 두거나, 이를 missing_information 또는
+recommended_actions에 쓰지 마라.
 
 보고서는 최신 순서로 제공된다. 가장 최신 보고서에 고객과 합의한 다음 만남 날짜·시각이
 명시되어 있으면 일반 위험 신호나 이전 보고서의 날짜보다 반드시 우선한다. "다음 주 금요일"
@@ -199,7 +208,7 @@ class NextMeetingSuggestion(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    sales_deal_id: str
+    sales_deal_id: str | None = None
     reason: str = Field(min_length=1, max_length=1_000)
     target_date: date = Field(description="추천할 단 하나의 날짜(Asia/Seoul 기준)")
     target_time: time | None = Field(

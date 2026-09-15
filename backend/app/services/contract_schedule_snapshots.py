@@ -498,7 +498,11 @@ async def build_next_meeting_snapshot(
         # (contract_management._NextMeetingLLMInput) 바꾸려면 프롬프트 버전을
         # 올려야 한다. 함수 이름만 실제 동작(submitted + approved)에 맞춘다.
         "recent_approved_reports": await _recent_finalized_reports(
-            db, member, deal_ids, required_report_id
+            db,
+            member,
+            deal_ids,
+            required_report_id,
+            customer_company_id=customer_company_id if sales_deal_id is None else None,
         ),
         "current_datetime": datetime.now(_SEOUL).isoformat(),
         "excluded_dates": excluded_dates or [],
@@ -690,28 +694,45 @@ async def build_briefing_snapshot(
 async def build_schedule_snapshot(
     db: AsyncSession,
     member: Member,
-    sales_deal_id: UUID,
+    sales_deal_id: UUID | None,
     parent_run: AgentRun | None,
     target_date: date | str | None,
     target_time: str | None,
     recommendation_status: str = "pending",
     excluded_dates: list[date] | None = None,
+    customer_company_id: UUID | None = None,
 ) -> dict[str, Any]:
     """일정관리 실행 입력. 날짜를 넓히거나 기본 소요시간을 만들지 않는다."""
-    row = (
-        await db.execute(
-            select(SalesDeal, SalesPipelineStage.outcome_code)
-            .join(SalesPipelineStage, SalesPipelineStage.id == SalesDeal.sales_pipeline_stage_id)
-            .where(
-                SalesDeal.id == sales_deal_id,
-                SalesDeal.team_id == member.team_id,
-                SalesDeal.deleted_at.is_(None),
+    deal = None
+    deal_outcome_code = "in_progress"
+    if sales_deal_id is not None:
+        row = (
+            await db.execute(
+                select(SalesDeal, SalesPipelineStage.outcome_code)
+                .join(
+                    SalesPipelineStage,
+                    SalesPipelineStage.id == SalesDeal.sales_pipeline_stage_id,
+                )
+                .where(
+                    SalesDeal.id == sales_deal_id,
+                    SalesDeal.team_id == member.team_id,
+                    SalesDeal.deleted_at.is_(None),
+                )
             )
+        ).one_or_none()
+        if row is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="sales_deal_not_found"
+            )
+        deal, deal_outcome_code = row
+        customer_company_id = deal.customer_company_id
+    elif customer_company_id is not None:
+        await _company_or_404(db, member, customer_company_id)
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="schedule_scope_required",
         )
-    ).one_or_none()
-    if row is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="sales_deal_not_found")
-    deal, deal_outcome_code = row
 
     reason: str | None = None
     if parent_run is not None:
@@ -735,7 +756,8 @@ async def build_schedule_snapshot(
         ) from None
 
     return {
-        "sales_deal_id": str(deal.id),
+        "sales_deal_id": str(deal.id) if deal is not None else None,
+        "customer_company_id": str(customer_company_id),
         "target_date": parsed_target_date.isoformat(),
         "target_time": target_time,
         "reason": reason,

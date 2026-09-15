@@ -24,6 +24,7 @@ from app.agents import contract_management, schedule_management
 from app.core.config import settings
 from app.db.session import get_sessionmaker
 from app.models.agent import AgentRun, ContractNextMeetingSuggestion
+from app.models.crm import Activity
 from app.models.sales import SalesDeal
 from app.models.workspace import Member
 from app.services import contract_schedule_snapshots
@@ -36,6 +37,18 @@ _FOLLOW_UP_DELAY = timedelta(minutes=2)
 def queue(background: BackgroundTasks, sales_deal_id: UUID, source_refs: dict[str, str]) -> None:
     """트리거 커밋 직후 라우터가 호출한다. source_refs 는 무엇이 이 실행을 촉발했는지 남긴다."""
     background.add_task(_run_pipeline, sales_deal_id, source_refs)
+
+
+def queue_report(
+    background: BackgroundTasks,
+    customer_company_id: UUID,
+    report_id: UUID,
+    source_activity_id: UUID,
+) -> None:
+    """미팅 보고서의 신규·수정 제출을 고객사 일정추천 한 건으로 예약한다."""
+    background.add_task(
+        _run_report_pipeline, customer_company_id, report_id, source_activity_id
+    )
 
 
 async def regenerate(
@@ -51,6 +64,141 @@ async def regenerate(
         excluded_dates=excluded_dates,
         refresh_reason=refresh_reason,
     )
+
+
+async def regenerate_report(
+    customer_company_id: UUID,
+    report_id: UUID,
+    source_activity_id: UUID,
+    *,
+    excluded_dates: list[date] | None = None,
+    refresh_reason: str | None = None,
+) -> bool:
+    return await _run_report_pipeline(
+        customer_company_id,
+        report_id,
+        source_activity_id,
+        excluded_dates=excluded_dates,
+        refresh_reason=refresh_reason,
+    )
+
+
+async def _run_report_pipeline(
+    customer_company_id: UUID,
+    report_id: UUID,
+    source_activity_id: UUID,
+    *,
+    excluded_dates: list[date] | None = None,
+    refresh_reason: str | None = None,
+) -> bool:
+    """딜 연결과 무관하게 제출된 미팅 보고서에서 고객사 일정추천을 예약한다."""
+    if not settings.llm_configured:
+        return False
+    sessionmaker = get_sessionmaker()
+    scope_key = f"company:{customer_company_id}"
+    async with sessionmaker() as session:
+        await _lock_scope(session, scope_key)
+        activity = (
+            await session.execute(
+                select(Activity).where(
+                    Activity.id == source_activity_id,
+                    Activity.customer_company_id == customer_company_id,
+                    Activity.deleted_at.is_(None),
+                )
+            )
+        ).scalar_one_or_none()
+        if activity is None:
+            return False
+        owner = await _member(session, activity.owner_member_id)
+        if owner is None:
+            return False
+        try:
+            next_meeting_input = await contract_schedule_snapshots.build_next_meeting_snapshot(
+                session,
+                owner,
+                customer_company_id,
+                required_report_id=report_id,
+                excluded_dates=excluded_dates,
+            )
+        except HTTPException:
+            return False
+
+        now = datetime.now(UTC)
+        active_run_id = await _active_scope_run_id(session, scope_key, now)
+        await session.execute(
+            update(AgentRun)
+            .where(
+                AgentRun.agent_code.in_(
+                    ("contract_management_next_meeting", "schedule_management")
+                ),
+                AgentRun.status_code == "queued",
+                AgentRun.source_refs["durable_pipeline"].astext == "true",
+                AgentRun.source_refs["recommendation_scope"].astext == scope_key,
+            )
+            .values(
+                status_code="cancelled",
+                current_stage_code="cancelled",
+                error_code="agent_run_superseded",
+                error_message="agent_run_superseded",
+                finished_at=now,
+            )
+        )
+        run_id = uuid4()
+        refs = {
+            "report_id": str(report_id),
+            "activity_id": str(source_activity_id),
+            "durable_pipeline": True,
+            "_worker_pool": settings.app_env,
+            "recommendation_scope": scope_key,
+            "customer_company_id": str(customer_company_id),
+            "owner_member_id": str(activity.owner_member_id),
+            "customer_contact_id": (
+                str(activity.customer_contact_id) if activity.customer_contact_id else None
+            ),
+            "excluded_dates": [value.isoformat() for value in (excluded_dates or [])],
+            "refresh_reason": refresh_reason,
+        }
+        if active_run_id is not None:
+            refs["waiting_for_run_id"] = str(active_run_id)
+        session.add(
+            AgentRun(
+                id=run_id,
+                team_id=activity.team_id,
+                parent_run_id=None,
+                requested_by_member_id=None,
+                agent_code="contract_management_next_meeting",
+                trigger_code="system",
+                idempotency_key=None,
+                status_code="queued",
+                llm_model_name=settings.llm_model,
+                prompt_version=contract_management.PROPOSE_NEXT_MEETING_PROMPT_VERSION,
+                source_refs=refs,
+                input_snapshot=jsonable_encoder(next_meeting_input),
+                output_snapshot=None,
+                evidence=None,
+                error_message=None,
+                error_code=None,
+                current_stage_code="queued",
+                attempt_count=0,
+                request_snapshot={},
+                request_hash=None,
+                scope_key=f"contract_next_meeting:{scope_key}:{run_id}",
+                payload_expires_at=None,
+                payload_redacted_at=None,
+                lease_owner=None,
+                lease_expires_at=None,
+                heartbeat_at=None,
+                next_attempt_at=(now + _FOLLOW_UP_DELAY if active_run_id else now),
+                input_tokens=None,
+                output_tokens=None,
+                total_tokens=None,
+                created_at=now,
+                started_at=None,
+                finished_at=None,
+            )
+        )
+        await session.commit()
+    return True
 
 
 async def _run_pipeline(
@@ -117,6 +265,7 @@ async def _run_pipeline(
             **source_refs,
             "durable_pipeline": True,
             "_worker_pool": settings.app_env,
+            "recommendation_scope": f"deal:{sales_deal_id}",
             "customer_company_id": str(deal.customer_company_id),
             "sales_deal_id": str(sales_deal_id),
             "excluded_dates": [value.isoformat() for value in (excluded_dates or [])],
@@ -192,18 +341,24 @@ async def resume_completed(run_id: UUID) -> bool:
                 return False
             suggestion = (run.output_snapshot or {}).get("next_meeting_suggestion")
             sales_deal_id = _source_uuid(run.source_refs, "sales_deal_id")
-            if sales_deal_id is None:
-                return False
+            customer_company_id = _source_uuid(run.source_refs, "customer_company_id")
             if not suggestion:
-                await _wake_latest(session, sales_deal_id, excluding=run.id)
+                await _wake_latest_for_run(session, run, excluding=run.id)
                 await session.commit()
                 return False
-            if not _answers_this_deal(suggestion, sales_deal_id):
+            if sales_deal_id is not None and not _answers_this_deal(suggestion, sales_deal_id):
                 return False
-            deal = await _open_deal(session, sales_deal_id)
-            if deal is None:
+            deal = await _open_deal(session, sales_deal_id) if sales_deal_id is not None else None
+            if sales_deal_id is not None and deal is None:
                 return False
-            owner = await _member(session, deal.owner_member_id)
+            owner_member_id = (
+                deal.owner_member_id
+                if deal is not None
+                else _source_uuid(run.source_refs, "owner_member_id")
+            )
+            if owner_member_id is None or customer_company_id is None:
+                return False
+            owner = await _member(session, owner_member_id)
             if owner is None:
                 return False
             excluded_dates = _source_dates(run.source_refs, "excluded_dates")
@@ -216,6 +371,7 @@ async def resume_completed(run_id: UUID) -> bool:
                     None,
                     None,
                     excluded_dates=excluded_dates,
+                    customer_company_id=customer_company_id,
                 )
             except HTTPException:
                 return False
@@ -224,7 +380,7 @@ async def resume_completed(run_id: UUID) -> bool:
             session.add(
                 AgentRun(
                     id=child_id,
-                    team_id=deal.team_id,
+                    team_id=run.team_id,
                     parent_run_id=run.id,
                     requested_by_member_id=None,
                     agent_code="schedule_management",
@@ -234,9 +390,29 @@ async def resume_completed(run_id: UUID) -> bool:
                     llm_model_name=settings.llm_model,
                     prompt_version=schedule_management.PROMPT_VERSION,
                     source_refs={
+                        **{
+                            key: value
+                            for key, value in (run.source_refs or {}).items()
+                            if key
+                            in {
+                                "recommendation_scope",
+                                "customer_company_id",
+                                "customer_contact_id",
+                                "owner_member_id",
+                                "report_id",
+                                "activity_id",
+                            }
+                        },
                         "durable_pipeline": True,
                         "_worker_pool": settings.app_env,
-                        "sales_deal_id": str(sales_deal_id),
+                        "sales_deal_id": str(sales_deal_id) if sales_deal_id else None,
+                        "customer_company_id": str(customer_company_id),
+                        "owner_member_id": str(owner_member_id),
+                        "customer_contact_id": (
+                            str(deal.customer_contact_id)
+                            if deal is not None and deal.customer_contact_id
+                            else (run.source_refs or {}).get("customer_contact_id")
+                        ),
                         "parent_run_id": str(run.id),
                         "excluded_dates": [value.isoformat() for value in excluded_dates],
                         "refresh_reason": (run.source_refs or {}).get("refresh_reason"),
@@ -275,17 +451,22 @@ async def resume_completed(run_id: UUID) -> bool:
         if (run.output_snapshot or {}).get("decision") != "valid":
             return False
         sales_deal_id = _source_uuid(run.source_refs, "sales_deal_id")
-        if sales_deal_id is None:
+        customer_company_id = _source_uuid(run.source_refs, "customer_company_id")
+        owner_member_id = _source_uuid(run.source_refs, "owner_member_id")
+        recommendation_scope = (run.source_refs or {}).get("recommendation_scope")
+        if not recommendation_scope:
+            recommendation_scope = f"deal:{sales_deal_id}" if sales_deal_id else None
+        if recommendation_scope is None or customer_company_id is None:
             return False
         # 이 실행 중 더 최신 보고서가 들어왔다면 낡은 날짜를 잠깐이라도 카드에 덮어쓰지
         # 않는다. 최신 1건을 즉시 깨워 그 결과만 화면에 남긴다.
-        if await _wake_latest(session, sales_deal_id):
+        if await _wake_latest_for_run(session, run):
             await session.commit()
             return False
         already_saved = (
             await session.execute(
                 select(ContractNextMeetingSuggestion.schedule_management_run_id).where(
-                    ContractNextMeetingSuggestion.sales_deal_id == sales_deal_id
+                    ContractNextMeetingSuggestion.scope_key == recommendation_scope
                 )
             )
         ).scalar_one_or_none()
@@ -299,6 +480,12 @@ async def resume_completed(run_id: UUID) -> bool:
             run.team_id,
             sales_deal_id,
             run.id,
+            scope_key=recommendation_scope,
+            customer_company_id=customer_company_id,
+            customer_contact_id=_source_uuid(run.source_refs, "customer_contact_id"),
+            owner_member_id=owner_member_id,
+            source_report_id=_source_uuid(run.source_refs, "report_id"),
+            source_activity_id=_source_uuid(run.source_refs, "activity_id"),
             target_date=date.fromisoformat(str(target_date_value)),
             target_time=(
                 time.fromisoformat(str(run.input_snapshot["target_time"]))
@@ -408,6 +595,32 @@ async def _lock_deal(session: AsyncSession, sales_deal_id: UUID) -> None:
     )
 
 
+async def _lock_scope(session: AsyncSession, scope_key: str) -> None:
+    await session.execute(
+        text("SELECT pg_advisory_xact_lock(hashtext(:key))"),
+        {"key": f"contract_next_meeting:{scope_key}"},
+    )
+
+
+async def _active_scope_run_id(
+    session: AsyncSession, scope_key: str, now: datetime
+) -> UUID | None:
+    return (
+        await session.execute(
+            select(AgentRun.id)
+            .where(
+                AgentRun.source_refs["recommendation_scope"].astext == scope_key,
+                AgentRun.agent_code.in_(
+                    ("contract_management_next_meeting", "schedule_management")
+                ),
+                AgentRun.status_code == "running",
+                AgentRun.lease_expires_at > now,
+            )
+            .limit(1)
+        )
+    ).scalar_one_or_none()
+
+
 async def _active_run_id(
     session: AsyncSession, sales_deal_id: UUID, now: datetime
 ) -> UUID | None:
@@ -456,6 +669,41 @@ async def _wake_latest(
     return True
 
 
+async def _wake_latest_for_run(
+    session: AsyncSession, run: AgentRun, *, excluding: UUID | None = None
+) -> bool:
+    scope_key = (run.source_refs or {}).get("recommendation_scope")
+    if not scope_key:
+        sales_deal_id = _source_uuid(run.source_refs, "sales_deal_id")
+        return (
+            await _wake_latest(session, sales_deal_id, excluding=excluding)
+            if sales_deal_id is not None
+            else False
+        )
+    conditions = [
+        AgentRun.agent_code == "contract_management_next_meeting",
+        AgentRun.status_code == "queued",
+        AgentRun.source_refs["durable_pipeline"].astext == "true",
+        AgentRun.source_refs["recommendation_scope"].astext == scope_key,
+    ]
+    if excluding is not None:
+        conditions.append(AgentRun.id != excluding)
+    latest_id = (
+        await session.execute(
+            select(AgentRun.id)
+            .where(*conditions)
+            .order_by(AgentRun.created_at.desc())
+            .limit(1)
+        )
+    ).scalar_one_or_none()
+    if latest_id is None:
+        return False
+    await session.execute(
+        update(AgentRun).where(AgentRun.id == latest_id).values(next_attempt_at=datetime.now(UTC))
+    )
+    return True
+
+
 async def _open_deal(session: AsyncSession, sales_deal_id: UUID) -> SalesDeal | None:
     return (
         await session.execute(
@@ -473,28 +721,43 @@ async def _member(session: AsyncSession, member_id: UUID) -> Member | None:
 async def _upsert_suggestion(
     session: AsyncSession,
     team_id: UUID,
-    sales_deal_id: UUID,
+    sales_deal_id: UUID | None,
     schedule_run_id: UUID,
     *,
+    scope_key: str | None = None,
+    customer_company_id: UUID | None = None,
+    customer_contact_id: UUID | None = None,
+    owner_member_id: UUID | None = None,
+    source_report_id: UUID | None = None,
+    source_activity_id: UUID | None = None,
     target_date: date,
     target_time: time | None,
     excluded_dates: list[date],
     refresh_reason: str | None,
 ) -> None:
-    """sales_deal_id 당 활성 제안은 최대 1개다. 같은 딜에 새 실행이 나오면 덮어쓴다.
+    """추천 범위당 활성 제안은 최대 1개다. 새 실행이 나오면 전체를 덮어쓴다.
 
     같은 딜의 과거 카드가 있으면 새 날짜와 실행으로 전체 교체한다.
     """
     now = datetime.now(UTC)
+    scope_key = scope_key or (f"deal:{sales_deal_id}" if sales_deal_id else None)
+    if scope_key is None or customer_company_id is None or owner_member_id is None:
+        return
     existing = (
         await session.execute(
             select(ContractNextMeetingSuggestion).where(
-                ContractNextMeetingSuggestion.sales_deal_id == sales_deal_id
+                ContractNextMeetingSuggestion.scope_key == scope_key
             )
         )
     ).scalar_one_or_none()
     if existing is not None:
         existing.schedule_management_run_id = schedule_run_id
+        existing.customer_company_id = customer_company_id
+        existing.customer_contact_id = customer_contact_id
+        existing.owner_member_id = owner_member_id
+        existing.source_report_id = source_report_id
+        existing.source_activity_id = source_activity_id
+        existing.sales_deal_id = sales_deal_id
         existing.target_date = target_date
         existing.target_time = target_time
         existing.selected_duration_minutes = None
@@ -509,6 +772,12 @@ async def _upsert_suggestion(
         ContractNextMeetingSuggestion(
             id=uuid4(),
             team_id=team_id,
+            scope_key=scope_key,
+            customer_company_id=customer_company_id,
+            customer_contact_id=customer_contact_id,
+            owner_member_id=owner_member_id,
+            source_report_id=source_report_id,
+            source_activity_id=source_activity_id,
             sales_deal_id=sales_deal_id,
             schedule_management_run_id=schedule_run_id,
             target_date=target_date,

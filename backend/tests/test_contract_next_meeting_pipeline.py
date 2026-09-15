@@ -84,6 +84,12 @@ def _suggestion(deal: SalesDeal, schedule_run_id: UUID, *, status_code: str = "p
     return ContractNextMeetingSuggestion(
         id=uuid4(),
         team_id=deal.team_id,
+        scope_key=f"deal:{deal.id}",
+        customer_company_id=deal.customer_company_id,
+        customer_contact_id=deal.customer_contact_id,
+        owner_member_id=deal.owner_member_id,
+        source_report_id=None,
+        source_activity_id=None,
         sales_deal_id=deal.id,
         schedule_management_run_id=schedule_run_id,
         target_date=date(2026, 9, 20),
@@ -113,6 +119,26 @@ def test_queue_defers_the_chain_to_the_background():
     pipeline.queue(background, sales_deal_id, {"report_id": "r-1"})
 
     assert background.tasks == [(pipeline._run_pipeline, (sales_deal_id, {"report_id": "r-1"}))]
+
+
+def test_report_queue_runs_once_without_a_sales_deal():
+    class _Background:
+        def __init__(self):
+            self.tasks = []
+
+        def add_task(self, func, *args):
+            self.tasks.append((func, args))
+
+    background = _Background()
+    company_id = uuid4()
+    report_id = uuid4()
+    activity_id = uuid4()
+
+    pipeline.queue_report(background, company_id, report_id, activity_id)
+
+    assert background.tasks == [
+        (pipeline._run_report_pipeline, (company_id, report_id, activity_id))
+    ]
 
 
 def test_report_trigger_passes_the_submitted_report_to_the_snapshot(monkeypatch):
@@ -196,6 +222,8 @@ def test_upsert_replaces_the_whole_previous_suggestion():
             deal.team_id,
             deal.id,
             new_run_id,
+            customer_company_id=deal.customer_company_id,
+            owner_member_id=deal.owner_member_id,
             target_date=date(2026, 9, 22),
             target_time=time(11, 0),
             excluded_dates=[date(2026, 9, 20)],

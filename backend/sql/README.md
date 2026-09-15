@@ -25,6 +25,11 @@
 
 ## 스키마 파일
 
+- `20260915_0038_company_report_schedule_suggestion.sql`: 미팅 보고서 작성·수정 제출 시 딜
+  연결 여부와 무관하게 고객사 일정추천을 한 건 생성할 수 있도록 추천 범위를 `scope_key`로
+  분리하고, 고객사·담당자·담당 영업사원·원본 보고서/일정을 직접 기록합니다. 기존 딜 추천은
+  `deal:<id>`로 백필하며 `sales_deal_id`는 고객사 추천에서 NULL을 허용합니다.
+
 - `20260915_0036_schedule_recommendation_card.sql`: 영업 딜별 일정 추천에 추천 날짜·선택
   소요시간·거절 날짜·재추천 사유·적용 일정 연결을 추가하고 상태값을
   `pending/rejected/expired/accepted`로 확장합니다. 반복 실행할 수 있습니다.

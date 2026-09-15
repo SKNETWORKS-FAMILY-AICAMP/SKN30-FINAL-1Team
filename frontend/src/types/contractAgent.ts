@@ -60,14 +60,14 @@ export type ContractBriefingOutput = HighlightBriefingOutput | LegacyContractBri
  */
 export interface ContractNextMeetingSuggestion {
   id: string
-  sales_deal_id: string
+  sales_deal_id: string | null
   customer_company_id: string
   customer_company_name: string
   customer_contact_id: string | null
   customer_contact_name: string | null
   owner_member_id: string
   owner_display_name: string
-  sales_deal_title: string
+  sales_deal_title: string | null
   reason: string
   risks: ContractRisk[]
   schedule_management_run_id: string

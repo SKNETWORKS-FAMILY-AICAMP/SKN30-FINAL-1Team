@@ -1114,6 +1114,12 @@ def _pending_suggestion(member: Member, schedule_run_id: UUID) -> ContractNextMe
     return ContractNextMeetingSuggestion(
         id=uuid4(),
         team_id=member.team_id,
+        scope_key=f"deal:{uuid4()}",
+        customer_company_id=uuid4(),
+        customer_contact_id=None,
+        owner_member_id=member.id,
+        source_report_id=None,
+        source_activity_id=None,
         sales_deal_id=uuid4(),
         schedule_management_run_id=schedule_run_id,
         target_date=datetime(2026, 8, 17).date(),
@@ -1209,7 +1215,8 @@ def test_claim_scopes_the_suggestion_to_the_team_and_owner(monkeypatch):
     assert response.status_code == 201
     claim_sql = str(db.statements[3])
     assert "contract_next_meeting_suggestion.team_id" in claim_sql
-    assert "sales_deal.owner_member_id" in claim_sql  # role_code == "member"
+    assert "contract_next_meeting_suggestion.owner_member_id" in claim_sql
+    assert "FROM public.sales_deal" not in claim_sql
     # of= 로 지정한 대상은 PostgreSQL 방언에서만 "OF ..." 로 붙어, 기본 컴파일에는
     # FOR UPDATE 까지만 나온다. 잠금을 걸었다는 것만 여기서 확인한다.
     assert "FOR UPDATE" in claim_sql

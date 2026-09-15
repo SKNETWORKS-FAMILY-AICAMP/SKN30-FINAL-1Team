@@ -1,8 +1,8 @@
 import type { AgendaKind } from './agenda'
 
-/** 카드 하나가 영업 건 하나이며, 날짜는 계약관리 Agent가 정한다. */
+/** 카드 하나가 딜 또는 고객사 범위의 추천이며, 날짜는 계약관리 Agent가 정한다. */
 export interface AiSuggestion {
-  /** sales_deal_id */
+  /** contract_next_meeting_suggestion.id */
   id: string
   customerCompanyId: string
   customerContactId: string | null

@@ -64,7 +64,15 @@ class ContractNextMeetingSuggestion(Base):
 
     id: Mapped[UUID] = mapped_column(primary_key=True)
     team_id: Mapped[UUID] = mapped_column(ForeignKey("public.team.id"))
-    sales_deal_id: Mapped[UUID] = mapped_column(ForeignKey("public.sales_deal.id"), unique=True)
+    scope_key: Mapped[str] = mapped_column(unique=True)
+    customer_company_id: Mapped[UUID] = mapped_column(ForeignKey("public.customer_company.id"))
+    customer_contact_id: Mapped[UUID | None] = mapped_column(
+        ForeignKey("public.customer_contact.id")
+    )
+    owner_member_id: Mapped[UUID] = mapped_column(ForeignKey("public.member.id"))
+    source_report_id: Mapped[UUID | None] = mapped_column(ForeignKey("public.report.id"))
+    source_activity_id: Mapped[UUID | None] = mapped_column(ForeignKey("public.activity.id"))
+    sales_deal_id: Mapped[UUID | None] = mapped_column(ForeignKey("public.sales_deal.id"))
     schedule_management_run_id: Mapped[UUID] = mapped_column(ForeignKey("public.agent_run.id"))
     target_date: Mapped[date | None] = mapped_column(Date)
     target_time: Mapped[time | None] = mapped_column(Time)
