@@ -7,6 +7,7 @@ from zoneinfo import ZoneInfo
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.services.agent_logging import log_agent_error
 from app.services.llm import generate_structured
 
 _SEOUL = ZoneInfo("Asia/Seoul")
@@ -98,7 +99,7 @@ def _required_decision(value: _ScheduleLLMInput) -> tuple[Decision, ReasonCode] 
 
 
 def _enforce_decision(
-    output: ScheduleManagementOutput, value: _ScheduleLLMInput
+    output: ScheduleManagementOutput | None, value: _ScheduleLLMInput
 ) -> ScheduleManagementOutput:
     required = _required_decision(value)
     if required is None:
@@ -106,7 +107,7 @@ def _enforce_decision(
         # 모호하지 않은 사실을 LLM 해석으로 뒤집어 불필요한 재추천을 만들지 않게 한다.
         required = ("valid", "recommendation_valid")
     decision, reason_code = required
-    if output.decision == decision and output.reason_code == reason_code:
+    if output is not None and output.decision == decision and output.reason_code == reason_code:
         return output
     reason = {
         "recommendation_valid": "추천 날짜가 아직 유효합니다.",
@@ -134,10 +135,17 @@ async def run(snapshot: dict) -> ScheduleManagementOutput:
             "timezone": snapshot.get("timezone") or "Asia/Seoul",
         }
     )
-    output = await generate_structured(
-        instructions=SYSTEM_PROMPT,
-        input_text=json.dumps(value.model_dump(mode="json"), ensure_ascii=False),
-        schema=ScheduleManagementOutput,
-        schema_name="schedule_management",
-    )
+    try:
+        output = await generate_structured(
+            instructions=SYSTEM_PROMPT,
+            input_text=json.dumps(value.model_dump(mode="json"), ensure_ascii=False),
+            schema=ScheduleManagementOutput,
+            schema_name="schedule_management",
+        )
+    except Exception as error:
+        # 결정은 서버 규칙이 보장하므로 LLM 장애가 추천 카드 저장을 막지 않게 한다.
+        log_agent_error(
+            error, stage="schedule_management.run", error_code="schedule_management_llm_failed"
+        )
+        output = None
     return _enforce_decision(output, value)

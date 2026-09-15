@@ -6,7 +6,9 @@
 """
 
 import json
+from collections import Counter
 from datetime import UTC, date, datetime
+from statistics import median
 from typing import Any
 from uuid import UUID
 from zoneinfo import ZoneInfo
@@ -41,6 +43,9 @@ _BRIEFING_QUERY_MAX_CHARS = 500
 _OPEN_SUPPORT_STATUSES = ("received", "diagnosing", "in_progress")
 # 청크 하나가 최대 1,600자라 5건이면 문맥 블록 상한(12,000자) 안에 든다.
 _BRIEFING_DOCUMENT_LIMIT = 5
+# 다음 일정 추천 도구가 볼 최근 미팅 수. 주기·요일 패턴을 보기에 충분한 만큼만 읽는다.
+_MEETING_HISTORY_LIMIT = 30
+_WEEKDAYS = ("월", "화", "수", "목", "금", "토", "일")
 def _seoul_iso(value: datetime | None) -> str | None:
     """LLM 에 보낼 시각. 화면과 같은 서울 시간으로 맞춘다."""
     return None if value is None else value.astimezone(_SEOUL).isoformat()
@@ -506,6 +511,58 @@ async def build_next_meeting_snapshot(
         ),
         "current_datetime": datetime.now(_SEOUL).isoformat(),
         "excluded_dates": excluded_dates or [],
+        # 아래 값은 LLM 입력 JSON이 아니라 계약관리 에이전트 도구가 읽는다.
+        "_meeting_history": await _meeting_history(db, member, customer_company_id),
+        "_report_scope": {
+            "team_id": str(member.team_id),
+            "customer_company_id": str(customer_company_id),
+        },
+        "_scope_sales_deal_id": str(sales_deal_id) if sales_deal_id is not None else None,
+    }
+
+
+async def _meeting_history(
+    db: AsyncSession, member: Member, customer_company_id: UUID
+) -> dict[str, Any]:
+    """다음 일정 추천 도구가 볼 고객사 미팅 이력. 날짜 계산은 LLM 대신 여기서 끝낸다."""
+    conditions = [
+        Activity.team_id == member.team_id,
+        Activity.customer_company_id == customer_company_id,
+        Activity.deleted_at.is_(None),
+    ]
+    if member.role_code == "member":
+        conditions.append(Activity.owner_member_id == member.id)
+    rows = (
+        await db.execute(
+            select(Activity.starts_at, Activity.all_day)
+            .where(*conditions)
+            .order_by(Activity.starts_at.desc())
+            .limit(_MEETING_HISTORY_LIMIT)
+        )
+    ).all()
+    now = datetime.now(_SEOUL)
+
+    def item(starts_at: datetime, all_day: bool) -> dict[str, Any]:
+        local = starts_at.astimezone(_SEOUL)
+        return {
+            "date": local.date().isoformat(),
+            "weekday": _WEEKDAYS[local.weekday()],
+            "time": None if all_day else local.strftime("%H:%M"),
+        }
+
+    ordered = list(reversed(rows))
+    past = [item(starts_at, all_day) for starts_at, all_day in ordered if starts_at <= now]
+    upcoming = [item(starts_at, all_day) for starts_at, all_day in ordered if starts_at > now]
+    dates = sorted({date.fromisoformat(meeting["date"]) for meeting in past})
+    intervals = [(later - earlier).days for earlier, later in zip(dates, dates[1:], strict=False)]
+    return {
+        "past_meetings": past[-10:],
+        "upcoming_meetings": upcoming[:5],
+        "meeting_count": len(dates),
+        "interval_days": intervals[-9:],
+        "median_interval_days": round(median(intervals)) if intervals else None,
+        "weekday_counts": dict(Counter(meeting["weekday"] for meeting in past)),
+        "is_first_meeting": len(dates) <= 1,
     }
 
 

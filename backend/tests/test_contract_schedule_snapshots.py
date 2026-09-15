@@ -359,6 +359,7 @@ async def test_build_next_meeting_snapshot_with_no_open_deals():
         _Result(rows=[]),  # _open_deals
         _Result(scalar_values=[]),  # _unresolved_support_signals
         _Result(rows=[]),  # 고객사 확정 보고서
+        _Result(rows=[]),  # _meeting_history
     )
 
     snapshot = await snapshots.build_next_meeting_snapshot(db, member, company.id)
@@ -525,15 +526,31 @@ async def test_contract_report_context_includes_shared_bodies_without_ml_or_ai(m
     ]
     assert section.content is content and content == original
 
-    async def generate(**kwargs):
-        assert json.loads(kwargs["input_text"])["recent_approved_reports"] == recent
-        assert "해당 딜의 확정 사실·약속·계약 조건으로 배정하지 말고" in kwargs["instructions"]
-        assert "모든 선택 딜에 명시적으로 적용된 합의·조건은" in kwargs["instructions"]
-        assert "딜 연결을 요구하거나" in kwargs["instructions"]
-        assert "sales_deal_id는 null로 두고" in kwargs["instructions"]
-        return contract_management.NextMeetingProposalOutput()
+    monkeypatch.setattr(contract_management, "configured_chat_model", lambda: object())
 
-    monkeypatch.setattr(contract_management, "generate_structured", generate)
+    def create(model, **kwargs):
+        instructions = kwargs["system_prompt"]
+        assert "해당 딜의 확정 사실·약속·계약 조건으로 배정하지 말고" in instructions
+        assert "모든 선택 딜에 명시적으로 적용된 합의·조건은" in instructions
+        assert "딜 연결을 요구하거나" in instructions
+        assert "sales_deal_id는 null로 두고" in instructions
+
+        class Agent:
+            async def ainvoke(self, payload, config):
+                llm_input = json.loads(payload["messages"][0]["content"])
+                assert llm_input["recent_approved_reports"] == recent
+                return {
+                    "messages": payload["messages"],
+                    "structured_response": contract_management.NextMeetingProposalOutput(
+                        next_meeting_suggestion=contract_management.NextMeetingSuggestion(
+                            reason="후속 미팅", target_date="2099-01-01"
+                        )
+                    ),
+                }
+
+        return Agent()
+
+    monkeypatch.setattr(contract_management, "create_agent", create)
     await contract_management.propose_next_meeting({"recent_approved_reports": recent})
 
 
@@ -765,6 +782,7 @@ async def test_next_meeting_snapshot_narrows_to_the_triggering_deal():
         _Result(rows=[]),  # _last_activity_by_deal
         _Result(scalar_values=[]),  # _unresolved_support_signals
         _Result(scalar_values=[]),  # _recent_finalized_reports
+        _Result(rows=[]),  # _meeting_history
     )
 
     snapshot = await snapshots.build_next_meeting_snapshot(db, member, company.id, triggered.id)
@@ -788,11 +806,37 @@ async def test_next_meeting_snapshot_keeps_every_deal_without_a_deal_id():
         _Result(rows=[]),
         _Result(scalar_values=[]),
         _Result(scalar_values=[]),
+        _Result(rows=[]),
     )
 
     snapshot = await snapshots.build_next_meeting_snapshot(db, member, company.id)
 
     assert len(snapshot["sales_deals"]) == 2
+    assert snapshot["_scope_sales_deal_id"] is None
+    assert snapshot["_meeting_history"]["is_first_meeting"] is True
+
+
+@pytest.mark.anyio
+async def test_meeting_history_computes_cycle_weekdays_and_upcoming_meetings():
+    member = _member()
+    rows = [  # DB는 최신순으로 돌려준다. 서울 기준 2주 간격 화요일 10시 미팅.
+        (datetime(2999, 1, 1, 1, 0, tzinfo=UTC), False),
+        (datetime(2020, 2, 4, 1, 0, tzinfo=UTC), False),
+        (datetime(2020, 1, 21, 1, 0, tzinfo=UTC), False),
+        (datetime(2020, 1, 7, 1, 0, tzinfo=UTC), True),
+    ]
+
+    history = await snapshots._meeting_history(_Db(_Result(rows=rows)), member, uuid4())
+
+    assert history["past_meetings"][0] == {"date": "2020-01-07", "weekday": "화", "time": None}
+    assert history["past_meetings"][-1] == {"date": "2020-02-04", "weekday": "화", "time": "10:00"}
+    assert history["upcoming_meetings"] == [
+        {"date": "2999-01-01", "weekday": "화", "time": "10:00"}
+    ]
+    assert history["interval_days"] == [14, 14]
+    assert history["median_interval_days"] == 14
+    assert history["weekday_counts"] == {"화": 3}
+    assert history["is_first_meeting"] is False
 
 
 @pytest.mark.anyio

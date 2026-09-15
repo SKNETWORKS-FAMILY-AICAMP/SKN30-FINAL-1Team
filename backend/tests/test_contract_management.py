@@ -1,5 +1,5 @@
 import json
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
 from types import SimpleNamespace
 
 import pytest
@@ -125,7 +125,10 @@ def test_next_meeting_prompt_prioritizes_an_explicit_report_commitment():
 
     assert "일반 위험 신호" in prompt
     assert "보고서의 report_date를 기준" in prompt
-    assert "risk_signals가 비어 있어도 next_meeting_suggestion" in prompt
+    assert "next_meeting_suggestion은 항상 한 건 반환한다" in prompt
+    assert "read_meeting_history" in prompt
+    assert "14일 이내" in prompt
+    assert "고객사 단위" in prompt
     assert "target_time을" in prompt
 
 
@@ -240,39 +243,57 @@ async def test_select_next_meeting_candidates_drops_unknown_deal_ids(monkeypatch
     assert [c.sales_deal_id for c in result.candidates] == ["deal-1"]
 
 
-@pytest.mark.anyio
-async def test_propose_next_meeting_uses_dedicated_prompt_schema_and_snapshot(monkeypatch):
-    fixed_now = datetime(2026, 8, 26, 9, 0, tzinfo=contract_management._SEOUL)
-    monkeypatch.setattr(contract_management, "_now", lambda: fixed_now)
-    captured = {}
-    expected = contract_management.NextMeetingProposalOutput(
-        risks=[
-            contract_management.ContractRisk(
-                code="quote_expiring",
-                severity="medium",
-                message="견적 유효기간이 임박했습니다.",
-                source_refs=[contract_management.SourceRef(type="sales_deal", id="deal-1")],
-            )
-        ],
-        missing_information=[],
-        recommended_actions=["견적 갱신 여부를 확인합니다."],
+def _fake_next_meeting_agent(monkeypatch, answers, captured):
+    """answers 순서대로 한 번씩 답한다. Exception 값이면 그 호출이 실패한다."""
+    sentinel_model = object()
+    monkeypatch.setattr(contract_management, "configured_chat_model", lambda: sentinel_model)
+    remaining = list(answers)
+
+    def create(model, **kwargs):
+        captured.update(model=model, **kwargs)
+
+        class Agent:
+            async def ainvoke(self, payload, config):
+                captured.setdefault("messages", []).append(payload["messages"])
+                captured["tool_results"] = {
+                    tool.__name__: await tool() for tool in kwargs["tools"]
+                }
+                answer = remaining.pop(0)
+                if isinstance(answer, Exception):
+                    raise answer
+                return {"messages": payload["messages"], "structured_response": answer}
+
+        return Agent()
+
+    monkeypatch.setattr(contract_management, "create_agent", create)
+
+
+def _proposal(target_date, target_time=None):
+    return contract_management.NextMeetingProposalOutput(
+        recommended_actions=["후속 확인"],
+        next_meeting_suggestion=contract_management.NextMeetingSuggestion(
+            reason="후속 미팅",
+            target_date=target_date,
+            target_time=target_time,
+        ),
     )
 
-    async def fake_generate_structured(**kwargs):
-        captured.update(kwargs)
-        return expected
 
-    monkeypatch.setattr(contract_management, "generate_structured", fake_generate_structured)
-    risk_signals = [
-        {
-            "code": "quote_expiring",
-            "severity": "medium",
-            "sales_deal_id": "deal-1",
-        }
-    ]
+_FIXED_NOW = datetime(2026, 8, 26, 9, 0, tzinfo=contract_management._SEOUL)  # 수요일
+
+
+@pytest.mark.anyio
+async def test_propose_next_meeting_uses_tools_prompt_schema_and_snapshot(monkeypatch):
+    monkeypatch.setattr(contract_management, "_now", lambda: _FIXED_NOW)
+    captured = {}
+    expected = _proposal("2026-09-01")
+    _fake_next_meeting_agent(monkeypatch, [expected], captured)
+    risk_signals = [{"code": "quote_expiring", "severity": "medium", "sales_deal_id": "deal-1"}]
+    history = {"past_meetings": [], "median_interval_days": None, "is_first_meeting": True}
     snapshot = {
         "customer_company": {"id": "company-1", "name": "테스트 병원"},
         "risk_signals": risk_signals,
+        "_meeting_history": history,
         # 허용 목록에 없는 값은 LLM에 전달되면 안 된다.
         "internal_notes": "이 값은 프롬프트로 나가면 안 된다",
     }
@@ -280,63 +301,92 @@ async def test_propose_next_meeting_uses_dedicated_prompt_schema_and_snapshot(mo
     result = await contract_management.propose_next_meeting(snapshot)
 
     assert result == expected
-    assert captured["instructions"] == contract_management.PROPOSE_NEXT_MEETING_SYSTEM_PROMPT
-    assert captured["schema"] is contract_management.NextMeetingProposalOutput
-    assert captured["schema_name"] == "contract_management_propose_next_meeting"
-    assert json.loads(captured["input_text"]) == {
+    assert captured["system_prompt"] == contract_management.PROPOSE_NEXT_MEETING_SYSTEM_PROMPT
+    assert [tool.__name__ for tool in captured["tools"]] == [
+        "read_meeting_history",
+        "search_historical_reports",
+    ]
+    assert captured["tool_results"]["read_meeting_history"] == history
+    assert json.loads(captured["messages"][0][0]["content"]) == {
         "customer_company": {"id": "company-1", "name": "테스트 병원"},
         "sales_deals": [],
         "risk_signals": risk_signals,
         "recent_approved_reports": [],
-        "current_datetime": fixed_now.isoformat(),
+        "current_datetime": _FIXED_NOW.isoformat(),
         "excluded_dates": [],
     }
 
 
 @pytest.mark.anyio
-async def test_propose_next_meeting_drops_stale_target(monkeypatch):
-    fixed_now = datetime(2026, 8, 26, 9, 0, tzinfo=contract_management._SEOUL)
-    monkeypatch.setattr(contract_management, "_now", lambda: fixed_now)
-
-    async def fake_generate_structured(**kwargs):
-        return contract_management.NextMeetingProposalOutput(
-            risks=[],
-            missing_information=[],
-            recommended_actions=["과거 날짜를 제안한 경우"],
-            next_meeting_suggestion=contract_management.NextMeetingSuggestion(
-                sales_deal_id="deal-1",
-                reason="계약 갱신 협의",
-                target_date="2026-08-20",
-            ),
-        )
-
-    monkeypatch.setattr(contract_management, "generate_structured", fake_generate_structured)
+async def test_propose_next_meeting_asks_again_when_the_suggestion_is_missing(monkeypatch):
+    monkeypatch.setattr(contract_management, "_now", lambda: _FIXED_NOW)
+    captured = {}
+    empty = contract_management.NextMeetingProposalOutput()
+    _fake_next_meeting_agent(monkeypatch, [empty, _proposal("2026-09-02")], captured)
 
     result = await contract_management.propose_next_meeting({})
 
-    assert result.recommended_actions == ["과거 날짜를 제안한 경우"]
-    assert result.next_meeting_suggestion is None
+    assert result.next_meeting_suggestion.target_date == date(2026, 9, 2)
+    assert "next_meeting_suggestion이 비어 있다" in captured["messages"][1][-1]["content"]
+
+
+@pytest.mark.anyio
+async def test_propose_next_meeting_falls_back_to_the_meeting_cycle(monkeypatch):
+    monkeypatch.setattr(contract_management, "_now", lambda: _FIXED_NOW)
+    _fake_next_meeting_agent(
+        monkeypatch, [_proposal("2026-08-20"), _proposal("2026-08-21")], {}
+    )
+    snapshot = {
+        "excluded_dates": ["2026-09-01"],
+        "_scope_sales_deal_id": None,
+        "_meeting_history": {
+            "past_meetings": [{"date": "2026-08-18", "weekday": "화", "time": "10:00"}],
+            "median_interval_days": 14,
+            "is_first_meeting": False,
+        },
+    }
+
+    result = await contract_management.propose_next_meeting(snapshot)
+
+    # 8/18 + 14일 = 9/1(화)은 거절한 날짜라 다음 평일로 넘긴다.
+    assert result.recommended_actions == ["후속 확인"]
+    assert result.next_meeting_suggestion.target_date == date(2026, 9, 2)
+    assert result.next_meeting_suggestion.sales_deal_id is None
+    assert "약 14일" in result.next_meeting_suggestion.reason
+
+
+@pytest.mark.anyio
+async def test_propose_next_meeting_falls_back_within_two_weeks_when_llm_fails(monkeypatch):
+    monkeypatch.setattr(contract_management, "_now", lambda: _FIXED_NOW)
+    _fake_next_meeting_agent(
+        monkeypatch, [contract_management.LLMError("boom"), RuntimeError("boom")], {}
+    )
+
+    result = await contract_management.propose_next_meeting(
+        {"_meeting_history": {"is_first_meeting": True}, "_scope_sales_deal_id": "deal-1"}
+    )
+
+    suggestion = result.next_meeting_suggestion
+    assert suggestion.target_date == date(2026, 9, 2)
+    assert suggestion.target_date <= _FIXED_NOW.date() + timedelta(days=14)
+    assert suggestion.sales_deal_id == "deal-1"
+
+
+@pytest.mark.anyio
+async def test_propose_next_meeting_keeps_today_and_clears_only_a_passed_time(monkeypatch):
+    monkeypatch.setattr(contract_management, "_now", lambda: _FIXED_NOW)
+    _fake_next_meeting_agent(monkeypatch, [_proposal("2026-08-26", "08:00")], {})
+
+    result = await contract_management.propose_next_meeting({})
+
+    assert result.next_meeting_suggestion.target_date == date(2026, 8, 26)
+    assert result.next_meeting_suggestion.target_time is None
 
 
 @pytest.mark.anyio
 async def test_propose_next_meeting_keeps_one_future_target(monkeypatch):
-    fixed_now = datetime(2026, 8, 26, 9, 0, tzinfo=contract_management._SEOUL)
-    monkeypatch.setattr(contract_management, "_now", lambda: fixed_now)
-
-    async def fake_generate_structured(**kwargs):
-        return contract_management.NextMeetingProposalOutput(
-            risks=[],
-            missing_information=[],
-            recommended_actions=[],
-            next_meeting_suggestion=contract_management.NextMeetingSuggestion(
-                sales_deal_id="deal-1",
-                reason="계약 갱신 협의",
-                target_date="2026-09-01",
-                target_time="11:00",
-            ),
-        )
-
-    monkeypatch.setattr(contract_management, "generate_structured", fake_generate_structured)
+    monkeypatch.setattr(contract_management, "_now", lambda: _FIXED_NOW)
+    _fake_next_meeting_agent(monkeypatch, [_proposal("2026-09-01", "11:00")], {})
 
     result = await contract_management.propose_next_meeting({})
 
