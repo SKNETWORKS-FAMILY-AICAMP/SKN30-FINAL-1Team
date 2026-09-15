@@ -5,7 +5,7 @@
 | [getting-started.md](getting-started.md) | 로컬 실행과 환경 설정 |
 | [technical/deploy/deployment.md](technical/deploy/deployment.md) | AWS 프론트엔드·백엔드 배포 현황, 결정 이유, 구축·운영·복구 순서 |
 | [project-overview.md](project-overview.md) | 문제·시장 근거·시나리오·MVP 완료 기준을 정리한 프로젝트 개요 |
-| [tech-stack.md](tech-stack.md) | 현재 사용·도입 예정 기술과 선정 이유 |
+| [tech-stack.md](tech-stack.md) | 현재 사용 중인 기술과 선정 이유 |
 | [project-structure.md](project-structure.md) | 폴더 역할과 파일 배치 |
 | [planning/](planning/) | 프로젝트 기획·요구사항 등 현재 기준본 |
 | [planning/프로젝트기획서_260817.pdf](planning/프로젝트기획서_260817.pdf) | MVP 범위·완료 기준·KPI를 담은 프로젝트 기획서 |
