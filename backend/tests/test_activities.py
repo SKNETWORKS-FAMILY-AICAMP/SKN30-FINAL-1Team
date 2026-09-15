@@ -108,6 +108,7 @@ def _silence_agents(monkeypatch) -> None:
     둔 테스트가 진짜 DB 로 붙는다. 이 테스트들이 보는 것은 등록 자체다.
     """
     monkeypatch.setattr(contract_next_meeting_pipeline, "queue", lambda *_a, **_k: None)
+    monkeypatch.setattr(contract_next_meeting_pipeline, "queue_company", lambda *_a, **_k: None)
 
     async def _no_briefing(*_args, **_kwargs):
         return None, None
@@ -706,6 +707,7 @@ def test_create_queues_a_briefing_for_a_hand_made_activity(monkeypatch):
     """
     monkeypatch.setattr(type(settings), "llm_configured", property(lambda self: True))
     monkeypatch.setattr(contract_next_meeting_pipeline, "queue", lambda *_a, **_k: None)
+    monkeypatch.setattr(contract_next_meeting_pipeline, "queue_company", lambda *_a, **_k: None)
     queued: list[dict] = []
 
     async def _capture(payload, _member, _db):

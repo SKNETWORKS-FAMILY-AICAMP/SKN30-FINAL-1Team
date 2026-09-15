@@ -319,8 +319,14 @@ def test_reject_replaces_the_suggestion_and_excludes_the_old_date(monkeypatch):
     db = _Db(_Result(rows=[(suggestion, deal)]))
     captured = {}
 
-    async def regenerate(sales_deal_id, **kwargs):
-        captured.update({"sales_deal_id": sales_deal_id, **kwargs})
+    async def regenerate(customer_company_id, owner_member_id, **kwargs):
+        captured.update(
+            {
+                "customer_company_id": customer_company_id,
+                "owner_member_id": owner_member_id,
+                **kwargs,
+            }
+        )
         return True
 
     monkeypatch.setattr(
@@ -335,7 +341,8 @@ def test_reject_replaces_the_suggestion_and_excludes_the_old_date(monkeypatch):
 
     assert response.status_code == 204
     assert suggestion.status_code == "rejected"
-    assert captured["sales_deal_id"] == deal.id
+    assert captured["customer_company_id"] == company.id
+    assert captured["owner_member_id"] == member.id
     assert captured["excluded_dates"] == [suggestion.target_date]
     assert db.commit_count == 1
 
@@ -453,8 +460,14 @@ def test_refresh_replaces_only_when_schedule_agent_requests_it(monkeypatch):
             reason="추천 날짜가 지나 새 날짜 논의가 필요합니다.",
         )
 
-    async def regenerate(sales_deal_id, **kwargs):
-        captured.update({"sales_deal_id": sales_deal_id, **kwargs})
+    async def regenerate(customer_company_id, owner_member_id, **kwargs):
+        captured.update(
+            {
+                "customer_company_id": customer_company_id,
+                "owner_member_id": owner_member_id,
+                **kwargs,
+            }
+        )
         return True
 
     monkeypatch.setattr("app.api.contract_suggestions.schedule_management.run", run)
@@ -471,7 +484,8 @@ def test_refresh_replaces_only_when_schedule_agent_requests_it(monkeypatch):
 
     assert response.status_code == 200
     assert response.json() == {"checked_count": 1, "replaced_count": 1}
-    assert captured["sales_deal_id"] == deal.id
+    assert captured["customer_company_id"] == company.id
+    assert captured["owner_member_id"] == member.id
     assert captured["excluded_dates"] == [suggestion.target_date]
 
 

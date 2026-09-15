@@ -250,18 +250,12 @@ async def _regenerate(
     excluded_dates: list[date] | None,
     refresh_reason: str,
 ) -> bool:
-    if suggestion.sales_deal_id is not None:
-        return await contract_next_meeting_pipeline.regenerate(
-            suggestion.sales_deal_id,
-            excluded_dates=excluded_dates,
-            refresh_reason=refresh_reason,
-        )
-    if suggestion.source_report_id is None or suggestion.source_activity_id is None:
-        return False
-    return await contract_next_meeting_pipeline.regenerate_report(
+    return await contract_next_meeting_pipeline.regenerate(
         suggestion.customer_company_id,
-        suggestion.source_report_id,
-        suggestion.source_activity_id,
+        suggestion.owner_member_id,
+        customer_contact_id=suggestion.customer_contact_id,
+        report_id=suggestion.source_report_id,
+        activity_id=suggestion.source_activity_id,
         excluded_dates=excluded_dates,
         refresh_reason=refresh_reason,
     )
