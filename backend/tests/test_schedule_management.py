@@ -93,3 +93,18 @@ async def test_run_marks_past_target_for_refresh(monkeypatch):
 
     assert result.decision == "refresh_required"
     assert result.reason_code == "target_date_passed"
+
+
+@pytest.mark.anyio
+async def test_llm_failure_still_returns_the_rule_decision(monkeypatch):
+    async def fail(**kwargs):
+        raise RuntimeError("llm down")
+
+    monkeypatch.setattr(schedule_management, "generate_structured", fail)
+
+    output = await schedule_management.run(
+        {"target_date": "2099-01-01", "current_datetime": "2026-09-15T10:00:00+09:00"}
+    )
+
+    assert output.decision == "valid"
+    assert output.reason_code == "recommendation_valid"

@@ -1365,12 +1365,26 @@ async def finalize_report(
             team_id=team_id,
             customer_company_id=customer_company_id,
         )
-    for sales_deal_id in sales_deal_ids:
-        contract_next_meeting_pipeline.queue(
+    if (
+        report.report_kind == "meeting"
+        and customer_company_id is not None
+        and report.source_activity_id is not None
+    ):
+        # 미팅 보고서 신규 제출과 수정 후 재제출은 딜 섹션 유무와 관계없이 매번 고객사
+        # 일정추천을 한 건 갱신한다. 같은 보고서에 딜이 여러 개여도 카드가 중복되지 않는다.
+        contract_next_meeting_pipeline.queue_report(
             background,
-            sales_deal_id,
-            {"report_id": str(read.id), "sales_deal_id": str(sales_deal_id)},
+            customer_company_id,
+            report.id,
+            report.source_activity_id,
         )
+    else:
+        for sales_deal_id in sales_deal_ids:
+            contract_next_meeting_pipeline.queue(
+                background,
+                sales_deal_id,
+                {"report_id": str(read.id), "sales_deal_id": str(sales_deal_id)},
+            )
     background.add_task(report_context.embed_submission_quietly, submission.id)
     return read
 

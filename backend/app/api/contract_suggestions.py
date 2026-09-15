@@ -72,11 +72,16 @@ async def contract_next_meeting_generation_status(
         )
     visible_runs = []
     for run in runs:
+        owner_id = None
         try:
             run_deal_id = UUID(str((run.source_refs or {}).get("sales_deal_id")))
         except (TypeError, ValueError):
-            continue
-        if run_deal_id in deal_ids:
+            run_deal_id = None
+        try:
+            owner_id = UUID(str((run.source_refs or {}).get("owner_member_id")))
+        except (TypeError, ValueError):
+            pass
+        if member.role_code != "member" or owner_id == member.id or run_deal_id in deal_ids:
             visible_runs.append(run)
     return ContractNextMeetingGenerationStatusRead(
         generating=bool(visible_runs),
@@ -90,7 +95,7 @@ async def contract_next_meeting_generation_status(
 
 def _read(
     suggestion: ContractNextMeetingSuggestion,
-    deal: SalesDeal,
+    deal: SalesDeal | None,
     company_name: str,
     contact_name: str | None,
     owner_name: str,
@@ -102,13 +107,13 @@ def _read(
     return ContractNextMeetingSuggestionRead(
         id=suggestion.id,
         sales_deal_id=suggestion.sales_deal_id,
-        customer_company_id=deal.customer_company_id,
+        customer_company_id=suggestion.customer_company_id,
         customer_company_name=company_name,
-        customer_contact_id=deal.customer_contact_id,
+        customer_contact_id=suggestion.customer_contact_id,
         customer_contact_name=contact_name,
-        owner_member_id=deal.owner_member_id,
+        owner_member_id=suggestion.owner_member_id,
         owner_display_name=owner_name,
-        sales_deal_title=deal.title,
+        sales_deal_title=deal.title if deal is not None else None,
         reason=suggestion_detail.get("reason", ""),
         risks=next_meeting_output.get("risks") or [],
         schedule_management_run_id=suggestion.schedule_management_run_id,
@@ -136,16 +141,27 @@ async def list_contract_next_meeting_suggestions(
         ContractNextMeetingSuggestion.status_code == "pending",
     ]
     if member.role_code == "member":
-        conditions.append(SalesDeal.owner_member_id == member.id)
+        conditions.append(ContractNextMeetingSuggestion.owner_member_id == member.id)
 
     rows = (
         await db.execute(
             select(
-                ContractNextMeetingSuggestion, SalesDeal, CustomerCompany.name, Member.display_name
+                ContractNextMeetingSuggestion,
+                SalesDeal,
+                CustomerCompany.name,
+                CustomerContact.name,
+                Member.display_name,
             )
-            .join(SalesDeal, SalesDeal.id == ContractNextMeetingSuggestion.sales_deal_id)
-            .join(CustomerCompany, CustomerCompany.id == SalesDeal.customer_company_id)
-            .join(Member, Member.id == SalesDeal.owner_member_id)
+            .outerjoin(SalesDeal, SalesDeal.id == ContractNextMeetingSuggestion.sales_deal_id)
+            .join(
+                CustomerCompany,
+                CustomerCompany.id == ContractNextMeetingSuggestion.customer_company_id,
+            )
+            .outerjoin(
+                CustomerContact,
+                CustomerContact.id == ContractNextMeetingSuggestion.customer_contact_id,
+            )
+            .join(Member, Member.id == ContractNextMeetingSuggestion.owner_member_id)
             .where(*conditions)
             .order_by(ContractNextMeetingSuggestion.created_at.desc())
         )
@@ -153,22 +169,9 @@ async def list_contract_next_meeting_suggestions(
     if not rows:
         return []
 
-    contact_ids = {
-        deal.customer_contact_id for _s, deal, _c, _o in rows if deal.customer_contact_id
+    schedule_run_ids = {
+        suggestion.schedule_management_run_id for suggestion, _d, _c, _cn, _o in rows
     }
-    contact_names: dict[UUID, str] = {}
-    if contact_ids:
-        contact_names = dict(
-            (
-                await db.execute(
-                    select(CustomerContact.id, CustomerContact.name).where(
-                        CustomerContact.id.in_(contact_ids)
-                    )
-                )
-            ).all()
-        )
-
-    schedule_run_ids = {suggestion.schedule_management_run_id for suggestion, _d, _c, _o in rows}
     schedule_runs = {
         run.id: run
         for run in (await db.execute(select(AgentRun).where(AgentRun.id.in_(schedule_run_ids))))
@@ -190,7 +193,7 @@ async def list_contract_next_meeting_suggestions(
         }
 
     results: list[ContractNextMeetingSuggestionRead] = []
-    for suggestion, deal, company_name, owner_name in rows:
+    for suggestion, deal, company_name, contact_name, owner_name in rows:
         schedule_run = schedule_runs.get(suggestion.schedule_management_run_id)
         # 아직 실행 중이거나 실패한 제안은 보여줄 내용이 없다 — 다음 트리거가 다시 채운다.
         if (
@@ -209,7 +212,7 @@ async def list_contract_next_meeting_suggestions(
                 suggestion,
                 deal,
                 company_name,
-                contact_names.get(deal.customer_contact_id) if deal.customer_contact_id else None,
+                contact_name,
                 owner_name,
                 schedule_run,
                 next_meeting_run,
@@ -219,16 +222,16 @@ async def list_contract_next_meeting_suggestions(
 
 
 async def _locked_suggestion(
-    sales_deal_id: UUID,
+    suggestion_id: UUID,
     member: CurrentMember,
     db: DbSession,
-) -> tuple[ContractNextMeetingSuggestion, SalesDeal]:
+) -> tuple[ContractNextMeetingSuggestion, SalesDeal | None]:
     row = (
         await db.execute(
             select(ContractNextMeetingSuggestion, SalesDeal)
-            .join(SalesDeal, SalesDeal.id == ContractNextMeetingSuggestion.sales_deal_id)
+            .outerjoin(SalesDeal, SalesDeal.id == ContractNextMeetingSuggestion.sales_deal_id)
             .where(
-                ContractNextMeetingSuggestion.sales_deal_id == sales_deal_id,
+                ContractNextMeetingSuggestion.id == suggestion_id,
                 ContractNextMeetingSuggestion.team_id == member.team_id,
             )
             .with_for_update(of=ContractNextMeetingSuggestion)
@@ -237,21 +240,37 @@ async def _locked_suggestion(
     if row is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="suggestion_not_found")
     suggestion, deal = row
-    if member.role_code == "member" and deal.owner_member_id != member.id:
+    if member.role_code == "member" and suggestion.owner_member_id != member.id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="suggestion_not_found")
     return suggestion, deal
 
 
+async def _regenerate(
+    suggestion: ContractNextMeetingSuggestion,
+    excluded_dates: list[date] | None,
+    refresh_reason: str,
+) -> bool:
+    return await contract_next_meeting_pipeline.regenerate(
+        suggestion.customer_company_id,
+        suggestion.owner_member_id,
+        customer_contact_id=suggestion.customer_contact_id,
+        report_id=suggestion.source_report_id,
+        activity_id=suggestion.source_activity_id,
+        excluded_dates=excluded_dates,
+        refresh_reason=refresh_reason,
+    )
+
+
 @router.post(
-    "/contract-next-meeting-suggestions/{sales_deal_id}/reject",
+    "/contract-next-meeting-suggestions/{suggestion_id}/reject",
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def reject_contract_next_meeting_suggestion(
-    sales_deal_id: UUID,
+    suggestion_id: UUID,
     member: CurrentMember,
     db: DbSession,
 ) -> None:
-    suggestion, _deal = await _locked_suggestion(sales_deal_id, member, db)
+    suggestion, _deal = await _locked_suggestion(suggestion_id, member, db)
     if suggestion.status_code != "pending":
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="invalid_state_transition")
     excluded = {
@@ -262,15 +281,13 @@ async def reject_contract_next_meeting_suggestion(
     if suggestion.target_date is not None:
         excluded.add(suggestion.target_date)
     try:
-        queued = await contract_next_meeting_pipeline.regenerate(
-            sales_deal_id,
-            excluded_dates=sorted(excluded),
-            refresh_reason="사용자가 기존 추천을 거절했습니다.",
+        queued = await _regenerate(
+            suggestion, sorted(excluded), "사용자가 기존 추천을 거절했습니다."
         )
     except Exception:
         logger.exception(
             "recommendation_regeneration_queue_failed",
-            extra={"sales_deal_id": str(sales_deal_id)},
+            extra={"suggestion_id": str(suggestion_id)},
         )
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -291,20 +308,17 @@ async def reject_contract_next_meeting_suggestion(
 
 
 @router.post(
-    "/contract-next-meeting-suggestions/{sales_deal_id}/regenerate",
+    "/contract-next-meeting-suggestions/{suggestion_id}/regenerate",
     status_code=status.HTTP_202_ACCEPTED,
 )
 async def regenerate_contract_next_meeting_suggestion(
-    sales_deal_id: UUID,
+    suggestion_id: UUID,
     member: CurrentMember,
     db: DbSession,
 ) -> None:
-    await _locked_suggestion(sales_deal_id, member, db)
+    suggestion, _deal = await _locked_suggestion(suggestion_id, member, db)
+    queued = await _regenerate(suggestion, None, "사용자가 추천 다시 생성을 요청했습니다.")
     await db.rollback()
-    queued = await contract_next_meeting_pipeline.regenerate(
-        sales_deal_id,
-        refresh_reason="사용자가 추천 다시 생성을 요청했습니다.",
-    )
     if not queued:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -313,16 +327,16 @@ async def regenerate_contract_next_meeting_suggestion(
 
 
 @router.post(
-    "/contract-next-meeting-suggestions/{sales_deal_id}/apply",
+    "/contract-next-meeting-suggestions/{suggestion_id}/apply",
     response_model=ContractNextMeetingSuggestionApplyRead,
 )
 async def apply_contract_next_meeting_suggestion(
-    sales_deal_id: UUID,
+    suggestion_id: UUID,
     payload: ContractNextMeetingSuggestionApply,
     member: CurrentMember,
     db: DbSession,
 ) -> ContractNextMeetingSuggestionApplyRead:
-    suggestion, _deal = await _locked_suggestion(sales_deal_id, member, db)
+    suggestion, _deal = await _locked_suggestion(suggestion_id, member, db)
     if suggestion.status_code != "pending":
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="invalid_state_transition")
     target_date = payload.target_date or suggestion.target_date
@@ -336,7 +350,8 @@ async def apply_contract_next_meeting_suggestion(
     suggestion.updated_at = datetime.now(UTC)
     await db.commit()
     return ContractNextMeetingSuggestionApplyRead(
-        sales_deal_id=sales_deal_id,
+        suggestion_id=suggestion_id,
+        sales_deal_id=suggestion.sales_deal_id,
         target_date=target_date,
         duration_minutes=payload.duration_minutes,
         status_code="accepted",
@@ -357,12 +372,15 @@ async def refresh_contract_next_meeting_suggestions(
         ContractNextMeetingSuggestion.target_date.is_not(None),
     ]
     if member.role_code == "member":
-        conditions.append(SalesDeal.owner_member_id == member.id)
+        conditions.append(ContractNextMeetingSuggestion.owner_member_id == member.id)
     rows = (
         await db.execute(
             select(ContractNextMeetingSuggestion, SalesDeal, SalesPipelineStage.outcome_code)
-            .join(SalesDeal, SalesDeal.id == ContractNextMeetingSuggestion.sales_deal_id)
-            .join(SalesPipelineStage, SalesPipelineStage.id == SalesDeal.sales_pipeline_stage_id)
+            .outerjoin(SalesDeal, SalesDeal.id == ContractNextMeetingSuggestion.sales_deal_id)
+            .outerjoin(
+                SalesPipelineStage,
+                SalesPipelineStage.id == SalesDeal.sales_pipeline_stage_id,
+            )
             .where(*conditions)
         )
     ).all()
@@ -372,11 +390,12 @@ async def refresh_contract_next_meeting_suggestions(
         try:
             decision = await schedule_management.run(
                 {
-                    "sales_deal_id": str(deal.id),
+                    "sales_deal_id": str(deal.id) if deal is not None else None,
+                    "customer_company_id": str(suggestion.customer_company_id),
                     "target_date": suggestion.target_date,
                     "target_time": suggestion.target_time,
                     "recommendation_status": suggestion.status_code,
-                    "deal_outcome_code": outcome_code,
+                    "deal_outcome_code": outcome_code or "in_progress",
                     "excluded_dates": suggestion.excluded_dates or [],
                     "current_datetime": datetime.now(_SEOUL).isoformat(),
                     "timezone": "Asia/Seoul",
@@ -400,11 +419,7 @@ async def refresh_contract_next_meeting_suggestions(
         }
         if suggestion.target_date is not None:
             excluded.add(suggestion.target_date)
-        if await contract_next_meeting_pipeline.regenerate(
-            deal.id,
-            excluded_dates=sorted(excluded),
-            refresh_reason=decision.reason,
-        ):
+        if await _regenerate(suggestion, sorted(excluded), decision.reason):
             replaced_count += 1
     return ContractNextMeetingSuggestionRefreshRead(
         checked_count=len(rows), replaced_count=replaced_count

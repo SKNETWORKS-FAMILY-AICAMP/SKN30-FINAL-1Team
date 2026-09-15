@@ -681,7 +681,8 @@ async def create_activity(
             action_tag,
         )
         activity_id = activity.id
-        activity_sales_deal_id = activity.sales_deal_id
+        activity_company_id = activity.customer_company_id
+        activity_owner_id = activity.owner_member_id
         await db.commit()
     except Exception:
         await db.rollback()
@@ -713,11 +714,11 @@ async def create_activity(
     except HTTPException as error:
         read.briefing_queue_warning = str(error.detail)
 
-    if schedule_management_run_id is None and activity_sales_deal_id is not None:
-        # AI 추천을 거치지 않은 수동 등록이다 — 이 딜이 AI 추천 체인을 한 번도 안 거쳤을
-        # 수 있다는 신호로 보고 트리거한다(계약에이전트_설계.md 3장).
-        contract_next_meeting_pipeline.queue(
-            background, activity_sales_deal_id, {"activity_id": str(activity_id)}
+    if schedule_management_run_id is None:
+        # AI 추천을 거치지 않은 수동 등록이다 — 이 고객사가 AI 추천 체인을 거치지 않았을
+        # 수 있다는 신호로 보고 고객사 추천을 갱신한다(계약에이전트_설계.md 3장).
+        contract_next_meeting_pipeline.queue_company(
+            background, activity_company_id, activity_owner_id, {"activity_id": str(activity_id)}
         )
 
     response.headers["Location"] = f"/api/activities/{activity_id}"
@@ -782,12 +783,11 @@ async def _claim_suggestion(
         ContractNextMeetingSuggestion.team_id == member.team_id,
     ]
     if member.role_code == "member":
-        conditions.append(SalesDeal.owner_member_id == member.id)
+        conditions.append(ContractNextMeetingSuggestion.owner_member_id == member.id)
 
     suggestion = (
         await db.execute(
             select(ContractNextMeetingSuggestion)
-            .join(SalesDeal, SalesDeal.id == ContractNextMeetingSuggestion.sales_deal_id)
             .where(*conditions)
             # 딜은 범위를 거는 데만 쓴다 — of 를 빼면 조인한 딜 행까지 함께 잠근다.
             .with_for_update(of=ContractNextMeetingSuggestion)

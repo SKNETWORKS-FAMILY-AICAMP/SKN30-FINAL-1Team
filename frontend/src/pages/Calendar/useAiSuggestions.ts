@@ -31,12 +31,12 @@ function toAiSuggestion(
   duration: Duration | undefined,
 ): AiSuggestion {
   return {
-    id: item.sales_deal_id,
+    id: item.id,
     customerCompanyId: item.customer_company_id,
     customerContactId: item.customer_contact_id,
     owner: item.owner_display_name,
     hospital: item.customer_company_name,
-    title: item.sales_deal_title,
+    title: item.sales_deal_title ?? item.customer_company_name,
     contact: item.customer_contact_name ?? '',
     dept: '',
     kind: 'visit',
@@ -45,7 +45,7 @@ function toAiSuggestion(
     selectedDurationMinutes: duration ?? null,
     durationOptions: item.duration_options,
     place: '',
-    activityTitle: `${item.sales_deal_title} 후속 미팅`,
+    activityTitle: `${item.sales_deal_title ?? item.customer_company_name} 후속 미팅`,
     proposalReason: item.reason,
     basis: [...new Set(item.risks.map((risk) => RISK_LABEL[risk.code]))],
     scheduleRunId: item.schedule_management_run_id,
@@ -65,7 +65,7 @@ export default function useAiSuggestions(addEvent: AddEvent) {
   const [error, setError] = useState<string | null>(null)
 
   const suggestions = useMemo(
-    () => items.map((item) => toAiSuggestion(item, durations[item.sales_deal_id])),
+    () => items.map((item) => toAiSuggestion(item, durations[item.id])),
     [durations, items],
   )
 
@@ -125,7 +125,7 @@ export default function useAiSuggestions(addEvent: AddEvent) {
       const targetDate = overrideDateISO ?? suggestion.date
       if (suggestion.time === null || suggestion.time === '') {
         await applyDateOnlySuggestion(suggestion.id, duration, targetDate)
-        setItems((list) => list.filter((item) => item.sales_deal_id !== suggestion.id))
+        setItems((list) => list.filter((item) => item.id !== suggestion.id))
         return null
       }
       const added = await addEvent({
@@ -141,7 +141,7 @@ export default function useAiSuggestions(addEvent: AddEvent) {
         customerContactId: suggestion.customerContactId,
         scheduleManagementRunId: suggestion.scheduleRunId,
       })
-      setItems((list) => list.filter((item) => item.sales_deal_id !== suggestion.id))
+      setItems((list) => list.filter((item) => item.id !== suggestion.id))
       return added
     },
     [addEvent],
@@ -156,7 +156,7 @@ export default function useAiSuggestions(addEvent: AddEvent) {
       setGenerating(true)
       wasGenerating.current = true
       setLatestReportPending(false)
-      setItems((list) => list.filter((item) => item.sales_deal_id !== id))
+      setItems((list) => list.filter((item) => item.id !== id))
       setDurations((current) => {
         const next = { ...current }
         delete next[id]

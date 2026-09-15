@@ -1616,12 +1616,14 @@ async def test_finalize_atomically_persists_server_ml_and_redacts_run(monkeypatc
 
     queued = []
 
-    def queue(_background, selected_deal_id, trigger):
+    def queue_report(_background, selected_company_id, report_id, source_activity_id):
         assert db.commit_count == 1
-        queued.append((selected_deal_id, trigger))
+        queued.append((selected_company_id, report_id, source_activity_id))
 
     monkeypatch.setattr(reports_api, "_detail", detail)
-    monkeypatch.setattr(reports_api.contract_next_meeting_pipeline, "queue", queue)
+    monkeypatch.setattr(
+        reports_api.contract_next_meeting_pipeline, "queue_report", queue_report
+    )
     refresh_company = AsyncMock(return_value=[])
     monkeypatch.setattr(reports_api.briefing_refresh, "schedule_for_company", refresh_company)
     response = Response()
@@ -1656,7 +1658,7 @@ async def test_finalize_atomically_persists_server_ml_and_redacts_run(monkeypatc
     assert run.report_id == report.id
     assert run.input_snapshot == {} and run.output_snapshot is None
     assert db.commit_count == 1 and db.rollback_count == 0
-    assert queued[0][0] == deal_id
+    assert queued == [(company_id, report.id, activity_id)]
     refresh_company.assert_awaited_once_with(team_id=member.team_id, customer_company_id=company_id)
 
 

@@ -21,13 +21,13 @@ export async function refreshNextMeetingSuggestions(): Promise<void> {
 }
 
 /** 현재 날짜를 제외하고 계약관리 Agent에게 새 날짜를 요청한다. */
-export async function rejectNextMeetingSuggestion(salesDealId: string): Promise<void> {
-  await client.post(`/contract-next-meeting-suggestions/${salesDealId}/reject`)
+export async function rejectNextMeetingSuggestion(suggestionId: string): Promise<void> {
+  await client.post(`/contract-next-meeting-suggestions/${suggestionId}/reject`)
 }
 
 /** 같은 최신 근거로 추천을 다시 만들도록 명시적으로 요청한다. */
-export async function regenerateNextMeetingSuggestion(salesDealId: string): Promise<void> {
-  await client.post(`/contract-next-meeting-suggestions/${salesDealId}/regenerate`)
+export async function regenerateNextMeetingSuggestion(suggestionId: string): Promise<void> {
+  await client.post(`/contract-next-meeting-suggestions/${suggestionId}/regenerate`)
 }
 
 /** 추천 생성 중인지 확인한다. LLM을 호출하지 않는 가벼운 상태 조회다. */
@@ -40,11 +40,11 @@ export async function getNextMeetingGenerationStatus(): Promise<ContractNextMeet
 
 /** 시작 시각이 없는 추천을 날짜와 소요시간만 정한 상태로 반영한다. */
 export async function applyDateOnlySuggestion(
-  salesDealId: string,
+  suggestionId: string,
   durationMinutes: 30 | 60 | 90,
   targetDate: string,
 ): Promise<void> {
-  await client.post(`/contract-next-meeting-suggestions/${salesDealId}/apply`, {
+  await client.post(`/contract-next-meeting-suggestions/${suggestionId}/apply`, {
     duration_minutes: durationMinutes,
     target_date: targetDate,
   })
