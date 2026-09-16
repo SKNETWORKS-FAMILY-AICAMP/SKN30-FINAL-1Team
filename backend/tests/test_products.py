@@ -136,7 +136,7 @@ def test_product_request_rejects_unsafe_values():
         # 팀과 활성 여부는 요청으로 정할 수 없다.
         ProductCreate(**PAYLOAD, team_id=uuid4())
     with pytest.raises(ValidationError):
-        ProductCreate(**{**PAYLOAD, "category_code": "probe_x"})
+        ProductCreate(**{**PAYLOAD, "category_code": "   "})
     with pytest.raises(ValidationError):
         ProductCreate(**{**PAYLOAD, "unit_price": -1})
     with pytest.raises(ValidationError):
@@ -231,9 +231,11 @@ def test_product_search_covers_spec_memo_and_category_codes():
         assert "lower(public.product.name) LIKE" in sql
         assert "lower(public.product.spec) LIKE" in sql
         assert "lower(public.product.memo) LIKE" in sql
-        # 네 조건은 OR 이어야 한다. AND 로 묶이면 이름만 걸린 제품이 사라진다.
+        assert "lower(public.product.category_code) LIKE" in sql
+        # 조건은 모두 OR 이어야 한다. AND 로 묶이면 이름만 걸린 제품이 사라진다.
         assert "OR lower(public.product.spec) LIKE" in sql
         assert "OR lower(public.product.memo) LIKE" in sql
+        assert "OR lower(public.product.category_code) LIKE" in sql
         assert "OR public.product.category_code IN" in sql
 
 

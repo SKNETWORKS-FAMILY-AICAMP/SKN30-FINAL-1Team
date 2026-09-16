@@ -999,6 +999,7 @@ async def list_products(
             Product.name.ilike(pattern, escape="\\"),
             Product.spec.ilike(pattern, escape="\\"),
             Product.memo.ilike(pattern, escape="\\"),
+            Product.category_code.ilike(pattern, escape="\\"),
         ]
         if page.q_category_code is not None:
             matches.append(Product.category_code.in_(tuple(dict.fromkeys(page.q_category_code))))

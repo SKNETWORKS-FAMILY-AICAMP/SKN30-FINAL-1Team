@@ -37,13 +37,12 @@ export interface SalesDealTypeResponse {
   position: number
 }
 
-export type ProductCategoryCode = 'system' | 'probe' | 'consumable'
-
 export interface ProductResponse {
   id: string
   name: string
   active: boolean
-  category_code: ProductCategoryCode
+  /** 분류. 자유 입력입니다. 예전 행은 system·probe·consumable 코드입니다. */
+  category_code: string
   /** 원 단위 정수 */
   unit_price: number
   /** 유효기간(개월). 없으면 null */
@@ -58,7 +57,7 @@ export interface ProductResponse {
 
 export interface ProductCreateRequest {
   name: string
-  category_code: ProductCategoryCode
+  category_code: string
   unit_price: number
   shelf_life_months: number | null
   spec: string | null

@@ -25,6 +25,12 @@
 
 ## 스키마 파일
 
+- `20260917_0041_product_category_free_text.sql`: 상품 등록 화면이 분류를 고르지 않고 직접
+  적게 되면서 `product.category_code`의 세 코드 제약을 공백이 아닌 254자 이하 문자열로
+  넓힙니다. 기존 행은 새 제약을 그대로 만족합니다. 2026-09-17 현재 연결된 개발 DB(transaction
+  pooler)에 적용했고, 기존 행 92건(system 37·probe 21·consumable 34)은 그대로 통과했습니다.
+  운영 DB 반영은 배포 절차에서 별도로 적용해야 합니다.
+
 - `20260916_0040_report_attachment_display_only.sql`: 미팅 보고서 참고자료는 OCR 없이 원본만
   보관(`extract_text=false`)하므로 `report_attachment.extracted_text`에 빈 문자열을 허용합니다.
   NULL은 계속 업로드 미완료 표식이고, 기존 행은 새 제약을 그대로 만족합니다.

@@ -123,9 +123,6 @@ class ContractStatusRead(BaseModel):
     position: int
 
 
-ProductCategoryCode = Literal["system", "probe", "consumable"]
-
-
 class ProductRead(BaseModel):
     """image_storage_key 는 내부 저장소 주소라 내보내지 않고 유무만 알린다."""
 
@@ -144,7 +141,8 @@ class ProductRead(BaseModel):
 
 class ProductCreate(_WriteModel):
     name: Text
-    category_code: ProductCategoryCode
+    #: 분류. 자유 입력이다. 예전 행의 system·probe·consumable 코드는 화면이 이름으로 보인다.
+    category_code: Text
     unit_price: StrictInt = Field(ge=0, le=9_223_372_036_854_775_807)
     shelf_life_months: StrictInt | None = Field(default=None, gt=0, le=1_200)
     spec: LongText | None = None
@@ -160,7 +158,7 @@ class ProductPatch(_WriteModel):
     """
 
     name: Text | None = None
-    category_code: ProductCategoryCode | None = None
+    category_code: Text | None = None
     unit_price: StrictInt | None = Field(default=None, ge=0, le=9_223_372_036_854_775_807)
     shelf_life_months: StrictInt | None = Field(default=None, gt=0, le=1_200)
     spec: LongText | None = None

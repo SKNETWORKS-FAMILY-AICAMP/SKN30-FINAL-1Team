@@ -4,11 +4,10 @@ import { errorMessage } from '@/api/errorMessage'
 import Button from '@/components/Button'
 import { CloseIcon, UploadIcon } from '@/components/icons'
 import Modal from '@/components/Modal'
-import Select from '@/components/Select'
-import type { ProductCategoryCode, ProductCreateRequest, ProductResponse } from '@/types'
+import type { ProductCreateRequest, ProductResponse } from '@/types'
 import { sizeLabel } from '@/utils/attachment'
 
-import { CATEGORIES } from '../catalog'
+import { CATEGORIES, categoryLabel } from '../catalog'
 import useProductImage from '../useProductImage'
 
 import styles from '../Products.module.scss'
@@ -17,8 +16,6 @@ import styles from '../Products.module.scss'
 const IMAGE_ACCEPT = 'image/png,image/jpeg,image/webp'
 const IMAGE_MAX_BYTES = 5 * 1024 * 1024
 
-const CATEGORY_OPTIONS = CATEGORIES.map(({ code, label }) => ({ value: code, label }))
-
 interface Props {
   /** 있으면 수정입니다. 없으면 등록입니다. */
   initial?: ProductResponse
@@ -26,13 +23,13 @@ interface Props {
   onSubmit: (payload: ProductCreateRequest, image: File | null) => Promise<void>
 }
 
-type Errors = Partial<Record<'name' | 'unitPrice' | 'shelfLife' | 'image', string>>
+type Errors = Partial<Record<'name' | 'category' | 'unitPrice' | 'shelfLife' | 'image', string>>
 
 export default function ProductFormModal({ initial, onClose, onSubmit }: Props) {
   const editing = initial !== undefined
   const [name, setName] = useState(initial?.name ?? '')
-  const [categoryCode, setCategoryCode] = useState<ProductCategoryCode>(
-    initial?.category_code ?? 'system',
+  const [category, setCategory] = useState(
+    initial === undefined ? '' : categoryLabel(initial.category_code),
   )
   const [unitPrice, setUnitPrice] = useState(
     initial === undefined ? '' : String(initial.unit_price),
@@ -82,6 +79,7 @@ export default function ProductFormModal({ initial, onClose, onSubmit }: Props) 
 
     const found: Errors = {}
     if (name.trim() === '') found.name = '제품명을 입력하세요.'
+    if (category.trim() === '') found.category = '분류를 입력하세요.'
     const price = Number(unitPrice)
     if (unitPrice.trim() === '' || !Number.isInteger(price) || price < 0) {
       found.unitPrice = '0 이상의 정수로 입력하세요.'
@@ -99,7 +97,9 @@ export default function ProductFormModal({ initial, onClose, onSubmit }: Props) 
       await onSubmit(
         {
           name: name.trim(),
-          category_code: categoryCode,
+          // 예전 코드의 이름을 그대로 적으면 코드로 돌려 보내 같은 분류가 두 벌로 갈리지 않게 합니다.
+          category_code:
+            CATEGORIES.find(({ label }) => label === category.trim())?.code ?? category.trim(),
           unit_price: price,
           shelf_life_months: months,
           spec: spec.trim() === '' ? null : spec.trim(),
@@ -152,13 +152,16 @@ export default function ProductFormModal({ initial, onClose, onSubmit }: Props) 
           />
         </Field>
 
-        <Field label="분류" required htmlFor={false}>
-          <Select
-            label="분류"
-            value={categoryCode}
-            options={CATEGORY_OPTIONS}
+        <Field label="분류" required error={errors.category}>
+          <input
+            value={category}
+            maxLength={254}
             disabled={submitting}
-            onChange={(next) => setCategoryCode(next as ProductCategoryCode)}
+            placeholder="예: 시스템"
+            onChange={(event) => {
+              setCategory(event.target.value)
+              setErrors((previous) => ({ ...previous, category: undefined }))
+            }}
           />
         </Field>
 
@@ -303,24 +306,18 @@ interface FieldProps {
   required?: boolean
   error?: string
   wide?: boolean
-  /**
-   * label 로 감쌀지 여부. Select 처럼 버튼으로 여는 칸은 라벨 글자를 눌러도 함께
-   * 눌리거나 포커스가 엉킵니다. 그런 칸은 false 로 두고 div 로 감쌉니다.
-   */
-  htmlFor?: boolean
   children: ReactNode
 }
 
-function Field({ label, required, error, wide, htmlFor = true, children }: FieldProps) {
-  const Wrapper = htmlFor ? 'label' : 'div'
+function Field({ label, required, error, wide, children }: FieldProps) {
   return (
-    <Wrapper className={`${styles.field} ${wide ? styles.isWide : ''}`}>
+    <label className={`${styles.field} ${wide ? styles.isWide : ''}`}>
       <span className={styles.label}>
         {label}
         {required && <b aria-hidden="true">*</b>}
       </span>
       {children}
       {error && <span className={styles.error}>{error}</span>}
-    </Wrapper>
+    </label>
   )
 }
