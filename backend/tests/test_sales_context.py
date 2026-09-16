@@ -1,9 +1,11 @@
 import json
+from datetime import datetime
 from types import SimpleNamespace
 from uuid import uuid4
 
 import pytest
 
+from app.agents import document_summary
 from app.services import document_processing, sales_context
 
 
@@ -21,6 +23,21 @@ class _Db:
 
     async def execute(self, _statement):
         return _Result(self.rows)
+
+
+class _StateDb:
+    """최신 거래 문서 조회와 청크 조회를 순서대로 돌려주는 최소 DB 이중체."""
+
+    def __init__(self, document_rows, chunks):
+        self.document_rows = document_rows
+        self.chunks = chunks
+        self.calls = 0
+
+    async def execute(self, _statement):
+        self.calls += 1
+        if self.calls == 1:
+            return _Result(self.document_rows)
+        return SimpleNamespace(scalars=lambda: SimpleNamespace(all=lambda: self.chunks.pop(0)))
 
 
 @pytest.mark.anyio
@@ -63,6 +80,59 @@ async def test_retrieve_briefing_context_combines_matching_source_and_summary(mo
     assert context["summaries"][0]["summary_payload"]["summary"] == "계약금은 선납한다."
 
 
+@pytest.mark.anyio
+async def test_retrieve_current_state_sources_keeps_latest_trade_chunks_as_citable_data():
+    team_id, company_id, document_id, file_id, chunk_id = (uuid4() for _ in range(5))
+    document = SimpleNamespace(
+        id=document_id,
+        team_id=team_id,
+        category_code="contract",
+        sales_deal_id=None,
+        product_id=None,
+        created_at=datetime(2026, 9, 16),
+    )
+    file_row = SimpleNamespace(id=file_id, file_name="최신 계약서.pdf")
+    chunk = SimpleNamespace(
+        id=chunk_id,
+        document_id=document_id,
+        file_id=file_id,
+        chunk_no=2,
+        page_start=1,
+        page_end=1,
+        section="지급 조건",
+        content="계약금 30%, 잔금 70%입니다.",
+        metadata_json={},
+    )
+
+    sources = await sales_context.retrieve_current_state_sources(
+        _StateDb([(document, file_row)], [[chunk]]),
+        team_id=team_id,
+        customer_company_id=company_id,
+    )
+
+    assert sources == [
+        {
+            "chunk_id": str(chunk_id),
+            "document_id": str(document_id),
+            "file_id": str(file_id),
+            "file_name": "최신 계약서.pdf",
+            "category_code": "contract",
+            "sales_deal_id": None,
+            "product_id": None,
+            "chunk_no": 2,
+            "page_start": 1,
+            "page_end": 1,
+            "section": "지급 조건",
+            "content": "계약금 30%, 잔금 70%입니다.",
+            "score": None,
+            "metadata": {},
+            "source_role": "current_sales_state",
+            "state_document_kind": "contract",
+            "state_document_created_at": "2026-09-16T00:00:00",
+        }
+    ]
+
+
 def test_to_briefing_prompt_block_preserves_sources_and_escapes_document_data():
     block = sales_context.to_briefing_prompt_block(
         {
@@ -103,6 +173,54 @@ def test_to_briefing_prompt_block_shows_document_ids_for_citation():
     )
 
     assert block.count("문서ID: doc-1") == 2
+
+
+def test_to_briefing_prompt_block_separates_state_product_catalog_and_product_evidence():
+    block = sales_context.to_briefing_prompt_block(
+        {
+            "query": "설치와 계약 조건",
+            "current_state_sources": [
+                {
+                    "document_id": "contract-1",
+                    "chunk_id": "contract-chunk-1",
+                    "file_name": "최신 계약서.pdf",
+                    "category_code": "contract",
+                    "state_document_kind": "contract",
+                    "state_document_created_at": "2026-09-16T09:00:00+09:00",
+                    "content": "계약금 30%, 잔금 70%로 합의했다.",
+                }
+            ],
+            "product_documents": [
+                {
+                    "document_id": "product-1",
+                    "file_name": "LR2000.pdf",
+                    "category_code": "product_brochure",
+                    "summary_markdown": "설치 공간과 전원 조건을 확인한다.",
+                }
+            ],
+            "sources": [
+                {
+                    "document_id": "contract-1",
+                    "chunk_id": "contract-chunk-1",
+                    "file_name": "최신 계약서.pdf",
+                    "content": "계약금 30%, 잔금 70%로 합의했다.",
+                },
+                {
+                    "document_id": "product-1",
+                    "chunk_id": "product-chunk-1",
+                    "file_name": "LR2000.pdf",
+                    "content": "설치 공간은 1000mm 이상 필요하다.",
+                },
+            ],
+        }
+    )
+
+    assert "[현재 영업 상태]" in block
+    assert "[연결된 제품 자료 목록]" in block
+    assert "[제품 상세 근거]" in block
+    assert "계약금 30%, 잔금 70%" in block
+    assert "설치 공간은 1000mm 이상" in block
+    assert block.count("contract-chunk-1") == 1
 
 
 @pytest.mark.anyio
@@ -201,6 +319,58 @@ def test_document_scopes_without_company_do_not_join_deals():
     """딜만 지정하면 서브쿼리 없이 딜 연결만 본다."""
     rendered = " ".join(str(scope) for scope in document_processing.document_scopes(uuid4(), None))
     assert "sales_deal.customer_company_id" not in rendered
+
+
+def test_current_state_score_counts_money_and_dates_not_length():
+    """조건이 적힌 칸은 긴 칸이 아니라 금액·날짜가 든 칸이다."""
+    items = "| LR1000 | 1 | 4,500,000 |\n| LR-PRO | 2 | 12,000,000 |"
+    # 약관은 길지만 값이 없다.
+    terms = (
+        '8.2 "을"과 사전 협의 없이 "갑"이 임의로 제품의 사양을 변경하거나 분해 또는 '
+        '조립하여 발생된 고장은 "을"이 책임지지 아니한다. ' * 2
+    )
+    assert len(terms) > len(items)
+    assert sales_context.current_state_score(items) > sales_context.current_state_score(terms)
+    assert sales_context.current_state_score(terms) == 0
+    # 날짜만 있는 짧은 칸도 조건이다 — 납기가 여기 있다.
+    assert sales_context.current_state_score("공급일자 : 2026 년 09 월 22 일 까지") > 0
+
+
+def test_select_current_state_chunks_keeps_the_short_delivery_date_clause():
+    """계약서 실측 재현: 길이순이면 품목표(5위)와 납기(16위)가 약관에 밀려 빠진다."""
+    contents = [
+        "물품 공급 계약서",
+        "| LR1000 | 1 | 4,500,000 | | LR-PRO | 2 | 12,000,000 | 합계 19,295,000 |",
+        "공급일자 : 2026 년 09 월 22 일 까지",
+        "계약금 1,929,500 원 / 잔금 17,365,500 원 / 납품 후 7 일 이내 결제 시 15% 할인",
+        "제 8 조 책임한계. " + "고장은 책임지지 아니한다. " * 30,
+        "제 9 조 계약의 해제 또는 해지. " + "즉시 해지할 수 있다. " * 30,
+    ]
+    picked = sales_context.select_current_state_chunks(contents)
+    assert 1 in picked, "품목표"
+    assert 2 in picked, "납기"
+    assert 3 in picked, "계약금·잔금"
+    # 문서 순서로 돌려줘야 계약금 → 잔금 같은 앞뒤 관계가 프롬프트에서 살아 있다.
+    assert picked == sorted(picked)
+
+
+def test_select_current_state_chunks_skips_only_what_does_not_fit():
+    """예산을 넘는 칸에서 멈추면 큰 약관 하나가 뒤의 짧은 금액 칸까지 막는다."""
+    budget = sales_context._CURRENT_STATE_DOC_CHARS
+    contents = [
+        # 점수가 가장 높지만 혼자 예산을 거의 다 먹는다.
+        "1,000,000 " * (budget // 10 + 1),
+        "잔금 17,365,500 원",
+    ]
+    assert len(contents[0]) > budget
+    assert sales_context.select_current_state_chunks(contents) == [1]
+
+
+def test_current_state_doc_budget_always_admits_one_chunk():
+    """예산을 청크 상한의 배수로 파생해 '첫 칸조차 안 들어가는' 상태를 없앤다."""
+    assert sales_context._CURRENT_STATE_DOC_CHARS >= document_summary.CHUNK_SIZE
+    longest = "x" * document_summary.CHUNK_SIZE
+    assert sales_context.select_current_state_chunks([longest]) == [0]
 
 
 def test_to_briefing_prompt_block_limits_untrusted_context_length():
