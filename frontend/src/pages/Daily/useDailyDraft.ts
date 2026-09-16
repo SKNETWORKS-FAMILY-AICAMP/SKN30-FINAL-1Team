@@ -110,16 +110,13 @@ export default function useDailyDraft(dateISO: string, kind: ReportKind) {
   /** 저장된 사용자 메모는 최종 제출 때 보존하고, 입력 중에는 새 생성 지침으로 사용합니다. */
   const [transcript, setTranscript] = useState('')
   const files = useAttachments()
-  const {
-    addAttachments: addFiles,
-    removeAttachment: removeFile,
-    setAttachments,
-    setAttachmentError,
-  } = files
+  const { addAttachments: addFiles, removeAttachment: removeFile, setAttachments } = files
   const [values, setValues] = useState<Record<string, string>>({ body: '' })
   /** 본문이 밖에서 통째로 갈릴 때만 올립니다. 타자마다 올리면 편집기가 매번 다시 섭니다. */
   const [docKey, setDocKey] = useState(0)
   const [approver, setApprover] = useState<string>(APPROVERS[0] ?? '')
+  const [department, setDepartment] = useState('')
+  const [company, setCompany] = useState('')
   const [aiFilledIds, setAiFilledIds] = useState<ReadonlySet<string>>(new Set())
   const [dirtyIds, setDirtyIds] = useState<ReadonlySet<string>>(new Set())
   const [generationError, setGenerationError] = useState<string | null>(null)
@@ -209,11 +206,12 @@ export default function useDailyDraft(dateISO: string, kind: ReportKind) {
     const saved = canonical
     setFrozenActivities(saved?.activities.map((activity) => ({ ...activity })) ?? null)
     setAttachments(saved?.attachments ?? [])
-    setAttachmentError(null)
     setTranscript(saved?.transcript ?? '')
     setValues({ body: saved?.values.body ?? '' })
     setDocKey((key) => key + 1)
     setApprover(saved?.approver ?? APPROVERS[0] ?? '')
+    setDepartment(saved?.department ?? '')
+    setCompany(saved?.company ?? '')
     setAiFilledIds(new Set())
     setDirtyIds(new Set())
     setGenerationError(null)
@@ -227,7 +225,7 @@ export default function useDailyDraft(dateISO: string, kind: ReportKind) {
     // 내려 줄 사람이 없어 제출·다시 작성 버튼이 그대로 잠깁니다.
     // 이어 쓰는 보고서는 이미 쓴 내용이 있으므로 입력칸을 바로 펴 줍니다.
     setPhase(saved ? 'ready' : 'idle')
-  }, [setAttachments, setAttachmentError, canonical])
+  }, [setAttachments, canonical])
 
   useEffect(() => {
     reset()
@@ -245,6 +243,23 @@ export default function useDailyDraft(dateISO: string, kind: ReportKind) {
     : frozenActivities && !generationSourcesAreAvailable(frozenActivities, related.activities)
       ? '생성에 사용한 하위 보고서의 제출본이 변경되었거나 조회 범위에 없습니다. 범위를 확인하거나 AI 보고서를 다시 작성하세요.'
       : null
+  // 이어 쓰는 보고서는 제출 때 목록으로 고정돼 있습니다. 그 뒤 미팅이 새로 완료되거나 일정이
+  // 늘면 지금 목록과 달라지므로, 화면이 새로고침 버튼을 세워 최신 목록으로 되돌립니다.
+  const includedKeys = (list: ReportActivity[]) =>
+    list
+      .filter((activity) => activity.included)
+      .map((activity) => activity.refId ?? '')
+      .sort()
+      .join(',')
+  const sourcesOutdated =
+    !!frozenActivities &&
+    sourcesReady &&
+    (frozenActivities.length !== related.activities.length ||
+      includedKeys(frozenActivities) !== includedKeys(related.activities))
+  const refreshSources = () => {
+    setFrozenActivities(null)
+    related.reload()
+  }
   const hasInput =
     related.activities.some((activity) => activity.included) ||
     files.attachments.some(
@@ -260,12 +275,25 @@ export default function useDailyDraft(dateISO: string, kind: ReportKind) {
       date: dateISO,
       kind,
       approver,
+      department,
+      company,
       values,
       activities: related.activities.map((activity) => ({ ...activity })),
       attachments: files.attachments,
       transcript,
     }),
-    [canonical, dateISO, kind, approver, values, related.activities, files.attachments, transcript],
+    [
+      canonical,
+      dateISO,
+      kind,
+      approver,
+      department,
+      company,
+      values,
+      related.activities,
+      files.attachments,
+      transcript,
+    ],
   )
 
   const inputError = reportInputError(periodGenerationRequestOf(generationPayload(), ''))
@@ -310,7 +338,6 @@ export default function useDailyDraft(dateISO: string, kind: ReportKind) {
       const restored = periodGenerationSeedOf(input)
       setFrozenActivities(restored.activities.map((activity) => ({ ...activity })))
       setAttachments(restored.attachments)
-      setAttachmentError(null)
       setTranscript(restored.transcript)
       setValues(restored.values)
       setDocKey((key) => key + 1)
@@ -329,7 +356,7 @@ export default function useDailyDraft(dateISO: string, kind: ReportKind) {
       )
       return restored
     },
-    [setAttachments, setAttachmentError],
+    [setAttachments],
   )
 
   const resumeGeneration = useCallback(
@@ -537,13 +564,16 @@ export default function useDailyDraft(dateISO: string, kind: ReportKind) {
     attachments: files.attachments,
     addAttachments,
     removeAttachment,
-    attachmentError: files.attachmentError,
     attachmentsPending: files.pending,
     values,
     setValue,
     docKey,
     approver,
     setApprover,
+    department,
+    setDepartment,
+    company,
+    setCompany,
     aiFilledIds,
     dirtyIds,
     canGenerate,
@@ -568,6 +598,9 @@ export default function useDailyDraft(dateISO: string, kind: ReportKind) {
     relatedLoading: related.loading,
     relatedError: related.error,
     reloadRelated: related.reload,
+    /** 고정된 관련 보고서가 지금 목록과 다른지. 다르면 refreshSources 로 최신 목록을 씁니다. */
+    sourcesOutdated,
+    refreshSources,
     error: existingError,
     reload: () => {
       recoveredScope.current = ''
