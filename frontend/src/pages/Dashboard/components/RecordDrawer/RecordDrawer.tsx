@@ -593,8 +593,8 @@ export default function RecordDrawer({ item, onClose, onEdit, onDelete }: Props)
           ) : briefingLoading ? (
             <Skeleton height={72} radius="var(--r-md)" />
           ) : briefing === null ? (
-            // 예약된 실행 자체가 없는 상태입니다. 도는 것이 없으니 초를 세지 않습니다.
-            <p className={styles.note}>AI 브리핑 준비 중입니다…</p>
+            // 이 일정에는 아직 브리핑 실행이 없습니다. 자동으로 생기지 않으니 새로고침으로 만들게 안내합니다.
+            <p className={styles.note}>아직 만든 AI 브리핑이 없습니다. 새로고침을 눌러 만들어 주세요.</p>
           ) : briefing.status === 'failed' && !briefingContent ? (
             // 보여줄 이전 결과가 없을 때만 실패를 크게 알립니다.
             <p className={styles.note} role="alert">
