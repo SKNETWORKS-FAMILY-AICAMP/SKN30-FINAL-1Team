@@ -2,7 +2,9 @@
 import { useCallback, useMemo, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { useSearchParams } from 'react-router'
 
+import { useCurrentUser } from '@/auth/sessionContext'
 import Button from '@/components/Button'
+import ContractForm from '@/components/ContractForm'
 import ErrorToast from '@/components/ErrorToast'
 import FilterSelect from '@/components/FilterSelect'
 import { PlusIcon } from '@/components/icons'
@@ -13,12 +15,16 @@ import usePointerDrag from '@/hooks/usePointerDrag'
 import { useShowOwner } from '@/shared/scope'
 import { addDays, iso, TODAY } from '@/utils/date'
 
+import OrderForm from '@/pages/Orders/components/OrderForm'
+import useOrderList from '@/pages/Orders/useOrderList'
+import QuoteForm from '@/pages/Quotes/components/QuoteForm'
+
 import { DROP_ATTR, parseSlot, type BoardDeal } from './board'
 import StageColumn from './components/StageColumn'
 import ViewToggle from './components/ViewToggle'
 import SalesDealDrawer from './SalesDealDrawer'
 import SalesDealForm from './SalesDealForm'
-import useSalesDeals, { type SalesDeal } from './useSalesDeals'
+import useSalesDeals, { type SalesDeal, type SalesDealColumn } from './useSalesDeals'
 
 import styles from './DealBoard.module.scss'
 
@@ -70,8 +76,21 @@ export default function DealBoard() {
     createSalesDeal,
     updateSalesDeal,
     deleteSalesDeal,
+    quoteStatuses,
+    contractStatuses,
+    loadDocumentStatuses,
+    saveDealDocument,
     moveSalesDeal,
   } = useSalesDeals(openId, requestedPipelineId || null, 'board')
+
+  // 발주 모달에 필요한 것만 씁니다. 조회 조건을 주지 않으면 발주 상태 목록만 받습니다.
+  const {
+    statuses: orderStatuses,
+    suppliers: orderSuppliers,
+    loading: orderOptionsLoading,
+    addOrder,
+  } = useOrderList()
+  const { profile } = useCurrentUser()
 
   const query = params.get('q') ?? ''
   const range = params.get('range') ?? DEFAULT_RANGE
@@ -81,6 +100,13 @@ export default function DealBoard() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [openFilter, setOpenFilter] = useState<'pipeline' | 'range' | null>(null)
+  // 견적·계약·발주 단계로 옮기려 할 때 여는 서류 모달. 저장해야 옮기고 취소하면 그대로 둡니다.
+  const [documentDeal, setDocumentDeal] = useState<{
+    deal: SalesDeal
+    kind: 'quote' | 'contract' | 'order'
+    stage: SalesDealColumn
+    position: number
+  } | null>(null)
 
   const pipelineOptions = useMemo(
     () =>
@@ -147,6 +173,50 @@ export default function DealBoard() {
 
   const findById = useCallback((id: string) => cards.find((card) => card.id === id), [cards])
 
+  // 발주 서류를 내면 서버가 딜을 이 단계로 옮깁니다.
+  const firstOrderStage = columns.find((column) => column.phase === 'order')
+
+  /**
+   * 카드를 다른 단계로 옮기는 순간입니다. 영업현황 목록의 단계 고르개와 같습니다.
+   *
+   * 견적·계약·발주 국면이면 그 국면의 서류부터 씁니다. 서류를 저장하면 서버가 딜을 그
+   * 국면으로 옮기므로 여기서는 옮기지 않습니다. 나머지는 지금까지처럼 바로 옮깁니다.
+   */
+  const moveToStage = useCallback(
+    (card: SalesDeal, stage: SalesDealColumn, position: number) => {
+      if (stage.id !== card.stageId) {
+        if (stage.phase === 'quote' || stage.phase === 'contract') {
+          const kind = stage.phase
+          clearMutationError()
+          void loadDocumentStatuses(kind).then(() =>
+            setDocumentDeal({ deal: card, kind, stage, position }),
+          )
+          return
+        }
+        if (stage.phase === 'order') {
+          clearMutationError()
+          setDocumentDeal({ deal: card, kind: 'order', stage, position })
+          return
+        }
+      }
+      // 오류는 useSalesDeals 가 토스트로 알립니다. 여기서는 다시 던지지 않습니다.
+      void moveSalesDeal(card.id, card.stageId, stage.id, position).catch(() => undefined)
+    },
+    [clearMutationError, loadDocumentStatuses, moveSalesDeal],
+  )
+
+  /**
+   * 서버는 국면의 *첫* 단계로만 옮깁니다. 계약 국면처럼 단계가 여럿이면 사용자가 놓은
+   * 단계와 다를 수 있어 저장 뒤 한 번 더 맞춥니다.
+   */
+  const alignStage = useCallback(
+    async (dealId: string, currentStageId: string, stage: SalesDealColumn, position: number) => {
+      if (stage.id === currentStageId) return
+      await moveSalesDeal(dealId, currentStageId, stage.id, position)
+    },
+    [moveSalesDeal],
+  )
+
   const drop = useCallback(
     (dragged: CardDrag, key: string) => {
       if (readOnly) return
@@ -165,9 +235,10 @@ export default function DealBoard() {
         position -= 1
       if (card.stageId === slot.columnId && position === sourceIndex) return
 
-      void moveSalesDeal(card.id, card.stageId, slot.columnId, position).catch(() => undefined)
+      const target = columns.find(({ id }) => id === slot.columnId)
+      if (target) moveToStage(card, target, position)
     },
-    [byColumn, cards, isPending, moveSalesDeal, readOnly, shownByColumn],
+    [byColumn, cards, columns, isPending, moveToStage, readOnly, shownByColumn],
   )
 
   const { dragging, dropKey, point, start } = usePointerDrag<CardDrag>(DROP_ATTR, drop)
@@ -192,9 +263,9 @@ export default function DealBoard() {
       if (!card || isPending(card.id)) return
       const at = columns.findIndex((column) => column.id === card.stageId)
       const target = columns[at + delta]
-      if (target) void moveSalesDeal(card.id, card.stageId, target.id, 0).catch(() => undefined)
+      if (target) moveToStage(card, target, 0)
     },
-    [columns, findById, isPending, moveSalesDeal, readOnly],
+    [columns, findById, isPending, moveToStage, readOnly],
   )
 
   const openById = useCallback(
@@ -393,6 +464,55 @@ export default function DealBoard() {
             clearMutationError()
             setDeletingId(openDeal.id)
             setOpenId(null)
+          }}
+        />
+      )}
+
+      {documentDeal?.kind === 'quote' && !readOnly && (
+        <QuoteForm
+          deal={documentDeal.deal}
+          statuses={quoteStatuses}
+          onClose={() => setDocumentDeal(null)}
+          onSubmit={async (dealId, fields) => {
+            const saved = await saveDealDocument(dealId, fields, '견적을 저장')
+            await alignStage(dealId, saved.stageId, documentDeal.stage, documentDeal.position)
+            setDocumentDeal(null)
+            reload()
+          }}
+        />
+      )}
+
+      {documentDeal?.kind === 'contract' && !readOnly && (
+        <ContractForm
+          deal={documentDeal.deal}
+          statuses={contractStatuses}
+          onClose={() => setDocumentDeal(null)}
+          onSubmit={async (dealId, fields) => {
+            const saved = await saveDealDocument(dealId, fields, '계약을 저장')
+            await alignStage(dealId, saved.stageId, documentDeal.stage, documentDeal.position)
+            setDocumentDeal(null)
+            reload()
+          }}
+        />
+      )}
+
+      {documentDeal?.kind === 'order' && !readOnly && (
+        <OrderForm
+          deal={documentDeal.deal}
+          createdBy={profile.name}
+          statuses={orderStatuses}
+          suppliers={orderSuppliers}
+          optionsLoading={orderOptionsLoading}
+          onClose={() => setDocumentDeal(null)}
+          onSubmit={async (draft) => {
+            const { deal, stage, position } = documentDeal
+            await addOrder(draft)
+            // 발주 응답에는 딜이 없습니다. 서버가 옮겨 둔 자리는 발주 국면 첫 단계입니다.
+            const landed =
+              deal.stagePhase === 'order' ? deal.stageId : (firstOrderStage?.id ?? deal.stageId)
+            await alignStage(deal.id, landed, stage, position)
+            setDocumentDeal(null)
+            reload()
           }}
         />
       )}

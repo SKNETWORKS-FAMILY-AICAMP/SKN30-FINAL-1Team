@@ -12,6 +12,7 @@ import Modal from '@/components/Modal'
 import RecordPicker from '@/components/RecordPicker'
 import Select from '@/components/Select'
 import { toSalesDeal, type SalesDeal } from '@/pages/Deals/useSalesDeals'
+import { showToast } from '@/shared/toast'
 import type { DocumentStatusResponse, SalesDealDocumentFields, SalesDealResponse } from '@/types'
 import { addDays, iso, toDate, toISO, TODAY, TODAY_ISO } from '@/utils/date'
 import { formatBusinessNo, wonFull } from '@/utils/format'
@@ -103,7 +104,13 @@ export default function ContractForm({ deal, statuses, onClose, onSubmit }: Prop
       found.endsOn = '계약 종료일은 계약일보다 앞설 수 없습니다.'
 
     setErrors(found)
-    if (target === null || Object.keys(found).length > 0) return
+    if (target === null || Object.keys(found).length > 0) {
+      // 오류 칸이 스크롤 아래에 있으면 저장이 왜 안 되는지 보이지 않아 토스트로도 알립니다.
+      showToast(Object.values(found).find(Boolean) ?? '입력한 내용을 확인해 주세요.', {
+        tone: 'error',
+      })
+      return
+    }
 
     submittingRef.current = true
     setSubmitting(true)
@@ -122,7 +129,9 @@ export default function ContractForm({ deal, statuses, onClose, onSubmit }: Prop
         contract_memo: form.memo.trim() || null,
       })
     } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : '계약을 저장하지 못했습니다.')
+      const message = error instanceof Error ? error.message : '계약을 저장하지 못했습니다.'
+      setSubmitError(message)
+      showToast(message, { tone: 'error' })
     } finally {
       submittingRef.current = false
       setSubmitting(false)

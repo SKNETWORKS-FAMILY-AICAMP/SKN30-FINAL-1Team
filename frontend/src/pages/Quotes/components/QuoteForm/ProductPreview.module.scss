@@ -5,13 +5,21 @@
   height: 100%;
 }
 
-// 제품 이름이 길어도 탭 줄만 옆으로 밀립니다.
+// 제품 이름이 길어도 탭 줄만 옆으로 밀립니다. 오른쪽 끝의 버튼은 제자리에 둡니다.
 .tabs {
   flex: none;
-  overflow-x: auto;
-  padding: var(--s3) var(--s4) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: var(--s3) var(--s3) 0 var(--s4);
   border-bottom: 1px solid var(--line);
   background: var(--surface);
+}
+
+.tabList {
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
 }
 
 .body {

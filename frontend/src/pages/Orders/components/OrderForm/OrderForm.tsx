@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from 'react'
 import Button from '@/components/Button'
 import Modal from '@/components/Modal'
 import type { SalesDeal } from '@/pages/Deals/useSalesDeals'
+import { showToast } from '@/shared/toast'
 import type { ApiPurchaseOrder, PurchaseOrderStatusResponse } from '@/types'
 
 import {
@@ -81,7 +82,14 @@ export default function OrderForm({
     if (submittingRef.current) return
     const found = validate(form)
     setErrors(found)
-    if (Object.keys(found).length > 0) return
+    if (Object.keys(found).length > 0) {
+      // 오류 칸이 스크롤 아래에 있으면 저장이 왜 안 되는지 보이지 않아 토스트로도 알립니다.
+      const message = Object.values(found).find(
+        (value): value is string => typeof value === 'string',
+      )
+      showToast(message ?? '입력한 내용을 확인해 주세요.', { tone: 'error' })
+      return
+    }
 
     submittingRef.current = true
     setSubmitting(true)
@@ -89,7 +97,9 @@ export default function OrderForm({
     try {
       await onSubmit(toDraft(form))
     } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : '발주를 저장하지 못했습니다.')
+      const message = error instanceof Error ? error.message : '발주를 저장하지 못했습니다.'
+      setSubmitError(message)
+      showToast(message, { tone: 'error' })
     } finally {
       submittingRef.current = false
       setSubmitting(false)

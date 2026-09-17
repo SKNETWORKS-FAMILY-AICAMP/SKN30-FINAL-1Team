@@ -7,6 +7,7 @@
 import { useRef, useState } from 'react'
 
 import Button from '@/components/Button'
+import { ChevronLeftIcon, ChevronRightIcon } from '@/components/icons'
 import ItemRows, {
   emptyItem,
   itemNumber,
@@ -17,6 +18,7 @@ import ItemRows, {
 import Modal from '@/components/Modal'
 import RecordPicker from '@/components/RecordPicker'
 import Select from '@/components/Select'
+import { showToast } from '@/shared/toast'
 import type { DocumentStatusResponse, SalesDealDocumentFields, SalesDealResponse } from '@/types'
 import {
   addMonthsKeepingDay,
@@ -60,6 +62,11 @@ interface FormState {
 type Errors = Partial<Record<keyof FormState | 'deal', string>> & { itemRows?: ItemErrors }
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
+
+/** 토스트에 올릴 첫 오류 문구. 품목 줄 오류처럼 문구가 없는 것은 건너뜁니다. */
+const firstError = (errors: Errors) =>
+  Object.values(errors).find((value): value is string => typeof value === 'string') ??
+  '입력한 내용을 확인해 주세요.'
 
 /** 견적 유효기간. 요구사항이 "ex) 1개월" 이라 기간으로 받고 날짜는 계산합니다. */
 const VALID_MONTHS = ['1', '2', '3', '6'] as const
@@ -115,6 +122,8 @@ export default function QuoteForm({ deal, statuses, onClose, onSubmit }: Props) 
   const [errors, setErrors] = useState<Errors>({})
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  // 제품을 고르면 제품 정보를 펼친 채로 보여 주고, 폼을 넓게 쓰고 싶으면 접습니다.
+  const [previewOpen, setPreviewOpen] = useState(true)
   const submittingRef = useRef(false)
 
   const set = <Key extends keyof FormState>(key: Key, value: FormState[Key]) => {
@@ -166,7 +175,11 @@ export default function QuoteForm({ deal, statuses, onClose, onSubmit }: Props) 
     if (rows) found.itemRows = rows
 
     setErrors(found)
-    if (target === null || Object.keys(found).length > 0) return
+    if (target === null || Object.keys(found).length > 0) {
+      // 오류 칸이 스크롤 아래에 있으면 저장이 왜 안 되는지 보이지 않아 토스트로도 알립니다.
+      showToast(firstError(found), { tone: 'error' })
+      return
+    }
 
     submittingRef.current = true
     setSubmitting(true)
@@ -187,7 +200,9 @@ export default function QuoteForm({ deal, statuses, onClose, onSubmit }: Props) 
         })),
       })
     } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : '견적을 저장하지 못했습니다.')
+      const message = error instanceof Error ? error.message : '견적을 저장하지 못했습니다.'
+      setSubmitError(message)
+      showToast(message, { tone: 'error' })
     } finally {
       submittingRef.current = false
       setSubmitting(false)
@@ -204,7 +219,7 @@ export default function QuoteForm({ deal, statuses, onClose, onSubmit }: Props) 
       description={
         target ? `${target.no} · ${target.org}` : '견적은 영업 딜에 붙습니다. 먼저 딜을 고르세요.'
       }
-      size={previewing ? 'xl' : 'md'}
+      size={previewing && previewOpen ? 'xl' : 'md'}
       flushBody
       onClose={close}
       onSubmit={() => void submit()}
@@ -220,7 +235,7 @@ export default function QuoteForm({ deal, statuses, onClose, onSubmit }: Props) 
       }
     >
       {/* 패널이 생겨도 폼 줄기는 같은 자리에 둡니다. 감싸는 요소가 바뀌면 입력 중인 칸이 포커스를 잃습니다. */}
-      <div className={styles.split} data-open={previewing}>
+      <div className={styles.split} data-open={previewing} data-collapsed={!previewOpen}>
         <div className={styles.formPane}>
           <div className={styles.grid}>
             {deal === undefined && (
@@ -376,7 +391,35 @@ export default function QuoteForm({ deal, statuses, onClose, onSubmit }: Props) 
         </div>
         {previewing && (
           <aside className={styles.previewPane} aria-label="고른 제품 정보">
-            <ProductPreview items={form.items} />
+            {previewOpen ? (
+              <ProductPreview
+                items={form.items}
+                action={
+                  <button
+                    type="button"
+                    className={styles.previewToggle}
+                    aria-expanded
+                    aria-label="제품 정보 접기"
+                    title="제품 정보 접기"
+                    onClick={() => setPreviewOpen(false)}
+                  >
+                    <ChevronRightIcon width={16} height={16} />
+                  </button>
+                }
+              />
+            ) : (
+              // 접힌 줄 전체가 펼치기 버튼입니다. 무엇이 접혀 있는지 글자로 남깁니다.
+              <button
+                type="button"
+                className={styles.previewRail}
+                aria-expanded={false}
+                title="제품 정보 펼치기"
+                onClick={() => setPreviewOpen(true)}
+              >
+                <ChevronLeftIcon width={16} height={16} />
+                <span>제품 정보</span>
+              </button>
+            )}
           </aside>
         )}
       </div>

@@ -2,7 +2,7 @@
 //
 // 품목 칸에는 이름만 남아 규격·사진을 보려면 상품 화면을 따로 열어야 했습니다.
 // 한 견적에 제품이 여러 개라 제품마다 탭으로 나눕니다.
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 
 import type { ItemState } from '@/components/ItemRows'
 import Tabs from '@/components/Tabs'
@@ -25,7 +25,14 @@ function pickedProducts(items: ItemState[]): Picked[] {
   return [...seen.values()]
 }
 
-export default function ProductPreview({ items }: { items: ItemState[] }) {
+export default function ProductPreview({
+  items,
+  action,
+}: {
+  items: ItemState[]
+  /** 탭 줄 오른쪽 끝에 두는 버튼. 견적 폼의 접기 버튼이 들어옵니다. */
+  action?: ReactNode
+}) {
   const products = pickedProducts(items)
   const ids = products.map((p) => p.id).join(',')
   const [active, setActive] = useState<string | null>(null)
@@ -46,14 +53,17 @@ export default function ProductPreview({ items }: { items: ItemState[] }) {
     <div className={styles.root}>
       {/* 한 개여도 탭으로 둡니다. 제품 이름을 보여 주는 자리가 이곳입니다. */}
       <div className={styles.tabs}>
-        <Tabs
-          label="고른 제품"
-          variant="underline"
-          size="sm"
-          items={products.map((p) => ({ value: p.id, label: p.name }))}
-          value={current.id}
-          onChange={setActive}
-        />
+        <div className={styles.tabList}>
+          <Tabs
+            label="고른 제품"
+            variant="underline"
+            size="sm"
+            items={products.map((p) => ({ value: p.id, label: p.name }))}
+            value={current.id}
+            onChange={setActive}
+          />
+        </div>
+        {action}
       </div>
       <div className={styles.body}>
         <ProductSummary key={current.id} picked={current} />
