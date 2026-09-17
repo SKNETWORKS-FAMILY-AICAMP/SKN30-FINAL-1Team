@@ -53,7 +53,7 @@ export default function ReportDocHeader({
   onCompanyChange,
 }: Props) {
   /*
-   * 부서·회사·보고 대상은 비어 있으면 '미지정' 으로 채우지 않고 줄을 뺍니다.
+   * 부서·회사·보고 대상은 비어 있으면 '미지정' 으로 채우지 않고 줄은 둔 채 값만 비웁니다.
    * 고칠 수 있을 때(수정 중)만 칸을 비워 두고 직접 적게 합니다 — 손이 올라갈 때
    * 배경 한 겹으로만 알립니다. 종이에서는 안내 문구가 지워지고 적은 글만 남습니다.
    */
@@ -78,7 +78,7 @@ export default function ReportDocHeader({
         ],
       ]
     }
-    return text?.trim() ? [[label, text.trim()]] : []
+    return [[label, text?.trim() ?? '']]
   }
 
   const rows: [string, ReactNode][] = [

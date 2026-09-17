@@ -1938,7 +1938,8 @@ test('보고 대상은 고칠 수 있을 때 미지정 대신 빈 입력칸으�
   assert.match(editable, /<input/)
   assert.ok(!/미지정/.test(editable))
   assert.ok(!/<input/.test(readOnly))
-  assert.ok(!/보고 대상/.test(readOnly))
+  assert.match(readOnly, /보고 대상/)
+  assert.ok(!/미지정/.test(readOnly))
 })
 
 test('보고서 머리표는 빈 부서·회사 줄을 미지정 대신 빼고, 수정 중에만 입력칸으로 연다', () => {
@@ -1955,8 +1956,10 @@ test('보고서 머리표는 빈 부서·회사 줄을 미지정 대신 빼고, 
   )
 
   assert.match(header, /9월 3일 \(목\) 일일 업무 보고서/)
-  assert.equal(header.match(/<dt>/g).length, 4)
-  assert.ok(!/미지정|부서명|회사명/.test(header))
+  assert.equal(header.match(/<dt>/g).length, 6)
+  assert.match(header, /부서명/)
+  assert.match(header, /회사명/)
+  assert.ok(!/미지정/.test(header))
 
   const editing = renderToStaticMarkup(
     createElement(ReportDocHeader, {
@@ -1998,7 +2001,7 @@ test('직책만은 미지정이 아니라 팀원으로 채운다', () => {
     }),
   )
 
-  assert.equal(noManager.match(/<dt>/g).length, 5)
+  assert.equal(noManager.match(/<dt>/g).length, 6)
   assert.ok(!/미지정/.test(noManager))
 })
 
