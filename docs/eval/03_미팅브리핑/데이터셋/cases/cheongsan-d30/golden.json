@@ -1,0 +1,74 @@
+{
+  "timeline_id": "cheongsan",
+  "t": 29,
+  "briefing_mode": "relationship",
+  "required_topics": [
+    {
+      "topic_id": "renewal-question",
+      "label": "갱신 시점 문의",
+      "intent": "근태관리 계약 갱신 시점과 조건을 문의받았고 아직 안내하지 않았다",
+      "deal_id": "deal-p",
+      "importance": "high",
+      "evidence": [
+        "report-cheongsan-29"
+      ],
+      "last_mentioned_at": 29,
+      "in_recent_window": true,
+      "requires_rag": false,
+      "expectation": "must_appear"
+    }
+  ],
+  "allowed_topics": [],
+  "must_not_appear": [
+    {
+      "topic_id": "attendance-rule-unknown",
+      "label": "근태 규정 확인 필요",
+      "reason": "해결됨",
+      "resolved_by": [
+        "report-cheongsan-08"
+      ],
+      "expectation": "must_not_appear"
+    },
+    {
+      "topic_id": "install-schedule-unknown",
+      "label": "설치 일정 미확정",
+      "reason": "해결됨",
+      "resolved_by": [
+        "report-cheongsan-12"
+      ],
+      "expectation": "must_not_appear"
+    },
+    {
+      "topic_id": "attendance-stabilize",
+      "label": "근태관리 안정화 이슈",
+      "reason": "해결됨",
+      "resolved_by": [
+        "report-cheongsan-17"
+      ],
+      "expectation": "must_not_appear"
+    },
+    {
+      "topic_id": "eapproval-cancel-reason",
+      "label": "전자결재 확장 취소",
+      "reason": "해결됨",
+      "resolved_by": [
+        "report-cheongsan-19"
+      ],
+      "expectation": "must_not_appear"
+    }
+  ],
+  "changed_values": [],
+  "stalled_deals": [],
+  "expected_rag_calls_min": 0,
+  "expected_rag_calls_max": null,
+  "forbidden_claims": [
+    "전자결재 확장을 진행 중이다",
+    "근태관리에 미해결 장애가 있다",
+    "신규 계약이 논의 중이다"
+  ],
+  "forbidden_missing_information": [],
+  "scoring": {
+    "state_tracking_applies": true,
+    "max_score": 100
+  }
+}

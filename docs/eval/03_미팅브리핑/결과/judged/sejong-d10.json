@@ -1,0 +1,124 @@
+{
+  "case": "sejong-d10",
+  "t": 9,
+  "prompt_version": "contract_management.generate_briefing.v13",
+  "gates": {
+    "highlight_count_ok": true,
+    "actions_within_prompt_limit": true,
+    "recent_read_called": true,
+    "invalid_source_refs": [],
+    "dropped_highlight_count": 0,
+    "report_refs_missing_excerpt": [],
+    "rag_call_count": 1,
+    "rag_min_ok": true,
+    "rag_max_ok": true
+  },
+  "score": {
+    "total": 85.0,
+    "max_score": 85,
+    "percent": 100.0,
+    "by_criterion": {
+      "highlight_selection": {
+        "ratio": 1.0,
+        "weighted": 25.0,
+        "weight": 25,
+        "derived_from": {
+          "coverage": 1.0,
+          "stale_shown": 0,
+          "off_topic": 0,
+          "penalty": 0.0
+        }
+      },
+      "factual_accuracy": {
+        "rating": 4,
+        "weighted": 20.0,
+        "weight": 20,
+        "reason": "시스템 현황, 예산 확인 약속, 이사회 결정 및 미확인 절차를 근거에 맞게 표현했으며 도입 확정이나 예산 배정으로 과장하지 않았다."
+      },
+      "suggested_actions": {
+        "rating": 4,
+        "weighted": 20.0,
+        "weight": 20,
+        "reason": "현행 시스템, 예산 회신, 안건 상정 부서, 실무 담당자와 절차 등 담당자가 바로 질문할 수 있는 구체적 행동을 제시했다."
+      },
+      "scannability": {
+        "rating": 4,
+        "weighted": 10.0,
+        "weight": 10,
+        "reason": "각 하이라이트 제목만으로 대상과 쟁점이 드러나고, 현재 상태를 먼저 제시한 뒤 확인 행동을 연결했다. 시간순 나열도 피했다."
+      },
+      "missing_information": {
+        "rating": 4,
+        "weighted": 10.0,
+        "weight": 10,
+        "reason": "세 병원의 시스템과 통합 요구사항, 예산 최신 결과, 의사결정 경로와 일정, 계약·견적·도입 일정의 존재 여부 등 미팅에서 확인할 정보를 충분히 지목했다."
+      }
+    }
+  },
+  "judgement": {
+    "required_topics": [
+      {
+        "topic_id": "branch-inventory-unknown",
+        "verdict": "covered",
+        "highlight_index": 2,
+        "reason": "산하 3개 병원의 현행 시스템 목록과 통합 범위가 미확인 상태임을 명확히 짚고, 이번 미팅에서 확인할 질문을 제시했다."
+      },
+      {
+        "topic_id": "budget-cycle-unknown",
+        "verdict": "covered",
+        "highlight_index": 3,
+        "reason": "예산 편성 시기 확인 결과와 도입 예산 반영 여부가 미확인임을 설명하고, 재무팀 회신 및 다음 검토 시점을 확인하도록 했다."
+      },
+      {
+        "topic_id": "decision-owner-unknown",
+        "verdict": "covered",
+        "highlight_index": 4,
+        "reason": "이사회가 최종 결정기구라는 현재 정보와 함께 안건 상정 부서·실무 검토 담당자·절차가 미확인임을 구분해 제시했다."
+      }
+    ],
+    "must_not_appear": [],
+    "changed_values": [],
+    "off_topic_highlight_count": 0,
+    "forbidden_claims": [
+      {
+        "item": "영업 건이 등록되어 있다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "고객이 도입을 확정했다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "예산이 배정됐다",
+        "violated": false,
+        "evidence": null
+      }
+    ],
+    "criteria": [
+      {
+        "criterion": "factual_accuracy",
+        "rating": 4,
+        "reason": "시스템 현황, 예산 확인 약속, 이사회 결정 및 미확인 절차를 근거에 맞게 표현했으며 도입 확정이나 예산 배정으로 과장하지 않았다."
+      },
+      {
+        "criterion": "suggested_actions",
+        "rating": 4,
+        "reason": "현행 시스템, 예산 회신, 안건 상정 부서, 실무 담당자와 절차 등 담당자가 바로 질문할 수 있는 구체적 행동을 제시했다."
+      },
+      {
+        "criterion": "scannability",
+        "rating": 4,
+        "reason": "각 하이라이트 제목만으로 대상과 쟁점이 드러나고, 현재 상태를 먼저 제시한 뒤 확인 행동을 연결했다. 시간순 나열도 피했다."
+      },
+      {
+        "criterion": "missing_information",
+        "rating": 4,
+        "reason": "세 병원의 시스템과 통합 요구사항, 예산 최신 결과, 의사결정 경로와 일정, 계약·견적·도입 일정의 존재 여부 등 미팅에서 확인할 정보를 충분히 지목했다."
+      }
+    ],
+    "critical_errors": [],
+    "summary": "핵심 미확인 사항 세 가지를 모두 다뤘고, 사실관계와 미팅 확인 행동이 잘 연결된 브리핑이다. 불필요한 하이라이트나 금지된 주장은 없다."
+  }
+}

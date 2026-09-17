@@ -1,0 +1,37 @@
+{
+  "timeline_id": "cheongsan",
+  "t": 4,
+  "briefing_mode": "relationship",
+  "required_topics": [
+    {
+      "topic_id": "attendance-rule-unknown",
+      "label": "근태 규정 확인 필요",
+      "intent": "교대 근무와 연장근로 규정이 확인되지 않아 설정 범위를 잡을 수 없다",
+      "deal_id": "deal-p",
+      "importance": "high",
+      "evidence": [
+        "report-cheongsan-01"
+      ],
+      "last_mentioned_at": 1,
+      "in_recent_window": false,
+      "requires_rag": true,
+      "expectation": "must_appear"
+    }
+  ],
+  "allowed_topics": [],
+  "must_not_appear": [],
+  "changed_values": [],
+  "stalled_deals": [],
+  "expected_rag_calls_min": 1,
+  "expected_rag_calls_max": null,
+  "forbidden_claims": [
+    "전자결재 확장을 진행 중이다",
+    "근태관리에 미해결 장애가 있다",
+    "신규 계약이 논의 중이다"
+  ],
+  "forbidden_missing_information": [],
+  "scoring": {
+    "state_tracking_applies": false,
+    "max_score": 85
+  }
+}

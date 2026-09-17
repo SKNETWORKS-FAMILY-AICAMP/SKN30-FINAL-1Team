@@ -1,0 +1,117 @@
+{
+  "case": "daeyang-d05",
+  "t": 4,
+  "prompt_version": "contract_management.generate_briefing.v13",
+  "gates": {
+    "highlight_count_ok": true,
+    "actions_within_prompt_limit": true,
+    "recent_read_called": true,
+    "invalid_source_refs": [],
+    "dropped_highlight_count": 0,
+    "report_refs_missing_excerpt": [],
+    "rag_call_count": 1,
+    "rag_min_ok": true,
+    "rag_max_ok": true
+  },
+  "score": {
+    "total": 80.0,
+    "max_score": 85,
+    "percent": 94.1,
+    "by_criterion": {
+      "highlight_selection": {
+        "ratio": 1.0,
+        "weighted": 25.0,
+        "weight": 25,
+        "derived_from": {
+          "coverage": 1.0,
+          "stale_shown": 0,
+          "off_topic": 0,
+          "penalty": 0.0
+        }
+      },
+      "factual_accuracy": {
+        "rating": 4,
+        "weighted": 20.0,
+        "weight": 20,
+        "reason": "2012년 도입, 유지보수 종료 예정 및 정확한 종료일 미확인이라는 근거와 일치하며, 합의나 완료를 창작하지 않았다."
+      },
+      "suggested_actions": {
+        "rating": 3,
+        "weighted": 15.0,
+        "weight": 20,
+        "reason": "종료일, 운영 리스크, 범위, 예산, 일정, 승인 절차 등 실행 가능한 확인 항목을 제시했으나 일부 질문이 두 하이라이트에서 중복된다."
+      },
+      "scannability": {
+        "rating": 4,
+        "weighted": 10.0,
+        "weight": 10,
+        "reason": "각 제목만으로 교체 검토 상태와 핵심 쟁점을 파악할 수 있고, 본문도 현재 상태를 먼저 제시한다."
+      },
+      "missing_information": {
+        "rating": 4,
+        "weighted": 10.0,
+        "weight": 10,
+        "reason": "종료일과 종료 후 리스크뿐 아니라 운영 문제, 요구사항, 범위, 예산, 의사결정권자, 관련 부서 및 후속 일정 등 미팅에서 확인할 정보를 구체적으로 지목했다."
+      }
+    }
+  },
+  "judgement": {
+    "required_topics": [
+      {
+        "topic_id": "eol-date-unknown",
+        "verdict": "covered",
+        "highlight_index": 2,
+        "reason": "유지보수 정확한 종료일이 확인되지 않아 교체 범위와 일정을 정하기 어렵다는 핵심 사안을 현재 상태와 함께 명확히 다뤘다."
+      }
+    ],
+    "must_not_appear": [],
+    "changed_values": [],
+    "off_topic_highlight_count": 0,
+    "forbidden_claims": [
+      {
+        "item": "고객이 80석에 합의했다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "유지보수 요율을 8%로 조정하기로 했다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "구형 설비 연동이 검증됐다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "계약이 체결됐다",
+        "violated": false,
+        "evidence": null
+      }
+    ],
+    "criteria": [
+      {
+        "criterion": "factual_accuracy",
+        "rating": 4,
+        "reason": "2012년 도입, 유지보수 종료 예정 및 정확한 종료일 미확인이라는 근거와 일치하며, 합의나 완료를 창작하지 않았다."
+      },
+      {
+        "criterion": "suggested_actions",
+        "rating": 3,
+        "reason": "종료일, 운영 리스크, 범위, 예산, 일정, 승인 절차 등 실행 가능한 확인 항목을 제시했으나 일부 질문이 두 하이라이트에서 중복된다."
+      },
+      {
+        "criterion": "scannability",
+        "rating": 4,
+        "reason": "각 제목만으로 교체 검토 상태와 핵심 쟁점을 파악할 수 있고, 본문도 현재 상태를 먼저 제시한다."
+      },
+      {
+        "criterion": "missing_information",
+        "rating": 4,
+        "reason": "종료일과 종료 후 리스크뿐 아니라 운영 문제, 요구사항, 범위, 예산, 의사결정권자, 관련 부서 및 후속 일정 등 미팅에서 확인할 정보를 구체적으로 지목했다."
+      }
+    ],
+    "critical_errors": [],
+    "summary": "핵심인 유지보수 종료 시점 미확인 사안을 정확히 다뤘고, 미팅에서 확인할 정보와 행동도 충분히 제시했다. 다만 두 하이라이트의 확인 질문이 일부 반복된다."
+  }
+}

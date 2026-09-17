@@ -1,0 +1,25 @@
+{
+  "timeline_id": "cheongsan",
+  "t": 0,
+  "briefing_mode": "first_meeting",
+  "required_topics": [],
+  "allowed_topics": [],
+  "must_not_appear": [],
+  "changed_values": [],
+  "stalled_deals": [],
+  "expected_rag_calls_min": 0,
+  "expected_rag_calls_max": 0,
+  "forbidden_claims": [
+    "전자결재 확장을 진행 중이다",
+    "근태관리에 미해결 장애가 있다",
+    "신규 계약이 논의 중이다"
+  ],
+  "forbidden_missing_information": [
+    "과거 보고서 없음",
+    "연결된 딜 없음"
+  ],
+  "scoring": {
+    "state_tracking_applies": false,
+    "max_score": 85
+  }
+}

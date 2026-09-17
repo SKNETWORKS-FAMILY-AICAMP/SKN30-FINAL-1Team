@@ -1,0 +1,103 @@
+{
+  "timeline_id": "hanbit",
+  "t": 9,
+  "briefing_mode": "relationship",
+  "required_topics": [
+    {
+      "topic_id": "form-standard-scope",
+      "label": "서식 표준화 범위 미정",
+      "intent": "진료과별 서식을 어디까지 통일할지 정해지지 않아 개발 범위를 확정할 수 없다",
+      "deal_id": "deal-a",
+      "importance": "high",
+      "evidence": [
+        "report-hanbit-01"
+      ],
+      "last_mentioned_at": 1,
+      "in_recent_window": false,
+      "requires_rag": true,
+      "expectation": "must_appear"
+    },
+    {
+      "topic_id": "security-review-schedule",
+      "label": "원내 보안 심의 일정 미정",
+      "intent": "정보전략팀 보안 심의를 거쳐야 외부 연동이 가능한데 심의 일정이 잡히지 않았다",
+      "deal_id": "deal-a",
+      "importance": "high",
+      "evidence": [
+        "report-hanbit-02"
+      ],
+      "last_mentioned_at": 2,
+      "in_recent_window": false,
+      "requires_rag": true,
+      "expectation": "must_appear"
+    },
+    {
+      "topic_id": "delivery-terms-unresolved",
+      "label": "납기 조건 미확정",
+      "intent": "기존 차트 데이터 이관 기간이 확정되지 않아 납기를 약속할 수 없다",
+      "deal_id": "deal-a",
+      "importance": "high",
+      "evidence": [
+        "report-hanbit-04"
+      ],
+      "last_mentioned_at": 4,
+      "in_recent_window": false,
+      "requires_rag": true,
+      "expectation": "must_appear"
+    },
+    {
+      "topic_id": "budget-approval-pending",
+      "label": "예산 승인 전",
+      "intent": "고객이 말한 금액은 내부 검토 상한이며 재무팀 승인을 받은 예산이 아니다",
+      "deal_id": "deal-b",
+      "importance": "high",
+      "evidence": [
+        "report-hanbit-08"
+      ],
+      "last_mentioned_at": 8,
+      "in_recent_window": true,
+      "requires_rag": false,
+      "expectation": "must_appear"
+    }
+  ],
+  "allowed_topics": [
+    {
+      "topic_id": "user-count-corrected",
+      "label": "사용자 수 정정",
+      "intent": "초기 유료 사용자는 25명이 아니라 내부 직원 20명이다. 외부 협력 5명은 계정 없이 PDF만 받는다",
+      "deal_id": "deal-b",
+      "importance": "medium",
+      "evidence": [
+        "report-hanbit-09"
+      ],
+      "last_mentioned_at": 9,
+      "in_recent_window": true,
+      "requires_rag": false,
+      "expectation": "may_appear"
+    }
+  ],
+  "must_not_appear": [],
+  "changed_values": [
+    {
+      "topic_id": "user-count-corrected",
+      "from": "25명",
+      "to": "20명",
+      "expectation": "must_show_latest_only"
+    }
+  ],
+  "stalled_deals": [],
+  "expected_rag_calls_min": 1,
+  "expected_rag_calls_max": null,
+  "forbidden_claims": [
+    "고객이 특정 금액에 합의했다 (합의 기록 없음)",
+    "재무팀 예산 승인이 완료됐다 (승인 전 시점에서)",
+    "유료 사용자는 25명이다 (9회차에 20명으로 정정됨)",
+    "보안 심의를 통과했다 (16회차 전 시점에서)",
+    "계약이 체결됐다 (계약 완료 전 시점에서)"
+  ],
+  "forbidden_missing_information": [],
+  "scoring": {
+    "state_tracking_applies": true,
+    "max_score": 100
+  }
+}

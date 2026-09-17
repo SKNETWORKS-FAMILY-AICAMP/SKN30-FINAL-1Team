@@ -1,0 +1,128 @@
+{
+  "case": "miraero-d10",
+  "t": 9,
+  "prompt_version": "contract_management.generate_briefing.v13",
+  "gates": {
+    "highlight_count_ok": true,
+    "actions_within_prompt_limit": true,
+    "recent_read_called": true,
+    "invalid_source_refs": [],
+    "dropped_highlight_count": 0,
+    "report_refs_missing_excerpt": [],
+    "rag_call_count": 0,
+    "rag_min_ok": false,
+    "rag_max_ok": true
+  },
+  "score": {
+    "total": 45.0,
+    "max_score": 85,
+    "percent": 52.9,
+    "by_criterion": {
+      "highlight_selection": {
+        "ratio": 0.0,
+        "weighted": 0.0,
+        "weight": 25,
+        "derived_from": {
+          "coverage": 0.0,
+          "stale_shown": 0,
+          "off_topic": 0,
+          "penalty": 0.0
+        }
+      },
+      "factual_accuracy": {
+        "rating": 4,
+        "weighted": 20.0,
+        "weight": 20,
+        "reason": "방문 결과와 진행 상태를 근거에 맞게 표현했으며, 고객 발언이나 합의를 창작하지 않았다."
+      },
+      "suggested_actions": {
+        "rating": 3,
+        "weighted": 15.0,
+        "weight": 20,
+        "reason": "현재 단계, 요구사항, 일정, 다음 액션 등을 확인하도록 제안해 실행 가능하지만, 미확정 검사 범위와 20대 수량을 직접 확인하는 항목이 빠졌다."
+      },
+      "scannability": {
+        "rating": 2,
+        "weighted": 5.0,
+        "weight": 10,
+        "reason": "현재 상태를 첫 문장에 제시하고 제목도 자동화 딜을 가리키지만, 미팅의 핵심 쟁점인 검사 범위와 장비 수량이 드러나지 않아 즉시 대응용으로는 부족하다."
+      },
+      "missing_information": {
+        "rating": 2,
+        "weighted": 5.0,
+        "weight": 10,
+        "reason": "진행률, 요구사항, 예산·계약·납기, 다음 단계 등을 지목했지만 자동화 대상 검사 항목과 도입 수량 확인이 누락됐다."
+      }
+    }
+  },
+  "judgement": {
+    "required_topics": [
+      {
+        "topic_id": "test-scope-unknown",
+        "verdict": "missed",
+        "highlight_index": null,
+        "reason": "자동화할 검사 항목이 미확정되어 장비 구성을 정할 수 없다는 핵심 쟁점을 다루지 않았다."
+      },
+      {
+        "topic_id": "device-count",
+        "verdict": "missed",
+        "highlight_index": null,
+        "reason": "도입 장비 수량이 20대라는 내용을 언급하지 않았다."
+      }
+    ],
+    "must_not_appear": [],
+    "changed_values": [],
+    "off_topic_highlight_count": 0,
+    "forbidden_claims": [
+      {
+        "item": "장비 20대를 도입한다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "장비 15대를 도입한다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "9월에 오픈한다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "박승우 대리가 담당이다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "교육 일정이 확정됐다",
+        "violated": false,
+        "evidence": null
+      }
+    ],
+    "criteria": [
+      {
+        "criterion": "factual_accuracy",
+        "rating": 4,
+        "reason": "방문 결과와 진행 상태를 근거에 맞게 표현했으며, 고객 발언이나 합의를 창작하지 않았다."
+      },
+      {
+        "criterion": "suggested_actions",
+        "rating": 3,
+        "reason": "현재 단계, 요구사항, 일정, 다음 액션 등을 확인하도록 제안해 실행 가능하지만, 미확정 검사 범위와 20대 수량을 직접 확인하는 항목이 빠졌다."
+      },
+      {
+        "criterion": "scannability",
+        "rating": 2,
+        "reason": "현재 상태를 첫 문장에 제시하고 제목도 자동화 딜을 가리키지만, 미팅의 핵심 쟁점인 검사 범위와 장비 수량이 드러나지 않아 즉시 대응용으로는 부족하다."
+      },
+      {
+        "criterion": "missing_information",
+        "rating": 2,
+        "reason": "진행률, 요구사항, 예산·계약·납기, 다음 단계 등을 지목했지만 자동화 대상 검사 항목과 도입 수량 확인이 누락됐다."
+      }
+    ],
+    "critical_errors": [],
+    "summary": "근거에 맞고 불필요한 금지 주장도 없지만, 이번 브리핑의 핵심인 자동화 대상 검사 항목 미확정과 장비 20대 도입 수량을 모두 놓쳤다. 일반적인 진행 상황 확인에 치우쳐 미팅 대응력은 제한적이다."
+  }
+}

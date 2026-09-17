@@ -1,0 +1,154 @@
+{
+  "customer_company": {
+    "id": "company-sejong",
+    "name": "세종의료재단"
+  },
+  "sales_deals": [],
+  "approved_next_meeting": {
+    "activity_id": "activity-sejong-t09-next",
+    "title": "세종의료재단 정기 미팅",
+    "starts_at": "2026-04-16T14:00:00+09:00",
+    "ends_at": "2026-04-16T15:00:00+09:00",
+    "location": "세종의료재단 본관 회의실",
+    "note": "진행 중인 건 점검",
+    "customer_contact": {
+      "id": "contact-yoon",
+      "name": "윤재호",
+      "department": "총무팀",
+      "job_title": "차장"
+    }
+  },
+  "briefing_mode": "relationship",
+  "recent_reports": [
+    {
+      "id": "report-sejong-09",
+      "submission_id": "submission-sejong-09",
+      "source_activity_id": "activity-sejong-09",
+      "report_date": "2026-04-09",
+      "submitted_at": "2026-04-09T18:00:00+09:00",
+      "title": "원내 행사로 일정 조정",
+      "meeting_shared": {
+        "common_report": "세종의료재단 윤재호 총무팀 차장과 원내 행사로 인해 예정된 미팅 일정을 조정하는 내용으로 방문 미팅을 진행했다. 원내 행사 일정을 고려해 기존 협의 흐름에 무리가 없도록 후속 일정은 상호 가능 시간을 확인하며 조율하기로 했다. 미팅 중 현재까지의 진행 상황을 중심으로 간단히 공유했으며, 기존 논의 내용에 대한 별도 변경이나 추가 확인이 필요한 사항은 없었다. 또한 현장 운영에 참고할 수 있도록 일정 변동 사항을 안내하고, 이후 연락과 일정 조율은 기존과 동일한 방식으로 진행하기로 했다. 이번 방문에서는 새로운 결정이나 요청, 조건 변경 없이 인사와 진행 상황 공유 및 일정 조정만 확인했다.",
+        "unassigned_report": null
+      },
+      "deal_reports": []
+    },
+    {
+      "id": "report-sejong-08",
+      "submission_id": "submission-sejong-08",
+      "source_activity_id": "activity-sejong-08",
+      "report_date": "2026-04-02",
+      "submitted_at": "2026-04-02T18:00:00+09:00",
+      "title": "담당자 휴가 일정 공유",
+      "meeting_shared": {
+        "common_report": "세종의료재단을 방문해 윤재호 총무팀 차장과 담당자 휴가 일정을 공유했다. 휴가 기간 중 업무 연락과 관련한 기본적인 일정을 확인하고, 기존 진행 상황에 변동이 없는지 함께 점검했다. 이번 미팅은 일상적인 방문 및 인사 성격으로 진행되었으며, 현재 업무 운영에 영향을 줄 만한 변경 사항은 확인되지 않았다. 담당자 부재 기간에도 필요한 안내가 원활히 전달될 수 있도록 서로 일정을 맞추어 확인했으며, 복귀 후 기존 소통 흐름을 이어가기로 했다. 별도로 진행 중인 딜별 확인 사항은 없었고, 신규 요청이나 추가 협의가 필요한 내용도 발생하지 않았다. 전반적으로 기존 공유 내용을 재확인하는 수준에서 미팅을 마무리했다.",
+        "unassigned_report": null
+      },
+      "deal_reports": []
+    },
+    {
+      "id": "report-sejong-07",
+      "submission_id": "submission-sejong-07",
+      "source_activity_id": "activity-sejong-07",
+      "report_date": "2026-03-26",
+      "submitted_at": "2026-03-26T18:00:00+09:00",
+      "title": "정기 방문",
+      "meeting_shared": {
+        "common_report": "세종의료재단을 정기 방문하여 윤재호 총무팀 차장과 인사를 나누고, 기존 진행 상황을 중심으로 간단히 공유했습니다. 이번 방문에서는 현재까지의 협의 흐름과 관련 안내 사항을 확인했으며, 별도로 변경된 내용이나 추가로 조율할 사항은 없었습니다. 방문 일정에 맞춰 현황을 점검하고 향후 연락 및 방문 일정을 원활히 이어가기로 안내했으며, 운영 과정에서 필요한 사항이 발생할 경우 담당자 간 공유하기로 했습니다. 이번 미팅에서 새롭게 결정된 사항이나 고객의 추가 요청, 미해결 과제는 없었고, 별도 후속 조치 없이 기존 소통을 유지합니다. 현재 진행 중인 딜은 없습니다.",
+        "unassigned_report": null
+      },
+      "deal_reports": []
+    }
+  ],
+  "has_older_reports": true,
+  "historical_report_context": [
+    {
+      "id": "report-sejong-06",
+      "submission_id": "submission-sejong-06",
+      "source_activity_id": "activity-sejong-06",
+      "report_date": "2026-03-19",
+      "submitted_at": "2026-03-19T18:00:00+09:00",
+      "title": "의사결정 구조 확인 시도",
+      "meeting_shared": {
+        "common_report": "이번 미팅은 세종의료재단의 의사결정 구조와 안건 상정 경로를 확인하기 위해 진행했습니다. 참석자는 윤재호 총무팀 차장입니다.\n\n실제 결정은 이사회에서 이뤄진다는 설명을 들었으나, 어느 부서가 안건을 올리는지는 확인하지 못했습니다. 총무팀은 관련 논의를 직접 결정하는 부서가 아니라 창구 역할만 한다고 했습니다.\n\n이번 미팅에서 별도의 구체적인 고객 요구사항은 확인하지 못했으며, 요구 범위와 내부 검토 기준은 미확인입니다.\n\n이사회가 최종 의사결정기구라는 점만 파악했으며, 안건 상정 부서나 의사결정 절차에 대해서는 합의된 사항이 없습니다. 구매 확정이나 계약 체결도 확인되지 않았습니다.\n\n후속으로 안건을 실제로 상정하는 부서와 내부 의사결정 절차를 추가 확인해야 합니다. 이를 확인할 담당자와 기한은 미확인입니다.",
+        "unassigned_report": null
+      },
+      "deal_reports": []
+    },
+    {
+      "id": "report-sejong-05",
+      "submission_id": "submission-sejong-05",
+      "source_activity_id": "activity-sejong-05",
+      "report_date": "2026-03-12",
+      "submitted_at": "2026-03-12T18:00:00+09:00",
+      "title": "방문 절차 안내",
+      "meeting_shared": {
+        "common_report": "세종의료재단을 방문하여 윤재호 총무팀 차장과 방문 절차에 대해 안내하고 관련 내용을 공유했다. 이번 미팅에서는 방문 시 확인해야 할 기본 절차와 진행 방식에 대해 안내하는 데 중점을 두었으며, 기존에 공유된 진행 상황을 서로 확인하는 수준으로 대화를 진행했다. 별도로 새로운 금액이나 수량, 일정, 계약 조건을 논의하거나 확정한 사항은 없었고, 추가 요청 또는 변경 요청도 접수되지 않았다. 방문과 관련한 운영 안내를 전달하고 향후 필요한 경우 기존 절차에 따라 일정을 조율하기로 했다. 현재 진행 중인 딜은 없으며, 이번 방문에서도 딜별로 별도 확인된 내용은 없었다. 전반적으로 예정된 안내와 인사를 마치고, 현재 공유된 내용 기준으로 미팅을 종료했다.",
+        "unassigned_report": null
+      },
+      "deal_reports": []
+    },
+    {
+      "id": "report-sejong-04",
+      "submission_id": "submission-sejong-04",
+      "source_activity_id": "activity-sejong-04",
+      "report_date": "2026-03-05",
+      "submitted_at": "2026-03-05T18:00:00+09:00",
+      "title": "제품 뉴스레터 전달",
+      "meeting_shared": {
+        "common_report": "세종의료재단을 방문하여 윤재호 총무팀 차장님께 제품 뉴스레터를 전달하고 최근 안내 내용을 공유했습니다. 이번 방문은 정기적인 관계 관리와 제품 관련 정보 전달을 목적으로 진행되었으며, 기존에 공유된 진행 상황을 간단히 확인하는 자리였습니다. 현재 진행 중인 딜은 없으며, 딜별로 별도 확인이 필요한 사항도 없었습니다. 뉴스레터에 포함된 제품 소식과 안내 내용을 전달한 뒤 관련 내용을 함께 살펴보았고, 고객 측의 추가 요청이나 별도 검토 의견은 확인되지 않았습니다. 미팅 중 새로운 결정 사항, 조건 변경, 일정 조정 또는 추가 업무 요청은 없었으며, 기존 커뮤니케이션 방향을 유지하기로 했습니다. 향후에도 정기적인 정보 전달과 인사 차원의 방문을 통해 관계를 이어가며, 필요 시 관련 내용을 공유할 예정입니다.",
+        "unassigned_report": null
+      },
+      "deal_reports": []
+    },
+    {
+      "id": "report-sejong-03",
+      "submission_id": "submission-sejong-03",
+      "source_activity_id": "activity-sejong-03",
+      "report_date": "2026-02-26",
+      "submitted_at": "2026-02-26T18:00:00+09:00",
+      "title": "예산 편성 주기 문의",
+      "meeting_shared": {
+        "common_report": "세종의료재단의 도입 검토와 관련해 예산 편성 시기를 확인하고 향후 검토 일정을 파악하기 위해 미팅을 진행했습니다. 미팅에는 윤재호 총무팀 차장이 참석했습니다.\n\n도입을 검토하려면 예산 편성 시기를 알아야 하나, 윤재호 차장도 정확한 일정은 모르는 상태였습니다. 현재 확인된 예산 편성 일정이나 도입 예산 반영 여부는 미확인입니다.\n\n고객은 도입 검토를 위해 예산 편성 시기를 확인할 필요가 있습니다. 재무팀 확인 전에는 예산 편성 주기와 관련한 구체적인 판단이 어렵습니다.\n\n윤재호 차장이 재무팀에 예산 편성 시기를 확인한 후 알려 주기로 했습니다. 예산 편성 일정 확인 외에 도입 여부, 예산 금액, 계약 조건은 합의되지 않았습니다.\n\n후속 조치는 윤재호 차장이 재무팀에 예산 편성 시기를 확인하고 회신하는 것입니다. 회신 담당자는 윤재호 차장으로 확인되었으나, 확인 및 회신 기한은 미확인입니다. 재무팀 확인 결과를 받은 뒤 도입 검토 일정과 다음 논의 사항을 정리할 예정입니다.",
+        "unassigned_report": null
+      },
+      "deal_reports": []
+    },
+    {
+      "id": "report-sejong-02",
+      "submission_id": "submission-sejong-02",
+      "source_activity_id": "activity-sejong-02",
+      "report_date": "2026-02-19",
+      "submitted_at": "2026-02-19T18:00:00+09:00",
+      "title": "담당자 휴가 일정 공유",
+      "meeting_shared": {
+        "common_report": "세종의료재단 총무팀 윤재호 차장과 담당자 휴가 일정에 대해 공유하고, 현재 업무 진행 상황을 중심으로 확인했습니다. 이번 방문은 기존 협의 내용과 운영 현황을 간단히 점검하는 일상적인 미팅으로 진행되었으며, 휴가 일정에 따라 향후 연락과 업무 조율에 참고할 수 있도록 관련 내용을 상호 공유했습니다. 미팅 중 별도의 신규 요청이나 추가 협의 사항은 제시되지 않았고, 기존 진행 상황을 변경하거나 새롭게 결정한 내용도 없었습니다. 담당자 부재 기간에는 필요한 사안이 발생할 경우 내부 일정에 맞춰 연락하고, 복귀 이후 기존 업무 흐름에 따라 후속 소통을 이어가기로 했습니다. 현재 진행 중인 딜은 없으며, 이번 미팅에서도 딜별로 확인된 내용은 없습니다. 전반적으로 인사와 일정 공유를 중심으로 원활하게 소통했으며, 향후에도 기존 업무 진행 상황에 맞춰 관계를 유지할 예정입니다.",
+        "unassigned_report": null
+      },
+      "deal_reports": []
+    },
+    {
+      "id": "report-sejong-01",
+      "submission_id": "submission-sejong-01",
+      "source_activity_id": "activity-sejong-01",
+      "report_date": "2026-02-12",
+      "submitted_at": "2026-02-12T18:00:00+09:00",
+      "title": "세종의료재단 첫 방문",
+      "meeting_shared": {
+        "common_report": "세종의료재단 첫 방문으로 총무팀 윤재호 차장과 인사를 나누고 재단 산하 병원들의 시스템 운영 현황과 통합 관리 필요성에 대해 의견을 확인했습니다. 미팅에서는 산하 병원 세 곳의 시스템이 제각각이라 통합 관리 필요성을 느낀다는 고객의 인식이 공유되었습니다. 현재 세 곳이 각각 어떤 시스템을 사용하고 있는지 정리된 자료는 없다고 확인되었습니다. 구체적인 도입 범위, 일정, 예산 및 의사결정 절차는 미확인입니다.",
+        "unassigned_report": null
+      },
+      "deal_reports": []
+    }
+  ],
+  "report_search": {
+    "method": "keyword",
+    "status": "completed"
+  },
+  "report_search_query": "세종의료재단 미해결 이슈",
+  "document_context": {
+    "query": "세종의료재단 계약 견적 납기",
+    "summaries": [],
+    "sources": []
+  }
+}

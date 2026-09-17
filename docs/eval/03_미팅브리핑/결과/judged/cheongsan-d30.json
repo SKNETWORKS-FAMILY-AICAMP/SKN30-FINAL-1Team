@@ -1,0 +1,146 @@
+{
+  "case": "cheongsan-d30",
+  "t": 29,
+  "prompt_version": "contract_management.generate_briefing.v13",
+  "gates": {
+    "highlight_count_ok": true,
+    "actions_within_prompt_limit": true,
+    "recent_read_called": true,
+    "invalid_source_refs": [],
+    "dropped_highlight_count": 0,
+    "report_refs_missing_excerpt": [],
+    "rag_call_count": 0,
+    "rag_min_ok": true,
+    "rag_max_ok": true
+  },
+  "score": {
+    "total": 83.75,
+    "max_score": 100,
+    "percent": 83.8,
+    "by_criterion": {
+      "highlight_selection": {
+        "ratio": 0.8,
+        "weighted": 20.0,
+        "weight": 25,
+        "derived_from": {
+          "coverage": 1.0,
+          "stale_shown": 1,
+          "off_topic": 0,
+          "penalty": 0.2
+        }
+      },
+      "state_tracking": {
+        "ratio": 0.75,
+        "weighted": 11.25,
+        "weight": 15,
+        "derived_from": {
+          "checks": 4,
+          "passed": 3
+        }
+      },
+      "factual_accuracy": {
+        "rating": 3,
+        "weighted": 15.0,
+        "weight": 20,
+        "reason": "갱신 문의와 조건표 미전달 상태는 근거와 일치한다. 다만 해결된 전자결재 확장 건을 확인 대상으로 언급해 불필요한 혼선을 만들었다."
+      },
+      "suggested_actions": {
+        "rating": 4,
+        "weighted": 20.0,
+        "weight": 20,
+        "reason": "조건표 준비, 내부 조건 확정, 고객의 요구 항목·검토 일정 확인 등 영업 담당자가 실행할 수 있는 구체적이고 중복이 적은 행동을 제시했다."
+      },
+      "scannability": {
+        "rating": 4,
+        "weighted": 10.0,
+        "weight": 10,
+        "reason": "제목만으로 갱신 조건표 미전달과 고객 문의라는 핵심 쟁점이 드러나며, 각 본문이 현재 상태부터 시작한다. 시간순 나열도 없다."
+      },
+      "missing_information": {
+        "rating": 3,
+        "weighted": 7.5,
+        "weight": 10,
+        "reason": "조건, 범위, 비용, 기간, 절차, 고객의 검토·결재 일정 등 미팅에서 확인할 사항을 충분히 지목했다. 다만 해결된 전자결재 확장 건을 미확인 사항으로 포함한 것은 부적절하다."
+      }
+    }
+  },
+  "judgement": {
+    "required_topics": [
+      {
+        "topic_id": "renewal-question",
+        "verdict": "covered",
+        "highlight_index": 1,
+        "reason": "근태관리 계약의 갱신 시점과 조건을 고객이 문의했으나 아직 조건표가 전달되지 않은 미해결 상태를 정확히 다뤘다."
+      }
+    ],
+    "must_not_appear": [
+      {
+        "topic_id": "attendance-rule-unknown",
+        "appeared": false,
+        "stale_value_used": false,
+        "reason": "근태 규정 확인 필요 사안을 언급하지 않았다."
+      },
+      {
+        "topic_id": "install-schedule-unknown",
+        "appeared": false,
+        "stale_value_used": false,
+        "reason": "설치 일정 미확정 사안을 언급하지 않았다."
+      },
+      {
+        "topic_id": "attendance-stabilize",
+        "appeared": false,
+        "stale_value_used": false,
+        "reason": "근태관리 안정화 이슈를 언급하지 않았다."
+      },
+      {
+        "topic_id": "eapproval-cancel-reason",
+        "appeared": true,
+        "stale_value_used": false,
+        "reason": "missing_information에서 '전자결재 확장 건을 논의할 필요가 있는지'를 언급해 해결된 전자결재 확장 사안을 다시 의제로 올렸다. 다만 취소되었다는 사실을 왜곡하거나 진행 중이라고 표현하지는 않았다."
+      }
+    ],
+    "changed_values": [],
+    "off_topic_highlight_count": 0,
+    "forbidden_claims": [
+      {
+        "item": "전자결재 확장을 진행 중이다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "근태관리에 미해결 장애가 있다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "신규 계약이 논의 중이다",
+        "violated": false,
+        "evidence": null
+      }
+    ],
+    "criteria": [
+      {
+        "criterion": "factual_accuracy",
+        "rating": 3,
+        "reason": "갱신 문의와 조건표 미전달 상태는 근거와 일치한다. 다만 해결된 전자결재 확장 건을 확인 대상으로 언급해 불필요한 혼선을 만들었다."
+      },
+      {
+        "criterion": "suggested_actions",
+        "rating": 4,
+        "reason": "조건표 준비, 내부 조건 확정, 고객의 요구 항목·검토 일정 확인 등 영업 담당자가 실행할 수 있는 구체적이고 중복이 적은 행동을 제시했다."
+      },
+      {
+        "criterion": "scannability",
+        "rating": 4,
+        "reason": "제목만으로 갱신 조건표 미전달과 고객 문의라는 핵심 쟁점이 드러나며, 각 본문이 현재 상태부터 시작한다. 시간순 나열도 없다."
+      },
+      {
+        "criterion": "missing_information",
+        "rating": 3,
+        "reason": "조건, 범위, 비용, 기간, 절차, 고객의 검토·결재 일정 등 미팅에서 확인할 사항을 충분히 지목했다. 다만 해결된 전자결재 확장 건을 미확인 사항으로 포함한 것은 부적절하다."
+      }
+    ],
+    "critical_errors": [],
+    "summary": "핵심 갱신 문의와 미전달 상태를 정확히 포착했고 실행 가능한 후속 조치도 제시했다. 그러나 해결된 전자결재 확장 건을 미팅 논의 필요 여부로 다시 언급해 불필요한 사안을 재등장시켰다."
+  }
+}

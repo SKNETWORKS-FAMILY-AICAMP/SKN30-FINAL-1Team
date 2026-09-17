@@ -1,0 +1,51 @@
+{
+  "timeline_id": "hanul",
+  "t": 9,
+  "briefing_mode": "relationship",
+  "required_topics": [
+    {
+      "topic_id": "paper-volume-unknown",
+      "label": "종이 결재 물량 미집계",
+      "intent": "월 결재 건수가 집계되지 않아 도입 효과와 규모를 산정할 수 없다",
+      "deal_id": "deal-z",
+      "importance": "high",
+      "evidence": [
+        "report-hanul-02"
+      ],
+      "last_mentioned_at": 2,
+      "in_recent_window": false,
+      "requires_rag": true,
+      "expectation": "must_appear"
+    },
+    {
+      "topic_id": "gmp-validation-open",
+      "label": "GMP 밸리데이션 요건 미확인",
+      "intent": "제약 GMP 밸리데이션 요건을 충족해야 하는데 요구 수준이 확인되지 않았다",
+      "deal_id": "deal-z",
+      "importance": "critical",
+      "evidence": [
+        "report-hanul-05"
+      ],
+      "last_mentioned_at": 5,
+      "in_recent_window": false,
+      "requires_rag": true,
+      "expectation": "must_appear"
+    }
+  ],
+  "allowed_topics": [],
+  "must_not_appear": [],
+  "changed_values": [],
+  "stalled_deals": [],
+  "expected_rag_calls_min": 1,
+  "expected_rag_calls_max": null,
+  "forbidden_claims": [
+    "GMP 요건을 충족한다고 확인됐다",
+    "시범 부서가 정해졌다",
+    "도입이 확정됐다"
+  ],
+  "forbidden_missing_information": [],
+  "scoring": {
+    "state_tracking_applies": false,
+    "max_score": 85
+  }
+}

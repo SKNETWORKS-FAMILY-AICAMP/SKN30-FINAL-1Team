@@ -1,0 +1,26 @@
+{
+  "timeline_id": "daeyang",
+  "t": 0,
+  "briefing_mode": "first_meeting",
+  "required_topics": [],
+  "allowed_topics": [],
+  "must_not_appear": [],
+  "changed_values": [],
+  "stalled_deals": [],
+  "expected_rag_calls_min": 0,
+  "expected_rag_calls_max": 0,
+  "forbidden_claims": [
+    "고객이 80석에 합의했다",
+    "유지보수 요율을 8%로 조정하기로 했다",
+    "구형 설비 연동이 검증됐다",
+    "계약이 체결됐다"
+  ],
+  "forbidden_missing_information": [
+    "과거 보고서 없음",
+    "연결된 딜 없음"
+  ],
+  "scoring": {
+    "state_tracking_applies": false,
+    "max_score": 85
+  }
+}

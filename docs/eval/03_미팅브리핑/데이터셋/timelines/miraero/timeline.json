@@ -1,0 +1,170 @@
+{
+  "timeline_id": "miraero",
+  "note": "체인 D. 수량·납기·담당자가 여러 번 바뀐다. 옛 값을 현재처럼 쓰면 안 된다.",
+  "first_meeting_date": "2026-02-05",
+  "meeting_interval_days": 7,
+  "meeting_count": 30,
+  "customer_company": {
+    "id": "company-miraero",
+    "name": "미래로병원"
+  },
+  "contacts": [
+    {
+      "id": "contact-park",
+      "name": "박승우",
+      "department": "전산팀",
+      "job_title": "대리",
+      "authority": "실무 검토 담당",
+      "active_until": 16,
+      "note": "17회차 전에 퇴사"
+    },
+    {
+      "id": "contact-seo",
+      "name": "서다인",
+      "department": "전산팀",
+      "job_title": "과장",
+      "authority": "실무 검토 담당",
+      "active_from": 17
+    }
+  ],
+  "deals": [
+    {
+      "deal_id": "deal-y",
+      "title": "검사실 자동화",
+      "opened_at": 1,
+      "stage_path": [
+        {
+          "at": 1,
+          "stage_code": "needs_validation"
+        },
+        {
+          "at": 6,
+          "stage_code": "product_demo"
+        },
+        {
+          "at": 13,
+          "stage_code": "quote_sent"
+        },
+        {
+          "at": 25,
+          "stage_code": "contract_sent"
+        }
+      ]
+    }
+  ],
+  "documents": [],
+  "topics": [
+    {
+      "topic_id": "test-scope-unknown",
+      "label": "자동화 대상 검사 항목 미확정",
+      "intent": "어떤 검사 항목까지 자동화할지 정해지지 않아 장비 구성을 확정할 수 없다",
+      "deal_id": "deal-y",
+      "opened_at": 1,
+      "resolved_at": 12,
+      "importance": "high",
+      "evidence_open": [
+        "report-miraero-01"
+      ],
+      "evidence_resolved": [
+        "report-miraero-12"
+      ]
+    },
+    {
+      "topic_id": "device-count",
+      "label": "도입 장비 수량",
+      "intent": "도입 장비 수량은 {value} 이다",
+      "deal_id": "deal-y",
+      "opened_at": 4,
+      "resolved_at": null,
+      "importance": "high",
+      "evidence_open": [
+        "report-miraero-04"
+      ],
+      "values": [
+        {
+          "at": 4,
+          "value": "20대",
+          "evidence": "report-miraero-04"
+        },
+        {
+          "at": 15,
+          "value": "15대",
+          "evidence": "report-miraero-15"
+        },
+        {
+          "at": 22,
+          "value": "12대",
+          "evidence": "report-miraero-22"
+        }
+      ]
+    },
+    {
+      "topic_id": "golive-date",
+      "label": "오픈 예정일",
+      "intent": "오픈 예정일은 {value} 이다",
+      "deal_id": "deal-y",
+      "opened_at": 10,
+      "resolved_at": null,
+      "importance": "high",
+      "evidence_open": [
+        "report-miraero-10"
+      ],
+      "values": [
+        {
+          "at": 10,
+          "value": "2026-09-14",
+          "evidence": "report-miraero-10"
+        },
+        {
+          "at": 20,
+          "value": "2026-11-02",
+          "evidence": "report-miraero-20"
+        }
+      ]
+    },
+    {
+      "topic_id": "owner-change",
+      "label": "고객 담당자 교체",
+      "intent": "전산팀 담당이 서다인 과장으로 교체됐다. 이전 담당자는 퇴사했다",
+      "deal_id": "deal-y",
+      "opened_at": 17,
+      "resolved_at": null,
+      "changed": {
+        "at": 17,
+        "from": "박승우 대리",
+        "to": "서다인 과장"
+      },
+      "importance": "critical",
+      "evidence_open": [
+        "report-miraero-17"
+      ]
+    },
+    {
+      "topic_id": "training-plan-open",
+      "label": "교육 계획 미수립",
+      "intent": "검사실 인력 교육 일정과 방식이 정해지지 않았다",
+      "deal_id": "deal-y",
+      "opened_at": 27,
+      "resolved_at": null,
+      "importance": "high",
+      "evidence_open": [
+        "report-miraero-27"
+      ]
+    }
+  ],
+  "noise_topics": [
+    "정기 방문",
+    "담당자 휴가 일정 공유",
+    "원내 행사로 일정 조정",
+    "제품 뉴스레터 전달",
+    "방문 절차 안내",
+    "분기 점검 일정 공유"
+  ],
+  "forbidden_claims": [
+    "장비 20대를 도입한다",
+    "장비 15대를 도입한다",
+    "9월에 오픈한다",
+    "박승우 대리가 담당이다",
+    "교육 일정이 확정됐다"
+  ]
+}

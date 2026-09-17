@@ -1,0 +1,112 @@
+{
+  "case": "hanul-d05",
+  "t": 4,
+  "prompt_version": "contract_management.generate_briefing.v13",
+  "gates": {
+    "highlight_count_ok": true,
+    "actions_within_prompt_limit": true,
+    "recent_read_called": true,
+    "invalid_source_refs": [],
+    "dropped_highlight_count": 0,
+    "report_refs_missing_excerpt": [],
+    "rag_call_count": 0,
+    "rag_min_ok": true,
+    "rag_max_ok": true
+  },
+  "score": {
+    "total": 85.0,
+    "max_score": 85,
+    "percent": 100.0,
+    "by_criterion": {
+      "highlight_selection": {
+        "ratio": 1.0,
+        "weighted": 25.0,
+        "weight": 25,
+        "derived_from": {
+          "coverage": 1.0,
+          "stale_shown": 0,
+          "off_topic": 0,
+          "penalty": 0.0
+        }
+      },
+      "factual_accuracy": {
+        "rating": 4,
+        "weighted": 20.0,
+        "weight": 20,
+        "reason": "종이 결재 전자화가 초기 검토 단계이고 월 결재 건수·일정·담당자 등이 미확인이라는 내용이 근거와 부합한다. 금지된 확정 표현도 없다."
+      },
+      "suggested_actions": {
+        "rating": 4,
+        "weighted": 20.0,
+        "weight": 20,
+        "reason": "문서 범위, 월 결재량, 의사결정 절차, 담당자·기한, 보안·연계 조건 등 영업 담당자가 미팅에서 확인할 구체적 행동을 제시했다."
+      },
+      "scannability": {
+        "rating": 4,
+        "weighted": 10.0,
+        "weight": 10,
+        "reason": "제목만으로 전자화 검토 상태와 월 결재량·일정 부족이라는 쟁점을 파악할 수 있으며, 현재 상태를 먼저 제시하고 시간순 나열을 피했다."
+      },
+      "missing_information": {
+        "rating": 4,
+        "weighted": 10.0,
+        "weight": 10,
+        "reason": "대상 문서, 결재 단계, 사용자 규모, 처리량, 일정, 의사결정 절차, 담당자·기한, 후속 기준 등 미팅에서 확인할 정보를 폭넓게 지목했다."
+      }
+    }
+  },
+  "judgement": {
+    "required_topics": [
+      {
+        "topic_id": "paper-volume-unknown",
+        "verdict": "covered",
+        "highlight_index": 2,
+        "reason": "월 결재 건수가 확인되지 않아 전자화 범위·효과·견적 검토가 어렵다는 핵심 사안을 명확히 다뤘고, 수량 또는 추정치를 확인하자는 후속 행동도 제시했다."
+      }
+    ],
+    "must_not_appear": [],
+    "changed_values": [],
+    "off_topic_highlight_count": 0,
+    "forbidden_claims": [
+      {
+        "item": "GMP 요건을 충족한다고 확인됐다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "시범 부서가 정해졌다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "도입이 확정됐다",
+        "violated": false,
+        "evidence": null
+      }
+    ],
+    "criteria": [
+      {
+        "criterion": "factual_accuracy",
+        "rating": 4,
+        "reason": "종이 결재 전자화가 초기 검토 단계이고 월 결재 건수·일정·담당자 등이 미확인이라는 내용이 근거와 부합한다. 금지된 확정 표현도 없다."
+      },
+      {
+        "criterion": "suggested_actions",
+        "rating": 4,
+        "reason": "문서 범위, 월 결재량, 의사결정 절차, 담당자·기한, 보안·연계 조건 등 영업 담당자가 미팅에서 확인할 구체적 행동을 제시했다."
+      },
+      {
+        "criterion": "scannability",
+        "rating": 4,
+        "reason": "제목만으로 전자화 검토 상태와 월 결재량·일정 부족이라는 쟁점을 파악할 수 있으며, 현재 상태를 먼저 제시하고 시간순 나열을 피했다."
+      },
+      {
+        "criterion": "missing_information",
+        "rating": 4,
+        "reason": "대상 문서, 결재 단계, 사용자 규모, 처리량, 일정, 의사결정 절차, 담당자·기한, 후속 기준 등 미팅에서 확인할 정보를 폭넓게 지목했다."
+      }
+    ],
+    "critical_errors": [],
+    "summary": "핵심 미확인 사안인 월 결재 물량을 정확히 부각하고, 도입 범위와 다음 확인 절차를 구체적으로 제시한 브리핑이다."
+  }
+}

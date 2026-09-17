@@ -1,0 +1,174 @@
+{
+  "timeline_id": "daeyang",
+  "note": "체인 C. 견적서·계약서 자료가 여러 건 쌓이고 보고서와 금액이 어긋난다.",
+  "first_meeting_date": "2026-01-15",
+  "meeting_interval_days": 7,
+  "meeting_count": 30,
+  "customer_company": {
+    "id": "company-daeyang",
+    "name": "대양산업"
+  },
+  "contacts": [
+    {
+      "id": "contact-han",
+      "name": "한지우",
+      "department": "구매본부",
+      "job_title": "부장",
+      "authority": "구매 결정 권한 보유"
+    }
+  ],
+  "deals": [
+    {
+      "deal_id": "deal-x",
+      "title": "생산관리 시스템 교체",
+      "opened_at": 2,
+      "stage_path": [
+        {
+          "at": 2,
+          "stage_code": "needs_validation"
+        },
+        {
+          "at": 7,
+          "stage_code": "product_demo"
+        },
+        {
+          "at": 12,
+          "stage_code": "quote_sent"
+        },
+        {
+          "at": 21,
+          "stage_code": "contract_sent"
+        },
+        {
+          "at": 24,
+          "stage_code": "contract_review"
+        }
+      ],
+      "stalled_since": 24,
+      "stall_note": "계약서 검토 중 단가 재확인 요청으로 멈춰 있다"
+    }
+  ],
+  "documents": [
+    {
+      "document_id": "doc-dy-quote",
+      "file_name": "생산관리_견적서.pdf",
+      "deal_id": "deal-x",
+      "available_from": 12,
+      "approval_status": "completed",
+      "usable": true,
+      "summary_markdown": "생산관리 시스템 교체 견적서. 라이선스 80석 기준 1억 8,400만 원(부가세 별도), 유지보수 연 10%.",
+      "chunks": [
+        {
+          "chunk_id": "doc-dy-quote#p1",
+          "page_start": 1,
+          "page_end": 1,
+          "content": "라이선스 80석 / 합계 184,000,000원 (부가세 별도) / 연간 유지보수 요율 10%"
+        }
+      ]
+    },
+    {
+      "document_id": "doc-dy-spec",
+      "file_name": "생산관리_제품설명서.pdf",
+      "deal_id": "deal-x",
+      "available_from": 7,
+      "approval_status": "completed",
+      "usable": true,
+      "summary_markdown": "생산관리 시스템 제품설명서. 표준 연동 규격과 동시 접속 상한 100석 명시.",
+      "chunks": [
+        {
+          "chunk_id": "doc-dy-spec#p4",
+          "page_start": 4,
+          "page_end": 4,
+          "content": "동시 접속 상한 100석. 표준 연동은 REST 및 파일 배치 두 가지를 지원한다."
+        }
+      ]
+    }
+  ],
+  "topics": [
+    {
+      "topic_id": "eol-date-unknown",
+      "label": "노후 설비 유지보수 종료 시점 미확인",
+      "intent": "현 시스템의 유지보수 종료일이 확인되지 않아 교체 시점을 정할 수 없다",
+      "deal_id": "deal-x",
+      "opened_at": 2,
+      "resolved_at": 11,
+      "importance": "high",
+      "evidence_open": [
+        "report-daeyang-02"
+      ],
+      "evidence_resolved": [
+        "report-daeyang-11"
+      ]
+    },
+    {
+      "topic_id": "seat-count-conflict",
+      "label": "라이선스 좌석 수 불일치",
+      "intent": "보고서에는 60석으로 협의됐다고 적혀 있는데 발송된 견적서는 80석 기준이다",
+      "deal_id": "deal-x",
+      "opened_at": 13,
+      "resolved_at": null,
+      "importance": "critical",
+      "conflict_between": [
+        "report-daeyang-09",
+        "doc-dy-quote"
+      ],
+      "evidence_open": [
+        "report-daeyang-13",
+        "doc-dy-quote"
+      ]
+    },
+    {
+      "topic_id": "maintenance-rate-open",
+      "label": "유지보수 요율 재협상 요청",
+      "intent": "연 10% 요율을 8%로 낮춰 달라는 요청에 아직 답하지 않았다",
+      "deal_id": "deal-x",
+      "opened_at": 26,
+      "resolved_at": null,
+      "importance": "high",
+      "evidence_open": [
+        "report-daeyang-26"
+      ]
+    },
+    {
+      "topic_id": "legacy-migration-risk",
+      "label": "구형 설비 연동 미검증",
+      "intent": "2012년 도입 설비와의 연동이 검증되지 않아 범위에서 제외될 수 있다",
+      "deal_id": "deal-x",
+      "opened_at": 16,
+      "resolved_at": null,
+      "importance": "high",
+      "evidence_open": [
+        "report-daeyang-16"
+      ]
+    },
+    {
+      "topic_id": "demo-env-request",
+      "label": "시연 환경 요청",
+      "intent": "현업 대상 사전 체험 환경을 요청받았다",
+      "deal_id": "deal-x",
+      "opened_at": 8,
+      "resolved_at": 14,
+      "importance": "medium",
+      "evidence_open": [
+        "report-daeyang-08"
+      ],
+      "evidence_resolved": [
+        "report-daeyang-14"
+      ]
+    }
+  ],
+  "noise_topics": [
+    "정기 방문",
+    "담당자 휴가 일정 공유",
+    "원내 행사로 일정 조정",
+    "제품 뉴스레터 전달",
+    "방문 절차 안내",
+    "분기 점검 일정 공유"
+  ],
+  "forbidden_claims": [
+    "고객이 80석에 합의했다",
+    "유지보수 요율을 8%로 조정하기로 했다",
+    "구형 설비 연동이 검증됐다",
+    "계약이 체결됐다"
+  ]
+}

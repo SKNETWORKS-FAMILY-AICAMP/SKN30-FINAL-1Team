@@ -1,0 +1,122 @@
+{
+  "case": "miraero-d03",
+  "t": 2,
+  "prompt_version": "contract_management.generate_briefing.v13",
+  "gates": {
+    "highlight_count_ok": true,
+    "actions_within_prompt_limit": true,
+    "recent_read_called": true,
+    "invalid_source_refs": [],
+    "dropped_highlight_count": 0,
+    "report_refs_missing_excerpt": [],
+    "rag_call_count": 0,
+    "rag_min_ok": true,
+    "rag_max_ok": true
+  },
+  "score": {
+    "total": 75.0,
+    "max_score": 85,
+    "percent": 88.2,
+    "by_criterion": {
+      "highlight_selection": {
+        "ratio": 1.0,
+        "weighted": 25.0,
+        "weight": 25,
+        "derived_from": {
+          "coverage": 1.0,
+          "stale_shown": 0,
+          "off_topic": 0,
+          "penalty": 0.0
+        }
+      },
+      "factual_accuracy": {
+        "rating": 2,
+        "weighted": 10.0,
+        "weight": 20,
+        "reason": "핵심 범위 미확정 내용은 근거와 일치하지만, 골든에 없는 박승우 대리의 담당자성을 사실처럼 제시했다. 또한 일부 세부 내용은 제공된 근거 발췌만으로는 확인되지 않는다."
+      },
+      "suggested_actions": {
+        "rating": 4,
+        "weighted": 20.0,
+        "weight": 20,
+        "reason": "자동화 항목·우선순위, 수기 업무의 불편 구간, 연계 시스템, 사용자·예산·성과 기준 등을 확인하도록 구체적이고 영업 담당자가 실행할 수 있게 제시했다."
+      },
+      "scannability": {
+        "rating": 4,
+        "weighted": 10.0,
+        "weight": 10,
+        "reason": "각 하이라이트 제목만으로 핵심 쟁점을 파악할 수 있고, 본문 첫 문장도 현재 미확정 상태를 먼저 제시한다. 시간순 단순 나열이 아니다."
+      },
+      "missing_information": {
+        "rating": 4,
+        "weighted": 10.0,
+        "weight": 10,
+        "reason": "자동화 범위, 연계 시스템, 사용자·규모·예산, 의사결정 방식, 일정, 성과 기준, 최근 변경 사항 등 미팅에서 확인할 정보를 구체적으로 지목했다."
+      }
+    }
+  },
+  "judgement": {
+    "required_topics": [
+      {
+        "topic_id": "test-scope-unknown",
+        "verdict": "covered",
+        "highlight_index": 1,
+        "reason": "자동화 대상 검사 항목, 우선순위, 전체·일부 적용 여부가 미확정되어 장비 구성과 다음 제안 단계가 막혀 있다는 핵심 사안을 정확히 다뤘다."
+      }
+    ],
+    "must_not_appear": [],
+    "changed_values": [],
+    "off_topic_highlight_count": 0,
+    "forbidden_claims": [
+      {
+        "item": "장비 20대를 도입한다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "장비 15대를 도입한다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "9월에 오픈한다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "박승우 대리가 담당이다",
+        "violated": true,
+        "evidence": "“전산팀 박승우 대리와 기술 범위와 검토 조건을 구체화해야 제안 방향을 정할 수 있습니다.”"
+      },
+      {
+        "item": "교육 일정이 확정됐다",
+        "violated": false,
+        "evidence": null
+      }
+    ],
+    "criteria": [
+      {
+        "criterion": "factual_accuracy",
+        "rating": 2,
+        "reason": "핵심 범위 미확정 내용은 근거와 일치하지만, 골든에 없는 박승우 대리의 담당자성을 사실처럼 제시했다. 또한 일부 세부 내용은 제공된 근거 발췌만으로는 확인되지 않는다."
+      },
+      {
+        "criterion": "suggested_actions",
+        "rating": 4,
+        "reason": "자동화 항목·우선순위, 수기 업무의 불편 구간, 연계 시스템, 사용자·예산·성과 기준 등을 확인하도록 구체적이고 영업 담당자가 실행할 수 있게 제시했다."
+      },
+      {
+        "criterion": "scannability",
+        "rating": 4,
+        "reason": "각 하이라이트 제목만으로 핵심 쟁점을 파악할 수 있고, 본문 첫 문장도 현재 미확정 상태를 먼저 제시한다. 시간순 단순 나열이 아니다."
+      },
+      {
+        "criterion": "missing_information",
+        "rating": 4,
+        "reason": "자동화 범위, 연계 시스템, 사용자·규모·예산, 의사결정 방식, 일정, 성과 기준, 최근 변경 사항 등 미팅에서 확인할 정보를 구체적으로 지목했다."
+      }
+    ],
+    "critical_errors": [],
+    "summary": "핵심 사안인 자동화 대상 검사 항목 미확정을 정확히 포착했고, 확인 질문도 구체적이다. 다만 골든에 근거가 없는 박승우 대리의 담당자성을 사실처럼 표현한 점 때문에 사실 정확도가 낮아졌다."
+  }
+}

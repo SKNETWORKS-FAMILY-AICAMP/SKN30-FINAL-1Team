@@ -1,0 +1,39 @@
+{
+  "timeline_id": "miraero",
+  "t": 2,
+  "briefing_mode": "relationship",
+  "required_topics": [
+    {
+      "topic_id": "test-scope-unknown",
+      "label": "자동화 대상 검사 항목 미확정",
+      "intent": "어떤 검사 항목까지 자동화할지 정해지지 않아 장비 구성을 확정할 수 없다",
+      "deal_id": "deal-y",
+      "importance": "high",
+      "evidence": [
+        "report-miraero-01"
+      ],
+      "last_mentioned_at": 1,
+      "in_recent_window": true,
+      "requires_rag": false,
+      "expectation": "must_appear"
+    }
+  ],
+  "allowed_topics": [],
+  "must_not_appear": [],
+  "changed_values": [],
+  "stalled_deals": [],
+  "expected_rag_calls_min": 0,
+  "expected_rag_calls_max": 0,
+  "forbidden_claims": [
+    "장비 20대를 도입한다",
+    "장비 15대를 도입한다",
+    "9월에 오픈한다",
+    "박승우 대리가 담당이다",
+    "교육 일정이 확정됐다"
+  ],
+  "forbidden_missing_information": [],
+  "scoring": {
+    "state_tracking_applies": false,
+    "max_score": 85
+  }
+}

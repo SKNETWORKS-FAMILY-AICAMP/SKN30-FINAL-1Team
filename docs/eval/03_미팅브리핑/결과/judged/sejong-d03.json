@@ -1,0 +1,112 @@
+{
+  "case": "sejong-d03",
+  "t": 2,
+  "prompt_version": "contract_management.generate_briefing.v13",
+  "gates": {
+    "highlight_count_ok": true,
+    "actions_within_prompt_limit": true,
+    "recent_read_called": true,
+    "invalid_source_refs": [],
+    "dropped_highlight_count": 0,
+    "report_refs_missing_excerpt": [],
+    "rag_call_count": 0,
+    "rag_min_ok": true,
+    "rag_max_ok": true
+  },
+  "score": {
+    "total": 85.0,
+    "max_score": 85,
+    "percent": 100.0,
+    "by_criterion": {
+      "highlight_selection": {
+        "ratio": 1.0,
+        "weighted": 25.0,
+        "weight": 25,
+        "derived_from": {
+          "coverage": 1.0,
+          "stale_shown": 0,
+          "off_topic": 0,
+          "penalty": 0.0
+        }
+      },
+      "factual_accuracy": {
+        "rating": 4,
+        "weighted": 20.0,
+        "weight": 20,
+        "reason": "시스템 현황 미파악, 통합 필요성, 2026년 2월 19일 미팅 내용과 신규 요청 부재를 근거에 맞게 표현했다."
+      },
+      "suggested_actions": {
+        "rating": 4,
+        "weighted": 20.0,
+        "weight": 20,
+        "reason": "병원별 시스템과 기능, 통합 우선순위, 진행 건과 담당자 등을 미팅에서 확인하도록 구체적으로 제안했다."
+      },
+      "scannability": {
+        "rating": 4,
+        "weighted": 10.0,
+        "weight": 10,
+        "reason": "제목만으로 대상과 쟁점을 파악할 수 있고, 각 본문이 시간순 나열보다 현재 상태와 확인 과제를 먼저 제시한다."
+      },
+      "missing_information": {
+        "rating": 4,
+        "weighted": 10.0,
+        "weight": 10,
+        "reason": "병원별 시스템, 통합 범위·우선순위, 진행 건의 담당자·기한, 도입 관련 의사결정 정보를 확인해야 할 사항으로 명확히 지목했다."
+      }
+    }
+  },
+  "judgement": {
+    "required_topics": [
+      {
+        "topic_id": "branch-inventory-unknown",
+        "verdict": "covered",
+        "highlight_index": 1,
+        "reason": "산하 3개 병원의 시스템 현황 자료가 없어 통합 범위를 정하기 어렵다는 핵심 사안을 현재 상태와 함께 정확히 다뤘다."
+      }
+    ],
+    "must_not_appear": [],
+    "changed_values": [],
+    "off_topic_highlight_count": 0,
+    "forbidden_claims": [
+      {
+        "item": "영업 건이 등록되어 있다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "고객이 도입을 확정했다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "예산이 배정됐다",
+        "violated": false,
+        "evidence": null
+      }
+    ],
+    "criteria": [
+      {
+        "criterion": "factual_accuracy",
+        "rating": 4,
+        "reason": "시스템 현황 미파악, 통합 필요성, 2026년 2월 19일 미팅 내용과 신규 요청 부재를 근거에 맞게 표현했다."
+      },
+      {
+        "criterion": "suggested_actions",
+        "rating": 4,
+        "reason": "병원별 시스템과 기능, 통합 우선순위, 진행 건과 담당자 등을 미팅에서 확인하도록 구체적으로 제안했다."
+      },
+      {
+        "criterion": "scannability",
+        "rating": 4,
+        "reason": "제목만으로 대상과 쟁점을 파악할 수 있고, 각 본문이 시간순 나열보다 현재 상태와 확인 과제를 먼저 제시한다."
+      },
+      {
+        "criterion": "missing_information",
+        "rating": 4,
+        "reason": "병원별 시스템, 통합 범위·우선순위, 진행 건의 담당자·기한, 도입 관련 의사결정 정보를 확인해야 할 사항으로 명확히 지목했다."
+      }
+    ],
+    "critical_errors": [],
+    "summary": "핵심 미확인 사안인 산하 3개 병원의 시스템 현황 부재를 정확히 짚었고, 미팅에서 확인할 질문과 후속 과제가 구체적이다."
+  }
+}

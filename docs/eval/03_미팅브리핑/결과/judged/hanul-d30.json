@@ -1,0 +1,134 @@
+{
+  "case": "hanul-d30",
+  "t": 29,
+  "prompt_version": "contract_management.generate_briefing.v13",
+  "gates": {
+    "highlight_count_ok": true,
+    "actions_within_prompt_limit": true,
+    "recent_read_called": true,
+    "invalid_source_refs": [],
+    "dropped_highlight_count": 0,
+    "report_refs_missing_excerpt": [],
+    "rag_call_count": 1,
+    "rag_min_ok": true,
+    "rag_max_ok": true
+  },
+  "score": {
+    "total": 75.0,
+    "max_score": 100,
+    "percent": 75.0,
+    "by_criterion": {
+      "highlight_selection": {
+        "ratio": 0.6,
+        "weighted": 15.0,
+        "weight": 25,
+        "derived_from": {
+          "coverage": 1.0,
+          "stale_shown": 1,
+          "off_topic": 1,
+          "penalty": 0.4
+        }
+      },
+      "state_tracking": {
+        "ratio": 0.0,
+        "weighted": 0.0,
+        "weight": 15,
+        "derived_from": {
+          "checks": 1,
+          "passed": 0
+        }
+      },
+      "factual_accuracy": {
+        "rating": 4,
+        "weighted": 20.0,
+        "weight": 20,
+        "reason": "제품 데모 단계, 월 결재 약 1,200건, 시범 부서 미정, GMP 요구 수준 미확정 등 근거와 일치하며 금지된 확정 표현도 없다."
+      },
+      "suggested_actions": {
+        "rating": 4,
+        "weighted": 20.0,
+        "weight": 20,
+        "reason": "QA 검토 기준, 밸리데이션 산출물, 시범 범위별 준비사항, 의사결정자와 일정 등 영업 담당자가 미팅에서 실행할 수 있는 확인·합의 과제가 구체적이다."
+      },
+      "scannability": {
+        "rating": 4,
+        "weighted": 10.0,
+        "weight": 10,
+        "reason": "각 하이라이트 제목만으로 대상과 핵심 쟁점을 파악할 수 있고, 본문도 시간순 나열보다 현재 상태와 대응 과제를 중심으로 구성됐다."
+      },
+      "missing_information": {
+        "rating": 4,
+        "weighted": 10.0,
+        "weight": 10,
+        "reason": "내부 검토 상태, 시범 범위와 결정 일정, GMP 요구 수준, 문서·사용자·연계 범위, 예산·계약·도입 일정 등 미팅에서 확인할 핵심 공백을 명확히 지목했다."
+      }
+    }
+  },
+  "judgement": {
+    "required_topics": [
+      {
+        "topic_id": "gmp-validation-open",
+        "verdict": "covered",
+        "highlight_index": 4,
+        "reason": "GMP 밸리데이션 필요성은 확인됐지만 요구 수준과 QA 검토 결과가 미확정이라는 핵심 쟁점을 정확히 다뤘다."
+      },
+      {
+        "topic_id": "pilot-scope-open",
+        "verdict": "covered",
+        "highlight_index": 3,
+        "reason": "품질보증팀 단독 적용안과 생산팀 포함안 사이에서 시범 적용 부서가 아직 결정되지 않았음을 정확히 설명했다."
+      }
+    ],
+    "must_not_appear": [
+      {
+        "topic_id": "paper-volume-unknown",
+        "appeared": true,
+        "stale_value_used": false,
+        "reason": "월 결재 약 1,200건과 관련한 하이라이트를 별도로 포함했다. 물량 자체는 확인된 값으로 표현했지만, 해결된 사안을 브리핑에 다시 등장시켰다."
+      }
+    ],
+    "changed_values": [],
+    "off_topic_highlight_count": 1,
+    "forbidden_claims": [
+      {
+        "item": "GMP 요건을 충족한다고 확인됐다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "시범 부서가 정해졌다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "도입이 확정됐다",
+        "violated": false,
+        "evidence": null
+      }
+    ],
+    "criteria": [
+      {
+        "criterion": "factual_accuracy",
+        "rating": 4,
+        "reason": "제품 데모 단계, 월 결재 약 1,200건, 시범 부서 미정, GMP 요구 수준 미확정 등 근거와 일치하며 금지된 확정 표현도 없다."
+      },
+      {
+        "criterion": "suggested_actions",
+        "rating": 4,
+        "reason": "QA 검토 기준, 밸리데이션 산출물, 시범 범위별 준비사항, 의사결정자와 일정 등 영업 담당자가 미팅에서 실행할 수 있는 확인·합의 과제가 구체적이다."
+      },
+      {
+        "criterion": "scannability",
+        "rating": 4,
+        "reason": "각 하이라이트 제목만으로 대상과 핵심 쟁점을 파악할 수 있고, 본문도 시간순 나열보다 현재 상태와 대응 과제를 중심으로 구성됐다."
+      },
+      {
+        "criterion": "missing_information",
+        "rating": 4,
+        "reason": "내부 검토 상태, 시범 범위와 결정 일정, GMP 요구 수준, 문서·사용자·연계 범위, 예산·계약·도입 일정 등 미팅에서 확인할 핵심 공백을 명확히 지목했다."
+      }
+    ],
+    "critical_errors": [],
+    "summary": "핵심 미해결 사안인 GMP 밸리데이션 요구 수준과 시범 부서 범위를 정확히 다뤘고, 실행 가능한 확인 과제도 충분하다. 다만 해결된 월 결재 물량 사안을 별도 하이라이트로 다시 포함한 점은 브리핑 범위 위반이다."
+  }
+}

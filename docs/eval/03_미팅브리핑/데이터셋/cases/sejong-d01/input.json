@@ -1,0 +1,35 @@
+{
+  "customer_company": {
+    "id": "company-sejong",
+    "name": "세종의료재단"
+  },
+  "sales_deals": [],
+  "approved_next_meeting": {
+    "activity_id": "activity-sejong-t00-next",
+    "title": "세종의료재단 정기 미팅",
+    "starts_at": "2026-02-12T14:00:00+09:00",
+    "ends_at": "2026-02-12T15:00:00+09:00",
+    "location": "세종의료재단 본관 회의실",
+    "note": "진행 중인 건 점검",
+    "customer_contact": {
+      "id": "contact-yoon",
+      "name": "윤재호",
+      "department": "총무팀",
+      "job_title": "차장"
+    }
+  },
+  "briefing_mode": "first_meeting",
+  "recent_reports": [],
+  "has_older_reports": false,
+  "historical_report_context": [],
+  "report_search": {
+    "method": "keyword",
+    "status": "completed"
+  },
+  "report_search_query": "세종의료재단 미해결 이슈",
+  "document_context": {
+    "query": "세종의료재단 계약 견적 납기",
+    "summaries": [],
+    "sources": []
+  }
+}

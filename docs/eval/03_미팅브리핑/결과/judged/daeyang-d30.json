@@ -1,0 +1,151 @@
+{
+  "case": "daeyang-d30",
+  "t": 29,
+  "prompt_version": "contract_management.generate_briefing.v13",
+  "gates": {
+    "highlight_count_ok": true,
+    "actions_within_prompt_limit": true,
+    "recent_read_called": true,
+    "invalid_source_refs": [],
+    "dropped_highlight_count": 0,
+    "report_refs_missing_excerpt": [],
+    "rag_call_count": 0,
+    "rag_min_ok": false,
+    "rag_max_ok": true
+  },
+  "score": {
+    "total": 70.83,
+    "max_score": 100,
+    "percent": 70.8,
+    "by_criterion": {
+      "highlight_selection": {
+        "ratio": 0.333,
+        "weighted": 8.33,
+        "weight": 25,
+        "derived_from": {
+          "coverage": 0.333,
+          "stale_shown": 0,
+          "off_topic": 0,
+          "penalty": 0.0
+        }
+      },
+      "state_tracking": {
+        "ratio": 1.0,
+        "weighted": 15.0,
+        "weight": 15,
+        "derived_from": {
+          "checks": 2,
+          "passed": 2
+        }
+      },
+      "factual_accuracy": {
+        "rating": 4,
+        "weighted": 20.0,
+        "weight": 20,
+        "reason": "80석, 1억 8,400만 원, 연 10%와 계약 검토 상태 등 브리핑에 제시된 내용은 근거와 부합하며 금지된 합의나 완료를 주장하지 않았다."
+      },
+      "suggested_actions": {
+        "rating": 3,
+        "weighted": 15.0,
+        "weight": 20,
+        "reason": "계약 단계, 담당자, 목표일, 견적 조건, 사용자와 연동 방식을 확인하도록 구체적인 행동을 제시했지만 핵심인 60석 불일치, 8% 인하 요청, 구형 설비 검증 리스크에 대한 대응 준비가 빠졌다."
+      },
+      "scannability": {
+        "rating": 3,
+        "weighted": 7.5,
+        "weight": 10,
+        "reason": "제목만으로 계약 진행 상태와 견적 조건을 파악할 수 있고 현재 상태부터 설명한다. 다만 가장 중요한 좌석 수 불일치와 유지보수 재협상, 구형 설비 리스크가 제목에 드러나지 않는다."
+      },
+      "missing_information": {
+        "rating": 2,
+        "weighted": 5.0,
+        "weight": 10,
+        "reason": "계약 미결 조항, 승인 상태, 목표일, 사용자 수와 연동 대상을 확인 사항으로 제시했지만 60석 대 80석의 불일치, 8% 인하 요청의 미답변 상태, 2012년 설비 연동 검증 여부를 지목하지 못했다."
+      }
+    }
+  },
+  "judgement": {
+    "required_topics": [
+      {
+        "topic_id": "seat-count-conflict",
+        "verdict": "partial",
+        "highlight_index": 2,
+        "reason": "80석 견적을 언급하고 최신 합의안인지 확인하라고 했지만, 보고서상 60석 협의와 견적서 80석의 불일치를 명시하지 않았다."
+      },
+      {
+        "topic_id": "maintenance-rate-open",
+        "verdict": "partial",
+        "highlight_index": 2,
+        "reason": "현재 견적의 연 10% 요율과 최신 여부 확인은 다뤘지만, 고객의 8% 인하 요청과 이에 아직 답하지 않았다는 미결 상태를 명시하지 않았다."
+      },
+      {
+        "topic_id": "legacy-migration-risk",
+        "verdict": "missed",
+        "highlight_index": null,
+        "reason": "표준 연동 방식과 외부 시스템 확인을 언급했지만, 2012년 구형 설비 연동이 미검증이며 범위에서 제외될 수 있다는 핵심 리스크는 다루지 않았다."
+      }
+    ],
+    "must_not_appear": [
+      {
+        "topic_id": "eol-date-unknown",
+        "appeared": false,
+        "stale_value_used": false,
+        "reason": "노후 설비 유지보수 종료 시점 미확인 사안은 브리핑에 나타나지 않았다."
+      },
+      {
+        "topic_id": "demo-env-request",
+        "appeared": false,
+        "stale_value_used": false,
+        "reason": "시연 환경 요청 사안은 브리핑에 나타나지 않았다."
+      }
+    ],
+    "changed_values": [],
+    "off_topic_highlight_count": 0,
+    "forbidden_claims": [
+      {
+        "item": "고객이 80석에 합의했다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "유지보수 요율을 8%로 조정하기로 했다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "구형 설비 연동이 검증됐다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "계약이 체결됐다",
+        "violated": false,
+        "evidence": null
+      }
+    ],
+    "criteria": [
+      {
+        "criterion": "factual_accuracy",
+        "rating": 4,
+        "reason": "80석, 1억 8,400만 원, 연 10%와 계약 검토 상태 등 브리핑에 제시된 내용은 근거와 부합하며 금지된 합의나 완료를 주장하지 않았다."
+      },
+      {
+        "criterion": "suggested_actions",
+        "rating": 3,
+        "reason": "계약 단계, 담당자, 목표일, 견적 조건, 사용자와 연동 방식을 확인하도록 구체적인 행동을 제시했지만 핵심인 60석 불일치, 8% 인하 요청, 구형 설비 검증 리스크에 대한 대응 준비가 빠졌다."
+      },
+      {
+        "criterion": "scannability",
+        "rating": 3,
+        "reason": "제목만으로 계약 진행 상태와 견적 조건을 파악할 수 있고 현재 상태부터 설명한다. 다만 가장 중요한 좌석 수 불일치와 유지보수 재협상, 구형 설비 리스크가 제목에 드러나지 않는다."
+      },
+      {
+        "criterion": "missing_information",
+        "rating": 2,
+        "reason": "계약 미결 조항, 승인 상태, 목표일, 사용자 수와 연동 대상을 확인 사항으로 제시했지만 60석 대 80석의 불일치, 8% 인하 요청의 미답변 상태, 2012년 설비 연동 검증 여부를 지목하지 못했다."
+      }
+    ],
+    "critical_errors": [],
+    "summary": "사실관계 왜곡이나 금지된 합의·완료 표현은 없고 계약 검토 및 견적 확인 행동도 제시했다. 그러나 세 가지 필수 이슈 중 좌석 수 불일치와 유지보수 재협상은 부분적으로만 다뤘고, 구형 설비 연동 미검증 리스크는 누락했다."
+  }
+}

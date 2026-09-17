@@ -1,0 +1,25 @@
+{
+  "timeline_id": "sejong",
+  "t": 0,
+  "briefing_mode": "first_meeting",
+  "required_topics": [],
+  "allowed_topics": [],
+  "must_not_appear": [],
+  "changed_values": [],
+  "stalled_deals": [],
+  "expected_rag_calls_min": 0,
+  "expected_rag_calls_max": 0,
+  "forbidden_claims": [
+    "영업 건이 등록되어 있다",
+    "고객이 도입을 확정했다",
+    "예산이 배정됐다"
+  ],
+  "forbidden_missing_information": [
+    "과거 보고서 없음",
+    "연결된 딜 없음"
+  ],
+  "scoring": {
+    "state_tracking_applies": false,
+    "max_score": 85
+  }
+}

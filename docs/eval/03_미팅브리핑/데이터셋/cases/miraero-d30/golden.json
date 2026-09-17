@@ -1,0 +1,110 @@
+{
+  "timeline_id": "miraero",
+  "t": 29,
+  "briefing_mode": "relationship",
+  "required_topics": [
+    {
+      "topic_id": "device-count",
+      "label": "도입 장비 수량",
+      "intent": "도입 장비 수량은 12대 이다",
+      "deal_id": "deal-y",
+      "importance": "high",
+      "evidence": [
+        "report-miraero-22"
+      ],
+      "last_mentioned_at": 22,
+      "in_recent_window": false,
+      "requires_rag": true,
+      "expectation": "must_appear"
+    },
+    {
+      "topic_id": "golive-date",
+      "label": "오픈 예정일",
+      "intent": "오픈 예정일은 2026-11-02 이다",
+      "deal_id": "deal-y",
+      "importance": "high",
+      "evidence": [
+        "report-miraero-20"
+      ],
+      "last_mentioned_at": 20,
+      "in_recent_window": false,
+      "requires_rag": true,
+      "expectation": "must_appear"
+    },
+    {
+      "topic_id": "owner-change",
+      "label": "고객 담당자 교체",
+      "intent": "전산팀 담당이 서다인 과장으로 교체됐다. 이전 담당자는 퇴사했다",
+      "deal_id": "deal-y",
+      "importance": "critical",
+      "evidence": [
+        "report-miraero-17"
+      ],
+      "last_mentioned_at": 17,
+      "in_recent_window": false,
+      "requires_rag": true,
+      "expectation": "must_appear"
+    },
+    {
+      "topic_id": "training-plan-open",
+      "label": "교육 계획 미수립",
+      "intent": "검사실 인력 교육 일정과 방식이 정해지지 않았다",
+      "deal_id": "deal-y",
+      "importance": "high",
+      "evidence": [
+        "report-miraero-27"
+      ],
+      "last_mentioned_at": 27,
+      "in_recent_window": true,
+      "requires_rag": false,
+      "expectation": "must_appear"
+    }
+  ],
+  "allowed_topics": [],
+  "must_not_appear": [
+    {
+      "topic_id": "test-scope-unknown",
+      "label": "자동화 대상 검사 항목 미확정",
+      "reason": "해결됨",
+      "resolved_by": [
+        "report-miraero-12"
+      ],
+      "expectation": "must_not_appear"
+    }
+  ],
+  "changed_values": [
+    {
+      "topic_id": "device-count",
+      "from": "15대",
+      "to": "12대",
+      "expectation": "must_show_latest_only"
+    },
+    {
+      "topic_id": "golive-date",
+      "from": "2026-09-14",
+      "to": "2026-11-02",
+      "expectation": "must_show_latest_only"
+    },
+    {
+      "topic_id": "owner-change",
+      "from": "박승우 대리",
+      "to": "서다인 과장",
+      "expectation": "must_show_latest_only"
+    }
+  ],
+  "stalled_deals": [],
+  "expected_rag_calls_min": 1,
+  "expected_rag_calls_max": null,
+  "forbidden_claims": [
+    "장비 20대를 도입한다",
+    "장비 15대를 도입한다",
+    "9월에 오픈한다",
+    "박승우 대리가 담당이다",
+    "교육 일정이 확정됐다"
+  ],
+  "forbidden_missing_information": [],
+  "scoring": {
+    "state_tracking_applies": true,
+    "max_score": 100
+  }
+}

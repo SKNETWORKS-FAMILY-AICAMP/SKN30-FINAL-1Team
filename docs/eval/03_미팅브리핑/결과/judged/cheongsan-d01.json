@@ -1,0 +1,105 @@
+{
+  "case": "cheongsan-d01",
+  "t": 0,
+  "prompt_version": "contract_management.generate_briefing.v13",
+  "gates": {
+    "highlight_count_ok": true,
+    "actions_within_prompt_limit": true,
+    "recent_read_called": false,
+    "invalid_source_refs": [],
+    "dropped_highlight_count": 0,
+    "report_refs_missing_excerpt": [],
+    "rag_call_count": 0,
+    "rag_min_ok": true,
+    "rag_max_ok": true
+  },
+  "score": {
+    "total": 80.0,
+    "max_score": 85,
+    "percent": 94.1,
+    "by_criterion": {
+      "highlight_selection": {
+        "ratio": 1.0,
+        "weighted": 25.0,
+        "weight": 25,
+        "derived_from": {
+          "coverage": 1.0,
+          "stale_shown": 0,
+          "off_topic": 0,
+          "penalty": 0.0
+        }
+      },
+      "factual_accuracy": {
+        "rating": 3,
+        "weighted": 15.0,
+        "weight": 20,
+        "reason": "고객명, 담당자, 첫 미팅이라는 핵심 정보는 브리핑 내 근거와 일치하며 금지된 주장을 하지 않았다. 다만 '진행 중인 건 점검'이라는 목적은 제공된 골든에서 확인되지 않는다."
+      },
+      "suggested_actions": {
+        "rating": 4,
+        "weighted": 20.0,
+        "weight": 20,
+        "reason": "현재 과제, 예산·도입 시기·의사결정자, 후속 자료와 다음 단계 등 영업 담당자가 현장에서 실행할 수 있는 구체적 확인 항목을 제시했다."
+      },
+      "scannability": {
+        "rating": 4,
+        "weighted": 10.0,
+        "weight": 10,
+        "reason": "제목만으로 첫 미팅의 목적과 핵심 쟁점을 알 수 있고, 본문도 시간순 나열 없이 현재 상태와 확인 과제를 먼저 제시한다."
+      },
+      "missing_information": {
+        "rating": 4,
+        "weighted": 10.0,
+        "weight": 10,
+        "reason": "첫 미팅에 필요한 고객 과제, 요구사항, 예산, 도입 시기, 의사결정 구조를 확인 대상으로 명확히 지목했다. 과거 보고서나 연결된 딜이 없다는 정상 상태를 불필요하게 누락으로 처리하지 않았다."
+      }
+    }
+  },
+  "judgement": {
+    "required_topics": [],
+    "must_not_appear": [],
+    "changed_values": [],
+    "off_topic_highlight_count": 0,
+    "forbidden_claims": [
+      {
+        "item": "전자결재 확장을 진행 중이다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "근태관리에 미해결 장애가 있다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "신규 계약이 논의 중이다",
+        "violated": false,
+        "evidence": null
+      }
+    ],
+    "criteria": [
+      {
+        "criterion": "factual_accuracy",
+        "rating": 3,
+        "reason": "고객명, 담당자, 첫 미팅이라는 핵심 정보는 브리핑 내 근거와 일치하며 금지된 주장을 하지 않았다. 다만 '진행 중인 건 점검'이라는 목적은 제공된 골든에서 확인되지 않는다."
+      },
+      {
+        "criterion": "suggested_actions",
+        "rating": 4,
+        "reason": "현재 과제, 예산·도입 시기·의사결정자, 후속 자료와 다음 단계 등 영업 담당자가 현장에서 실행할 수 있는 구체적 확인 항목을 제시했다."
+      },
+      {
+        "criterion": "scannability",
+        "rating": 4,
+        "reason": "제목만으로 첫 미팅의 목적과 핵심 쟁점을 알 수 있고, 본문도 시간순 나열 없이 현재 상태와 확인 과제를 먼저 제시한다."
+      },
+      {
+        "criterion": "missing_information",
+        "rating": 4,
+        "reason": "첫 미팅에 필요한 고객 과제, 요구사항, 예산, 도입 시기, 의사결정 구조를 확인 대상으로 명확히 지목했다. 과거 보고서나 연결된 딜이 없다는 정상 상태를 불필요하게 누락으로 처리하지 않았다."
+      }
+    ],
+    "critical_errors": [],
+    "summary": "필수 토픽은 없으며, 금지된 과거 사안이나 진행 중이라고 단정한 주장은 나타나지 않았다. 첫 미팅에서 확인할 질문과 다음 단계가 구체적이고 스캔하기 쉽다."
+  }
+}

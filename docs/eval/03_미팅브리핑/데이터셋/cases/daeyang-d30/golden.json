@@ -1,0 +1,97 @@
+{
+  "timeline_id": "daeyang",
+  "t": 29,
+  "briefing_mode": "relationship",
+  "required_topics": [
+    {
+      "topic_id": "seat-count-conflict",
+      "label": "라이선스 좌석 수 불일치",
+      "intent": "보고서에는 60석으로 협의됐다고 적혀 있는데 발송된 견적서는 80석 기준이다",
+      "deal_id": "deal-x",
+      "importance": "critical",
+      "evidence": [
+        "report-daeyang-13",
+        "doc-dy-quote"
+      ],
+      "last_mentioned_at": 13,
+      "in_recent_window": false,
+      "requires_rag": true,
+      "expectation": "must_appear",
+      "must_flag_conflict": [
+        "report-daeyang-09",
+        "doc-dy-quote"
+      ]
+    },
+    {
+      "topic_id": "maintenance-rate-open",
+      "label": "유지보수 요율 재협상 요청",
+      "intent": "연 10% 요율을 8%로 낮춰 달라는 요청에 아직 답하지 않았다",
+      "deal_id": "deal-x",
+      "importance": "high",
+      "evidence": [
+        "report-daeyang-26"
+      ],
+      "last_mentioned_at": 26,
+      "in_recent_window": false,
+      "requires_rag": true,
+      "expectation": "must_appear"
+    },
+    {
+      "topic_id": "legacy-migration-risk",
+      "label": "구형 설비 연동 미검증",
+      "intent": "2012년 도입 설비와의 연동이 검증되지 않아 범위에서 제외될 수 있다",
+      "deal_id": "deal-x",
+      "importance": "high",
+      "evidence": [
+        "report-daeyang-16"
+      ],
+      "last_mentioned_at": 16,
+      "in_recent_window": false,
+      "requires_rag": true,
+      "expectation": "must_appear"
+    }
+  ],
+  "allowed_topics": [],
+  "must_not_appear": [
+    {
+      "topic_id": "eol-date-unknown",
+      "label": "노후 설비 유지보수 종료 시점 미확인",
+      "reason": "해결됨",
+      "resolved_by": [
+        "report-daeyang-11"
+      ],
+      "expectation": "must_not_appear"
+    },
+    {
+      "topic_id": "demo-env-request",
+      "label": "시연 환경 요청",
+      "reason": "해결됨",
+      "resolved_by": [
+        "report-daeyang-14"
+      ],
+      "expectation": "must_not_appear"
+    }
+  ],
+  "changed_values": [],
+  "stalled_deals": [
+    {
+      "deal_id": "deal-x",
+      "title": "생산관리 시스템 교체",
+      "stalled_rounds": 5,
+      "note": "계약서 검토 중 단가 재확인 요청으로 멈춰 있다"
+    }
+  ],
+  "expected_rag_calls_min": 1,
+  "expected_rag_calls_max": null,
+  "forbidden_claims": [
+    "고객이 80석에 합의했다",
+    "유지보수 요율을 8%로 조정하기로 했다",
+    "구형 설비 연동이 검증됐다",
+    "계약이 체결됐다"
+  ],
+  "forbidden_missing_information": [],
+  "scoring": {
+    "state_tracking_applies": true,
+    "max_score": 100
+  }
+}

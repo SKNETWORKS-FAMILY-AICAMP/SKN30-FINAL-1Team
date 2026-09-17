@@ -1,0 +1,115 @@
+{
+  "case": "hanbit-d01",
+  "t": 0,
+  "prompt_version": "contract_management.generate_briefing.v13",
+  "gates": {
+    "highlight_count_ok": true,
+    "actions_within_prompt_limit": true,
+    "recent_read_called": false,
+    "invalid_source_refs": [],
+    "dropped_highlight_count": 0,
+    "report_refs_missing_excerpt": [],
+    "rag_call_count": 0,
+    "rag_min_ok": true,
+    "rag_max_ok": true
+  },
+  "score": {
+    "total": 80.0,
+    "max_score": 85,
+    "percent": 94.1,
+    "by_criterion": {
+      "highlight_selection": {
+        "ratio": 1.0,
+        "weighted": 25.0,
+        "weight": 25,
+        "derived_from": {
+          "coverage": 1.0,
+          "stale_shown": 0,
+          "off_topic": 0,
+          "penalty": 0.0
+        }
+      },
+      "factual_accuracy": {
+        "rating": 3,
+        "weighted": 15.0,
+        "weight": 20,
+        "reason": "첫 미팅과 고객 탐색 중심의 내용은 브리핑 모드와 부합하며 금액·승인·사용자 수·보안·계약 관련 금지 주장을 하지 않았다. 다만 '진행 중인 건 점검'이라는 목적은 제시된 활동 발췌만으로는 직접 확인되지 않는다."
+      },
+      "suggested_actions": {
+        "rating": 4,
+        "weighted": 20.0,
+        "weight": 20,
+        "reason": "고객 과제, 예산·시기·의사결정자, 후속 자료와 다음 단계 등 미팅에서 바로 수행할 수 있는 구체적 행동을 제시했다."
+      },
+      "scannability": {
+        "rating": 4,
+        "weighted": 10.0,
+        "weight": 10,
+        "reason": "제목에서 첫 미팅의 대상과 목적이 드러나고, 본문 첫 문장에서 미팅 상태를 바로 제시한다. 시간순 나열 없이 핵심 쟁점과 행동을 압축했다."
+      },
+      "missing_information": {
+        "rating": 4,
+        "weighted": 10.0,
+        "weight": 10,
+        "reason": "첫 미팅에서 확인해야 할 고객 과제·요구사항과 예산·도입 시기·의사결정 구조를 명확히 지목했다. 과거 보고서나 연결된 딜이 없다는 정상 상태를 누락으로 잘못 다루지 않았다."
+      }
+    }
+  },
+  "judgement": {
+    "required_topics": [],
+    "must_not_appear": [],
+    "changed_values": [],
+    "off_topic_highlight_count": 0,
+    "forbidden_claims": [
+      {
+        "item": "고객이 특정 금액에 합의했다 (합의 기록 없음)",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "재무팀 예산 승인이 완료됐다 (승인 전 시점에서)",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "유료 사용자는 25명이다 (9회차에 20명으로 정정됨)",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "보안 심의를 통과했다 (16회차 전 시점에서)",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "계약이 체결됐다 (계약 완료 전 시점에서)",
+        "violated": false,
+        "evidence": null
+      }
+    ],
+    "criteria": [
+      {
+        "criterion": "factual_accuracy",
+        "rating": 3,
+        "reason": "첫 미팅과 고객 탐색 중심의 내용은 브리핑 모드와 부합하며 금액·승인·사용자 수·보안·계약 관련 금지 주장을 하지 않았다. 다만 '진행 중인 건 점검'이라는 목적은 제시된 활동 발췌만으로는 직접 확인되지 않는다."
+      },
+      {
+        "criterion": "suggested_actions",
+        "rating": 4,
+        "reason": "고객 과제, 예산·시기·의사결정자, 후속 자료와 다음 단계 등 미팅에서 바로 수행할 수 있는 구체적 행동을 제시했다."
+      },
+      {
+        "criterion": "scannability",
+        "rating": 4,
+        "reason": "제목에서 첫 미팅의 대상과 목적이 드러나고, 본문 첫 문장에서 미팅 상태를 바로 제시한다. 시간순 나열 없이 핵심 쟁점과 행동을 압축했다."
+      },
+      {
+        "criterion": "missing_information",
+        "rating": 4,
+        "reason": "첫 미팅에서 확인해야 할 고객 과제·요구사항과 예산·도입 시기·의사결정 구조를 명확히 지목했다. 과거 보고서나 연결된 딜이 없다는 정상 상태를 누락으로 잘못 다루지 않았다."
+      }
+    ],
+    "critical_errors": [],
+    "summary": "필수 토픽이나 변경값이 없는 첫 미팅에서 핵심 확인사항과 실행 가능한 질문을 간결하게 제시했다. 다만 활동 발췌만으로는 확인되지 않는 '진행 중인 건 점검' 표현은 근거가 다소 약하다."
+  }
+}

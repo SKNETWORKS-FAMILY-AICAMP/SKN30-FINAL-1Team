@@ -1,0 +1,27 @@
+{
+  "timeline_id": "hanbit",
+  "t": 0,
+  "briefing_mode": "first_meeting",
+  "required_topics": [],
+  "allowed_topics": [],
+  "must_not_appear": [],
+  "changed_values": [],
+  "stalled_deals": [],
+  "expected_rag_calls_min": 0,
+  "expected_rag_calls_max": 0,
+  "forbidden_claims": [
+    "고객이 특정 금액에 합의했다 (합의 기록 없음)",
+    "재무팀 예산 승인이 완료됐다 (승인 전 시점에서)",
+    "유료 사용자는 25명이다 (9회차에 20명으로 정정됨)",
+    "보안 심의를 통과했다 (16회차 전 시점에서)",
+    "계약이 체결됐다 (계약 완료 전 시점에서)"
+  ],
+  "forbidden_missing_information": [
+    "과거 보고서 없음",
+    "연결된 딜 없음"
+  ],
+  "scoring": {
+    "state_tracking_applies": false,
+    "max_score": 85
+  }
+}

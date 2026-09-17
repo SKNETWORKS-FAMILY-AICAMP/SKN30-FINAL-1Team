@@ -1,0 +1,70 @@
+{
+  "timeline_id": "sejong",
+  "t": 29,
+  "briefing_mode": "relationship",
+  "required_topics": [
+    {
+      "topic_id": "decision-owner-unknown",
+      "label": "의사결정자 미확인",
+      "intent": "총무팀 창구만 만나고 있어 실제 결정권자가 누구인지 확인되지 않았다",
+      "deal_id": null,
+      "importance": "critical",
+      "evidence": [
+        "report-sejong-06"
+      ],
+      "last_mentioned_at": 6,
+      "in_recent_window": false,
+      "requires_rag": true,
+      "expectation": "must_appear"
+    },
+    {
+      "topic_id": "pilot-request-open",
+      "label": "시범 운영 요청 미회신",
+      "intent": "무상 시범 운영 가능 여부를 묻고 아직 답을 주지 못했다",
+      "deal_id": null,
+      "importance": "high",
+      "evidence": [
+        "report-sejong-24"
+      ],
+      "last_mentioned_at": 24,
+      "in_recent_window": false,
+      "requires_rag": true,
+      "expectation": "must_appear"
+    }
+  ],
+  "allowed_topics": [],
+  "must_not_appear": [
+    {
+      "topic_id": "branch-inventory-unknown",
+      "label": "산하 3개 병원 시스템 현황 미파악",
+      "reason": "해결됨",
+      "resolved_by": [
+        "report-sejong-14"
+      ],
+      "expectation": "must_not_appear"
+    },
+    {
+      "topic_id": "budget-cycle-unknown",
+      "label": "예산 편성 주기 미확인",
+      "reason": "해결됨",
+      "resolved_by": [
+        "report-sejong-18"
+      ],
+      "expectation": "must_not_appear"
+    }
+  ],
+  "changed_values": [],
+  "stalled_deals": [],
+  "expected_rag_calls_min": 1,
+  "expected_rag_calls_max": null,
+  "forbidden_claims": [
+    "영업 건이 등록되어 있다",
+    "고객이 도입을 확정했다",
+    "예산이 배정됐다"
+  ],
+  "forbidden_missing_information": [],
+  "scoring": {
+    "state_tracking_applies": true,
+    "max_score": 100
+  }
+}

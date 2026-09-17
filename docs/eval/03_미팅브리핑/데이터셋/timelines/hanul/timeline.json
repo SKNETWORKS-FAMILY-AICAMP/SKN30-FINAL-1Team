@@ -1,0 +1,95 @@
+{
+  "timeline_id": "hanul",
+  "note": "체인 E. 30건 중 핵심이 2건뿐이다. 노이즈를 뚫고 고르는 능력만 본다.",
+  "first_meeting_date": "2026-01-08",
+  "meeting_interval_days": 7,
+  "meeting_count": 30,
+  "customer_company": {
+    "id": "company-hanul",
+    "name": "한울제약"
+  },
+  "contacts": [
+    {
+      "id": "contact-nam",
+      "name": "남경호",
+      "department": "IT기획팀",
+      "job_title": "팀장",
+      "authority": "시스템 도입 실무 책임"
+    }
+  ],
+  "deals": [
+    {
+      "deal_id": "deal-z",
+      "title": "품질관리 문서 전자화",
+      "opened_at": 2,
+      "stage_path": [
+        {
+          "at": 2,
+          "stage_code": "needs_validation"
+        },
+        {
+          "at": 9,
+          "stage_code": "product_demo"
+        }
+      ]
+    }
+  ],
+  "documents": [],
+  "topics": [
+    {
+      "topic_id": "paper-volume-unknown",
+      "label": "종이 결재 물량 미집계",
+      "intent": "월 결재 건수가 집계되지 않아 도입 효과와 규모를 산정할 수 없다",
+      "deal_id": "deal-z",
+      "opened_at": 2,
+      "resolved_at": 19,
+      "importance": "high",
+      "evidence_open": [
+        "report-hanul-02"
+      ],
+      "evidence_resolved": [
+        "report-hanul-19"
+      ]
+    },
+    {
+      "topic_id": "gmp-validation-open",
+      "label": "GMP 밸리데이션 요건 미확인",
+      "intent": "제약 GMP 밸리데이션 요건을 충족해야 하는데 요구 수준이 확인되지 않았다",
+      "deal_id": "deal-z",
+      "opened_at": 5,
+      "resolved_at": null,
+      "importance": "critical",
+      "evidence_open": [
+        "report-hanul-05"
+      ]
+    },
+    {
+      "topic_id": "pilot-scope-open",
+      "label": "시범 부서 범위 미정",
+      "intent": "어느 부서부터 적용할지 정해지지 않아 제안 범위를 잡을 수 없다",
+      "deal_id": "deal-z",
+      "opened_at": 11,
+      "resolved_at": null,
+      "importance": "high",
+      "evidence_open": [
+        "report-hanul-11"
+      ]
+    }
+  ],
+  "noise_topics": [
+    "정기 방문",
+    "담당자 휴가 일정 공유",
+    "원내 행사로 일정 조정",
+    "제품 뉴스레터 전달",
+    "방문 절차 안내",
+    "분기 점검 일정 공유",
+    "사내 시스템 점검 안내",
+    "명절 인사",
+    "조직 개편 공유"
+  ],
+  "forbidden_claims": [
+    "GMP 요건을 충족한다고 확인됐다",
+    "시범 부서가 정해졌다",
+    "도입이 확정됐다"
+  ]
+}

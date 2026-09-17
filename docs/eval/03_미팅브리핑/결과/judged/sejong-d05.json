@@ -1,0 +1,118 @@
+{
+  "case": "sejong-d05",
+  "t": 4,
+  "prompt_version": "contract_management.generate_briefing.v13",
+  "gates": {
+    "highlight_count_ok": true,
+    "actions_within_prompt_limit": true,
+    "recent_read_called": true,
+    "invalid_source_refs": [],
+    "dropped_highlight_count": 0,
+    "report_refs_missing_excerpt": [],
+    "rag_call_count": 1,
+    "rag_min_ok": true,
+    "rag_max_ok": true
+  },
+  "score": {
+    "total": 80.0,
+    "max_score": 85,
+    "percent": 94.1,
+    "by_criterion": {
+      "highlight_selection": {
+        "ratio": 0.8,
+        "weighted": 20.0,
+        "weight": 25,
+        "derived_from": {
+          "coverage": 1.0,
+          "stale_shown": 0,
+          "off_topic": 1,
+          "penalty": 0.2
+        }
+      },
+      "factual_accuracy": {
+        "rating": 4,
+        "weighted": 20.0,
+        "weight": 20,
+        "reason": "예산 편성 시기 미확인, 3개 병원 시스템 자료 부재, 진행 중인 딜 및 확정 조건 부재가 모두 출처와 일치한다."
+      },
+      "suggested_actions": {
+        "rating": 4,
+        "weighted": 20.0,
+        "weight": 20,
+        "reason": "재무팀 회신, 예산 반영 여부, 병원별 시스템과 통합 범위, 의사결정 절차 등 영업 담당자가 미팅에서 확인할 행동이 구체적이다."
+      },
+      "scannability": {
+        "rating": 4,
+        "weighted": 10.0,
+        "weight": 10,
+        "reason": "제목만으로 예산과 병원 시스템이라는 핵심 쟁점을 파악할 수 있고, 각 본문이 현재 상태부터 제시한다."
+      },
+      "missing_information": {
+        "rating": 4,
+        "weighted": 10.0,
+        "weight": 10,
+        "reason": "예산 회신 및 일정, 병원별 시스템과 범위, 의사결정 절차와 참여 부서를 확인 사항으로 구체적으로 지목했다."
+      }
+    }
+  },
+  "judgement": {
+    "required_topics": [
+      {
+        "topic_id": "branch-inventory-unknown",
+        "verdict": "covered",
+        "highlight_index": 2,
+        "reason": "산하 3개 병원의 시스템 현황 자료가 없고 통합 범위가 정리되지 않았다는 점을 명확히 다뤘으며, 병원별 현황과 우선순위를 확인하도록 제안했다."
+      },
+      {
+        "topic_id": "budget-cycle-unknown",
+        "verdict": "covered",
+        "highlight_index": 1,
+        "reason": "예산 편성 시기와 재무팀 확인 결과가 미확정임을 명시하고, 회신 여부·시기·도입 일정 확인을 제안했다."
+      }
+    ],
+    "must_not_appear": [],
+    "changed_values": [],
+    "off_topic_highlight_count": 1,
+    "forbidden_claims": [
+      {
+        "item": "영업 건이 등록되어 있다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "고객이 도입을 확정했다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "예산이 배정됐다",
+        "violated": false,
+        "evidence": null
+      }
+    ],
+    "criteria": [
+      {
+        "criterion": "factual_accuracy",
+        "rating": 4,
+        "reason": "예산 편성 시기 미확인, 3개 병원 시스템 자료 부재, 진행 중인 딜 및 확정 조건 부재가 모두 출처와 일치한다."
+      },
+      {
+        "criterion": "suggested_actions",
+        "rating": 4,
+        "reason": "재무팀 회신, 예산 반영 여부, 병원별 시스템과 통합 범위, 의사결정 절차 등 영업 담당자가 미팅에서 확인할 행동이 구체적이다."
+      },
+      {
+        "criterion": "scannability",
+        "rating": 4,
+        "reason": "제목만으로 예산과 병원 시스템이라는 핵심 쟁점을 파악할 수 있고, 각 본문이 현재 상태부터 제시한다."
+      },
+      {
+        "criterion": "missing_information",
+        "rating": 4,
+        "reason": "예산 회신 및 일정, 병원별 시스템과 범위, 의사결정 절차와 참여 부서를 확인 사항으로 구체적으로 지목했다."
+      }
+    ],
+    "critical_errors": [],
+    "summary": "핵심 미확인 사항인 예산 편성 주기와 산하 3개 병원의 시스템 현황을 정확히 다뤘다. 다만 진행 중인 딜이나 확정 조건이 없다는 별도 하이라이트는 근거는 있으나 핵심 골든 주제 대비 우선순위가 낮아 부분적으로 비핵심이다."
+  }
+}

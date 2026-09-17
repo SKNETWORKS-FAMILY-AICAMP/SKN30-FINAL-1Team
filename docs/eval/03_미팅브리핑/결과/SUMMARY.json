@@ -1,0 +1,162 @@
+{
+  "overall": {
+    "cases": 30,
+    "percent_mean": 89.8,
+    "percent_min": 52.9,
+    "required_missed": 6,
+    "required_partial": 6,
+    "stale_shown": 3,
+    "critical_errors": 0,
+    "invalid_source_refs": 0,
+    "rag_min_failed": 3,
+    "rag_max_failed": 0,
+    "dropped_highlights": 0
+  },
+  "by_depth": {
+    "d01": {
+      "cases": 6,
+      "percent_mean": 95.1,
+      "percent_min": 94.1,
+      "required_missed": 0,
+      "required_partial": 0,
+      "stale_shown": 0,
+      "critical_errors": 0,
+      "invalid_source_refs": 0,
+      "rag_min_failed": 0,
+      "rag_max_failed": 0,
+      "dropped_highlights": 0
+    },
+    "d03": {
+      "cases": 6,
+      "percent_mean": 98.0,
+      "percent_min": 88.2,
+      "required_missed": 0,
+      "required_partial": 0,
+      "stale_shown": 0,
+      "critical_errors": 0,
+      "invalid_source_refs": 0,
+      "rag_min_failed": 0,
+      "rag_max_failed": 0,
+      "dropped_highlights": 0
+    },
+    "d05": {
+      "cases": 6,
+      "percent_mean": 95.8,
+      "percent_min": 86.8,
+      "required_missed": 0,
+      "required_partial": 1,
+      "stale_shown": 0,
+      "critical_errors": 0,
+      "invalid_source_refs": 0,
+      "rag_min_failed": 0,
+      "rag_max_failed": 0,
+      "dropped_highlights": 0
+    },
+    "d10": {
+      "cases": 6,
+      "percent_mean": 79.9,
+      "percent_min": 52.9,
+      "required_missed": 4,
+      "required_partial": 0,
+      "stale_shown": 0,
+      "critical_errors": 0,
+      "invalid_source_refs": 0,
+      "rag_min_failed": 2,
+      "rag_max_failed": 0,
+      "dropped_highlights": 0
+    },
+    "d30": {
+      "cases": 6,
+      "percent_mean": 80.4,
+      "percent_min": 68.8,
+      "required_missed": 2,
+      "required_partial": 5,
+      "stale_shown": 3,
+      "critical_errors": 0,
+      "invalid_source_refs": 0,
+      "rag_min_failed": 1,
+      "rag_max_failed": 0,
+      "dropped_highlights": 0
+    }
+  },
+  "by_chain": {
+    "cheongsan": {
+      "cases": 5,
+      "percent_mean": 93.6,
+      "percent_min": 83.8,
+      "required_missed": 0,
+      "required_partial": 0,
+      "stale_shown": 1,
+      "critical_errors": 0,
+      "invalid_source_refs": 0,
+      "rag_min_failed": 0,
+      "rag_max_failed": 0,
+      "dropped_highlights": 0
+    },
+    "daeyang": {
+      "cases": 5,
+      "percent_mean": 83.0,
+      "percent_min": 55.9,
+      "required_missed": 2,
+      "required_partial": 2,
+      "stale_shown": 0,
+      "critical_errors": 0,
+      "invalid_source_refs": 0,
+      "rag_min_failed": 2,
+      "rag_max_failed": 0,
+      "dropped_highlights": 0
+    },
+    "hanbit": {
+      "cases": 5,
+      "percent_mean": 95.2,
+      "percent_min": 86.2,
+      "required_missed": 1,
+      "required_partial": 1,
+      "stale_shown": 0,
+      "critical_errors": 0,
+      "invalid_source_refs": 0,
+      "rag_min_failed": 0,
+      "rag_max_failed": 0,
+      "dropped_highlights": 0
+    },
+    "hanul": {
+      "cases": 5,
+      "percent_mean": 92.6,
+      "percent_min": 75.0,
+      "required_missed": 0,
+      "required_partial": 0,
+      "stale_shown": 1,
+      "critical_errors": 0,
+      "invalid_source_refs": 0,
+      "rag_min_failed": 0,
+      "rag_max_failed": 0,
+      "dropped_highlights": 0
+    },
+    "miraero": {
+      "cases": 5,
+      "percent_mean": 82.0,
+      "percent_min": 52.9,
+      "required_missed": 3,
+      "required_partial": 2,
+      "stale_shown": 0,
+      "critical_errors": 0,
+      "invalid_source_refs": 0,
+      "rag_min_failed": 1,
+      "rag_max_failed": 0,
+      "dropped_highlights": 0
+    },
+    "sejong": {
+      "cases": 5,
+      "percent_mean": 92.6,
+      "percent_min": 68.8,
+      "required_missed": 0,
+      "required_partial": 1,
+      "stale_shown": 1,
+      "critical_errors": 0,
+      "invalid_source_refs": 0,
+      "rag_min_failed": 0,
+      "rag_max_failed": 0,
+      "dropped_highlights": 0
+    }
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "timeline_id": "daeyang",
+  "t": 9,
+  "briefing_mode": "relationship",
+  "required_topics": [
+    {
+      "topic_id": "eol-date-unknown",
+      "label": "노후 설비 유지보수 종료 시점 미확인",
+      "intent": "현 시스템의 유지보수 종료일이 확인되지 않아 교체 시점을 정할 수 없다",
+      "deal_id": "deal-x",
+      "importance": "high",
+      "evidence": [
+        "report-daeyang-02"
+      ],
+      "last_mentioned_at": 2,
+      "in_recent_window": false,
+      "requires_rag": true,
+      "expectation": "must_appear"
+    }
+  ],
+  "allowed_topics": [
+    {
+      "topic_id": "demo-env-request",
+      "label": "시연 환경 요청",
+      "intent": "현업 대상 사전 체험 환경을 요청받았다",
+      "deal_id": "deal-x",
+      "importance": "medium",
+      "evidence": [
+        "report-daeyang-08"
+      ],
+      "last_mentioned_at": 8,
+      "in_recent_window": true,
+      "requires_rag": false,
+      "expectation": "may_appear"
+    }
+  ],
+  "must_not_appear": [],
+  "changed_values": [],
+  "stalled_deals": [],
+  "expected_rag_calls_min": 1,
+  "expected_rag_calls_max": null,
+  "forbidden_claims": [
+    "고객이 80석에 합의했다",
+    "유지보수 요율을 8%로 조정하기로 했다",
+    "구형 설비 연동이 검증됐다",
+    "계약이 체결됐다"
+  ],
+  "forbidden_missing_information": [],
+  "scoring": {
+    "state_tracking_applies": false,
+    "max_score": 85
+  }
+}

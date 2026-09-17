@@ -1,0 +1,91 @@
+{
+  "timeline_id": "sejong",
+  "note": "체인 B. 딜이 한 건도 만들어지지 않은 고객사. sales_deals 가 비어 있는 것은 정상이며 누락으로 쓰면 안 된다.",
+  "first_meeting_date": "2026-02-12",
+  "meeting_interval_days": 7,
+  "meeting_count": 30,
+  "customer_company": {
+    "id": "company-sejong",
+    "name": "세종의료재단"
+  },
+  "contacts": [
+    {
+      "id": "contact-yoon",
+      "name": "윤재호",
+      "department": "총무팀",
+      "job_title": "차장",
+      "authority": "구매 절차 문의 창구. 결정 권한 없음"
+    }
+  ],
+  "deals": [],
+  "documents": [],
+  "topics": [
+    {
+      "topic_id": "branch-inventory-unknown",
+      "label": "산하 3개 병원 시스템 현황 미파악",
+      "intent": "산하 병원 세 곳이 각각 무슨 시스템을 쓰는지 정리된 자료가 없어 통합 범위를 잡을 수 없다",
+      "deal_id": null,
+      "opened_at": 1,
+      "resolved_at": 14,
+      "importance": "high",
+      "evidence_open": [
+        "report-sejong-01"
+      ],
+      "evidence_resolved": [
+        "report-sejong-14"
+      ]
+    },
+    {
+      "topic_id": "budget-cycle-unknown",
+      "label": "예산 편성 주기 미확인",
+      "intent": "재단 예산 편성이 언제 열리는지 확인하지 못해 제안 시점을 잡을 수 없다",
+      "deal_id": null,
+      "opened_at": 3,
+      "resolved_at": 18,
+      "importance": "high",
+      "evidence_open": [
+        "report-sejong-03"
+      ],
+      "evidence_resolved": [
+        "report-sejong-18"
+      ]
+    },
+    {
+      "topic_id": "decision-owner-unknown",
+      "label": "의사결정자 미확인",
+      "intent": "총무팀 창구만 만나고 있어 실제 결정권자가 누구인지 확인되지 않았다",
+      "deal_id": null,
+      "opened_at": 6,
+      "resolved_at": null,
+      "importance": "critical",
+      "evidence_open": [
+        "report-sejong-06"
+      ]
+    },
+    {
+      "topic_id": "pilot-request-open",
+      "label": "시범 운영 요청 미회신",
+      "intent": "무상 시범 운영 가능 여부를 묻고 아직 답을 주지 못했다",
+      "deal_id": null,
+      "opened_at": 24,
+      "resolved_at": null,
+      "importance": "high",
+      "evidence_open": [
+        "report-sejong-24"
+      ]
+    }
+  ],
+  "noise_topics": [
+    "정기 방문",
+    "담당자 휴가 일정 공유",
+    "원내 행사로 일정 조정",
+    "제품 뉴스레터 전달",
+    "방문 절차 안내",
+    "분기 점검 일정 공유"
+  ],
+  "forbidden_claims": [
+    "영업 건이 등록되어 있다",
+    "고객이 도입을 확정했다",
+    "예산이 배정됐다"
+  ]
+}

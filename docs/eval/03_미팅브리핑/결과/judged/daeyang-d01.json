@@ -1,0 +1,110 @@
+{
+  "case": "daeyang-d01",
+  "t": 0,
+  "prompt_version": "contract_management.generate_briefing.v13",
+  "gates": {
+    "highlight_count_ok": true,
+    "actions_within_prompt_limit": true,
+    "recent_read_called": false,
+    "invalid_source_refs": [],
+    "dropped_highlight_count": 0,
+    "report_refs_missing_excerpt": [],
+    "rag_call_count": 0,
+    "rag_min_ok": true,
+    "rag_max_ok": true
+  },
+  "score": {
+    "total": 80.0,
+    "max_score": 85,
+    "percent": 94.1,
+    "by_criterion": {
+      "highlight_selection": {
+        "ratio": 1.0,
+        "weighted": 25.0,
+        "weight": 25,
+        "derived_from": {
+          "coverage": 1.0,
+          "stale_shown": 0,
+          "off_topic": 0,
+          "penalty": 0.0
+        }
+      },
+      "factual_accuracy": {
+        "rating": 3,
+        "weighted": 15.0,
+        "weight": 20,
+        "reason": "금지된 주장이나 합의·완료 사실을 만들지는 않았다. 다만 제공된 근거에는 '진행 중인 건 점검'이라는 목적과 담당자 정보가 명시적으로 확인되지 않는다."
+      },
+      "suggested_actions": {
+        "rating": 4,
+        "weighted": 20.0,
+        "weight": 20,
+        "reason": "고객 과제, 예산·일정·의사결정자, 후속 자료와 다음 단계를 확인하도록 구체적으로 제안했으며 영업 담당자가 실행할 수 있다."
+      },
+      "scannability": {
+        "rating": 4,
+        "weighted": 10.0,
+        "weight": 10,
+        "reason": "제목에서 첫 미팅의 목적과 확인할 쟁점이 드러나고, 본문도 현재 상태를 먼저 제시한다. 시간순 나열이 아니다."
+      },
+      "missing_information": {
+        "rating": 4,
+        "weighted": 10.0,
+        "weight": 10,
+        "reason": "첫 미팅에서 확인해야 할 고객 과제·요구사항과 예산·도입 시기·의사결정 구조를 명확히 지목했다. 과거 보고서나 연결된 딜이 없다는 정상 상태를 누락으로 잘못 지적하지 않았다."
+      }
+    }
+  },
+  "judgement": {
+    "required_topics": [],
+    "must_not_appear": [],
+    "changed_values": [],
+    "off_topic_highlight_count": 0,
+    "forbidden_claims": [
+      {
+        "item": "고객이 80석에 합의했다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "유지보수 요율을 8%로 조정하기로 했다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "구형 설비 연동이 검증됐다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "계약이 체결됐다",
+        "violated": false,
+        "evidence": null
+      }
+    ],
+    "criteria": [
+      {
+        "criterion": "factual_accuracy",
+        "rating": 3,
+        "reason": "금지된 주장이나 합의·완료 사실을 만들지는 않았다. 다만 제공된 근거에는 '진행 중인 건 점검'이라는 목적과 담당자 정보가 명시적으로 확인되지 않는다."
+      },
+      {
+        "criterion": "suggested_actions",
+        "rating": 4,
+        "reason": "고객 과제, 예산·일정·의사결정자, 후속 자료와 다음 단계를 확인하도록 구체적으로 제안했으며 영업 담당자가 실행할 수 있다."
+      },
+      {
+        "criterion": "scannability",
+        "rating": 4,
+        "reason": "제목에서 첫 미팅의 목적과 확인할 쟁점이 드러나고, 본문도 현재 상태를 먼저 제시한다. 시간순 나열이 아니다."
+      },
+      {
+        "criterion": "missing_information",
+        "rating": 4,
+        "reason": "첫 미팅에서 확인해야 할 고객 과제·요구사항과 예산·도입 시기·의사결정 구조를 명확히 지목했다. 과거 보고서나 연결된 딜이 없다는 정상 상태를 누락으로 잘못 지적하지 않았다."
+      }
+    ],
+    "critical_errors": [],
+    "summary": "첫 미팅에 맞는 간결한 브리핑으로, 확인 질문과 후속 조치가 구체적이다. 다만 일부 현재 상태와 미팅 목적의 근거가 제공된 정보보다 앞서 표현되어 사실성은 소폭 감점된다."
+  }
+}

@@ -1,0 +1,117 @@
+{
+  "case": "daeyang-d03",
+  "t": 2,
+  "prompt_version": "contract_management.generate_briefing.v13",
+  "gates": {
+    "highlight_count_ok": true,
+    "actions_within_prompt_limit": true,
+    "recent_read_called": true,
+    "invalid_source_refs": [],
+    "dropped_highlight_count": 0,
+    "report_refs_missing_excerpt": [],
+    "rag_call_count": 0,
+    "rag_min_ok": true,
+    "rag_max_ok": true
+  },
+  "score": {
+    "total": 85.0,
+    "max_score": 85,
+    "percent": 100.0,
+    "by_criterion": {
+      "highlight_selection": {
+        "ratio": 1.0,
+        "weighted": 25.0,
+        "weight": 25,
+        "derived_from": {
+          "coverage": 1.0,
+          "stale_shown": 0,
+          "off_topic": 0,
+          "penalty": 0.0
+        }
+      },
+      "factual_accuracy": {
+        "rating": 4,
+        "weighted": 20.0,
+        "weight": 20,
+        "reason": "유지보수 종료 예정, 구매·공급사·계약·예산·일정 미확정 상태를 근거와 일치하게 표현했으며 미합의 사항을 확정된 것으로 쓰지 않았다."
+      },
+      "suggested_actions": {
+        "rating": 4,
+        "weighted": 20.0,
+        "weight": 20,
+        "reason": "정확한 종료일, 교체 시급성, 승인 절차, 의사결정권자, 요구사항과 범위, 예산·일정 등을 확인하도록 구체적인 행동을 제시했다."
+      },
+      "scannability": {
+        "rating": 4,
+        "weighted": 10.0,
+        "weight": 10,
+        "reason": "제목만으로 생산관리 시스템 교체의 현재 단계와 핵심 쟁점을 파악할 수 있고, 본문도 시간순 나열 없이 현재 상태부터 제시한다."
+      },
+      "missing_information": {
+        "rating": 4,
+        "weighted": 10.0,
+        "weight": 10,
+        "reason": "유지보수 종료일, 운영 문제, 기능·범위, 데이터 이전, 예산·일정, 승인 절차와 의사결정권자 등 미팅에서 확인할 정보를 폭넓게 지목했다."
+      }
+    }
+  },
+  "judgement": {
+    "required_topics": [
+      {
+        "topic_id": "eol-date-unknown",
+        "verdict": "covered",
+        "highlight_index": 1,
+        "reason": "현재 시스템의 유지보수 종료 예정과 교체 검토 상태를 설명하고, 정확한 종료일 및 교체 시급성을 확인해야 한다고 명시했다. 유지보수 종료일이 미확인되어 교체 시점을 정하기 어렵다는 핵심 사안을 적절히 다뤘다."
+      }
+    ],
+    "must_not_appear": [],
+    "changed_values": [],
+    "off_topic_highlight_count": 0,
+    "forbidden_claims": [
+      {
+        "item": "고객이 80석에 합의했다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "유지보수 요율을 8%로 조정하기로 했다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "구형 설비 연동이 검증됐다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "계약이 체결됐다",
+        "violated": false,
+        "evidence": null
+      }
+    ],
+    "criteria": [
+      {
+        "criterion": "factual_accuracy",
+        "rating": 4,
+        "reason": "유지보수 종료 예정, 구매·공급사·계약·예산·일정 미확정 상태를 근거와 일치하게 표현했으며 미합의 사항을 확정된 것으로 쓰지 않았다."
+      },
+      {
+        "criterion": "suggested_actions",
+        "rating": 4,
+        "reason": "정확한 종료일, 교체 시급성, 승인 절차, 의사결정권자, 요구사항과 범위, 예산·일정 등을 확인하도록 구체적인 행동을 제시했다."
+      },
+      {
+        "criterion": "scannability",
+        "rating": 4,
+        "reason": "제목만으로 생산관리 시스템 교체의 현재 단계와 핵심 쟁점을 파악할 수 있고, 본문도 시간순 나열 없이 현재 상태부터 제시한다."
+      },
+      {
+        "criterion": "missing_information",
+        "rating": 4,
+        "reason": "유지보수 종료일, 운영 문제, 기능·범위, 데이터 이전, 예산·일정, 승인 절차와 의사결정권자 등 미팅에서 확인할 정보를 폭넓게 지목했다."
+      }
+    ],
+    "critical_errors": [],
+    "summary": "유지보수 종료일 미확인이라는 핵심 사안을 정확히 짚고, 교체 검토가 아직 확정 단계가 아님을 명확히 구분했다. 미팅에서 확인할 질문과 다음 의사결정 항목도 구체적이다."
+  }
+}

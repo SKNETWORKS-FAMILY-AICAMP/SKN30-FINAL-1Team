@@ -1,0 +1,35 @@
+{
+  "customer_company": {
+    "id": "company-miraero",
+    "name": "미래로병원"
+  },
+  "sales_deals": [],
+  "approved_next_meeting": {
+    "activity_id": "activity-miraero-t00-next",
+    "title": "미래로병원 정기 미팅",
+    "starts_at": "2026-02-05T14:00:00+09:00",
+    "ends_at": "2026-02-05T15:00:00+09:00",
+    "location": "미래로병원 본관 회의실",
+    "note": "진행 중인 건 점검",
+    "customer_contact": {
+      "id": "contact-park",
+      "name": "박승우",
+      "department": "전산팀",
+      "job_title": "대리"
+    }
+  },
+  "briefing_mode": "first_meeting",
+  "recent_reports": [],
+  "has_older_reports": false,
+  "historical_report_context": [],
+  "report_search": {
+    "method": "keyword",
+    "status": "completed"
+  },
+  "report_search_query": "미래로병원 미해결 이슈",
+  "document_context": {
+    "query": "미래로병원 계약 견적 납기",
+    "summaries": [],
+    "sources": []
+  }
+}

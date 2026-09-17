@@ -1,0 +1,148 @@
+{
+  "timeline_id": "cheongsan",
+  "note": "체인 F. 딜이 모두 납품 완료·취소로 끝났다. 억지로 하이라이트를 채우면 안 된다.",
+  "first_meeting_date": "2026-01-22",
+  "meeting_interval_days": 7,
+  "meeting_count": 30,
+  "customer_company": {
+    "id": "company-cheongsan",
+    "name": "청산네트웍스"
+  },
+  "contacts": [
+    {
+      "id": "contact-baek",
+      "name": "백서린",
+      "department": "경영지원팀",
+      "job_title": "과장",
+      "authority": "계약 실무 담당"
+    }
+  ],
+  "deals": [
+    {
+      "deal_id": "deal-p",
+      "title": "근태관리 도입",
+      "opened_at": 1,
+      "stage_path": [
+        {
+          "at": 1,
+          "stage_code": "needs_validation"
+        },
+        {
+          "at": 5,
+          "stage_code": "quote_sent"
+        },
+        {
+          "at": 9,
+          "stage_code": "contract_completed"
+        },
+        {
+          "at": 12,
+          "stage_code": "order_delivered"
+        }
+      ]
+    },
+    {
+      "deal_id": "deal-q",
+      "title": "전자결재 확장",
+      "opened_at": 14,
+      "stage_path": [
+        {
+          "at": 14,
+          "stage_code": "needs_validation"
+        },
+        {
+          "at": 19,
+          "stage_code": "closed_cancelled"
+        }
+      ]
+    }
+  ],
+  "documents": [],
+  "topics": [
+    {
+      "topic_id": "attendance-rule-unknown",
+      "label": "근태 규정 확인 필요",
+      "intent": "교대 근무와 연장근로 규정이 확인되지 않아 설정 범위를 잡을 수 없다",
+      "deal_id": "deal-p",
+      "opened_at": 1,
+      "resolved_at": 8,
+      "importance": "high",
+      "evidence_open": [
+        "report-cheongsan-01"
+      ],
+      "evidence_resolved": [
+        "report-cheongsan-08"
+      ]
+    },
+    {
+      "topic_id": "install-schedule-unknown",
+      "label": "설치 일정 미확정",
+      "intent": "단말 설치를 언제 할지 정해지지 않아 오픈 시점을 잡을 수 없다",
+      "deal_id": "deal-p",
+      "opened_at": 6,
+      "resolved_at": 12,
+      "importance": "high",
+      "evidence_open": [
+        "report-cheongsan-06"
+      ],
+      "evidence_resolved": [
+        "report-cheongsan-12"
+      ]
+    },
+    {
+      "topic_id": "attendance-stabilize",
+      "label": "근태관리 안정화 이슈",
+      "intent": "납품 초기 출퇴근 기록 누락이 있었다",
+      "deal_id": "deal-p",
+      "opened_at": 13,
+      "resolved_at": 17,
+      "importance": "high",
+      "evidence_open": [
+        "report-cheongsan-13"
+      ],
+      "evidence_resolved": [
+        "report-cheongsan-17"
+      ]
+    },
+    {
+      "topic_id": "eapproval-cancel-reason",
+      "label": "전자결재 확장 취소",
+      "intent": "본사 정책 변경으로 전자결재 확장이 취소됐다",
+      "deal_id": "deal-q",
+      "opened_at": 19,
+      "resolved_at": 19,
+      "importance": "medium",
+      "evidence_open": [
+        "report-cheongsan-19"
+      ],
+      "evidence_resolved": [
+        "report-cheongsan-19"
+      ]
+    },
+    {
+      "topic_id": "renewal-question",
+      "label": "갱신 시점 문의",
+      "intent": "근태관리 계약 갱신 시점과 조건을 문의받았고 아직 안내하지 않았다",
+      "deal_id": "deal-p",
+      "opened_at": 29,
+      "resolved_at": null,
+      "importance": "high",
+      "evidence_open": [
+        "report-cheongsan-29"
+      ]
+    }
+  ],
+  "noise_topics": [
+    "정기 방문",
+    "담당자 휴가 일정 공유",
+    "원내 행사로 일정 조정",
+    "제품 뉴스레터 전달",
+    "방문 절차 안내",
+    "분기 점검 일정 공유"
+  ],
+  "forbidden_claims": [
+    "전자결재 확장을 진행 중이다",
+    "근태관리에 미해결 장애가 있다",
+    "신규 계약이 논의 중이다"
+  ]
+}

@@ -1,0 +1,117 @@
+{
+  "case": "daeyang-d10",
+  "t": 9,
+  "prompt_version": "contract_management.generate_briefing.v13",
+  "gates": {
+    "highlight_count_ok": true,
+    "actions_within_prompt_limit": true,
+    "recent_read_called": true,
+    "invalid_source_refs": [],
+    "dropped_highlight_count": 0,
+    "report_refs_missing_excerpt": [],
+    "rag_call_count": 0,
+    "rag_min_ok": false,
+    "rag_max_ok": true
+  },
+  "score": {
+    "total": 47.5,
+    "max_score": 85,
+    "percent": 55.9,
+    "by_criterion": {
+      "highlight_selection": {
+        "ratio": 0.0,
+        "weighted": 0.0,
+        "weight": 25,
+        "derived_from": {
+          "coverage": 0.0,
+          "stale_shown": 0,
+          "off_topic": 3,
+          "penalty": 0.6
+        }
+      },
+      "factual_accuracy": {
+        "rating": 3,
+        "weighted": 15.0,
+        "weight": 20,
+        "reason": "60석, 시연 환경, 제품 연동 사양 등은 각 하이라이트의 인용 근거와 대체로 부합합니다. 다만 미팅 장소와 참석자 정보는 제시된 활동 인용문만으로 확인되지 않습니다."
+      },
+      "suggested_actions": {
+        "rating": 4,
+        "weighted": 20.0,
+        "weight": 20,
+        "reason": "좌석 수, 시연 조건, 승인 일정, 연동 방식 등을 확인하도록 구체적인 질문과 준비 행동을 제시했습니다."
+      },
+      "scannability": {
+        "rating": 4,
+        "weighted": 10.0,
+        "weight": 10,
+        "reason": "각 제목만으로 대상과 쟁점이 비교적 명확하고, 본문도 대체로 현재 상태를 먼저 제시합니다."
+      },
+      "missing_information": {
+        "rating": 1,
+        "weighted": 2.5,
+        "weight": 10,
+        "reason": "여러 상업·시연·승인 관련 확인사항은 제시했지만, 이번 미팅의 핵심인 유지보수 종료일과 그에 따른 교체 가능 시점을 누락했습니다."
+      }
+    }
+  },
+  "judgement": {
+    "required_topics": [
+      {
+        "topic_id": "eol-date-unknown",
+        "verdict": "missed",
+        "highlight_index": null,
+        "reason": "현 시스템의 유지보수 종료일이 확인되지 않아 교체 시점을 정할 수 있다는 핵심 이슈가 브리핑에 전혀 언급되지 않았습니다."
+      }
+    ],
+    "must_not_appear": [],
+    "changed_values": [],
+    "off_topic_highlight_count": 3,
+    "forbidden_claims": [
+      {
+        "item": "고객이 80석에 합의했다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "유지보수 요율을 8%로 조정하기로 했다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "구형 설비 연동이 검증됐다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "계약이 체결됐다",
+        "violated": false,
+        "evidence": null
+      }
+    ],
+    "criteria": [
+      {
+        "criterion": "factual_accuracy",
+        "rating": 3,
+        "reason": "60석, 시연 환경, 제품 연동 사양 등은 각 하이라이트의 인용 근거와 대체로 부합합니다. 다만 미팅 장소와 참석자 정보는 제시된 활동 인용문만으로 확인되지 않습니다."
+      },
+      {
+        "criterion": "suggested_actions",
+        "rating": 4,
+        "reason": "좌석 수, 시연 조건, 승인 일정, 연동 방식 등을 확인하도록 구체적인 질문과 준비 행동을 제시했습니다."
+      },
+      {
+        "criterion": "scannability",
+        "rating": 4,
+        "reason": "각 제목만으로 대상과 쟁점이 비교적 명확하고, 본문도 대체로 현재 상태를 먼저 제시합니다."
+      },
+      {
+        "criterion": "missing_information",
+        "rating": 1,
+        "reason": "여러 상업·시연·승인 관련 확인사항은 제시했지만, 이번 미팅의 핵심인 유지보수 종료일과 그에 따른 교체 가능 시점을 누락했습니다."
+      }
+    ],
+    "critical_errors": [],
+    "summary": "시연 환경 요청은 적절히 다뤘지만, 필수 핵심 이슈인 노후 설비의 유지보수 종료 시점 미확인을 완전히 놓쳤습니다. 좌석·제품 사양·미팅 운영 관련 하이라이트가 중심이어서 핵심 관계형 브리핑의 초점도 분산되어 있습니다."
+  }
+}

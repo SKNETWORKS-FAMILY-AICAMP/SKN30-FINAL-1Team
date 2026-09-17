@@ -1,0 +1,25 @@
+{
+  "timeline_id": "hanul",
+  "t": 0,
+  "briefing_mode": "first_meeting",
+  "required_topics": [],
+  "allowed_topics": [],
+  "must_not_appear": [],
+  "changed_values": [],
+  "stalled_deals": [],
+  "expected_rag_calls_min": 0,
+  "expected_rag_calls_max": 0,
+  "forbidden_claims": [
+    "GMP 요건을 충족한다고 확인됐다",
+    "시범 부서가 정해졌다",
+    "도입이 확정됐다"
+  ],
+  "forbidden_missing_information": [
+    "과거 보고서 없음",
+    "연결된 딜 없음"
+  ],
+  "scoring": {
+    "state_tracking_applies": false,
+    "max_score": 85
+  }
+}

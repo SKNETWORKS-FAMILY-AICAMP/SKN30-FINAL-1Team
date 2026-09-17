@@ -1,0 +1,128 @@
+{
+  "case": "miraero-d05",
+  "t": 4,
+  "prompt_version": "contract_management.generate_briefing.v13",
+  "gates": {
+    "highlight_count_ok": true,
+    "actions_within_prompt_limit": true,
+    "recent_read_called": true,
+    "invalid_source_refs": [],
+    "dropped_highlight_count": 0,
+    "report_refs_missing_excerpt": [],
+    "rag_call_count": 1,
+    "rag_min_ok": true,
+    "rag_max_ok": true
+  },
+  "score": {
+    "total": 73.75,
+    "max_score": 85,
+    "percent": 86.8,
+    "by_criterion": {
+      "highlight_selection": {
+        "ratio": 0.75,
+        "weighted": 18.75,
+        "weight": 25,
+        "derived_from": {
+          "coverage": 0.75,
+          "stale_shown": 0,
+          "off_topic": 0,
+          "penalty": 0.0
+        }
+      },
+      "factual_accuracy": {
+        "rating": 3,
+        "weighted": 15.0,
+        "weight": 20,
+        "reason": "20대 수량을 최종 도입이 아닌 1차 산정으로 표현해 과도한 확정은 피했다. 다만 자동화 범위를 접수부터 결과 등록까지로 논의했다는 내용은 제시된 근거보다 구체적이다."
+      },
+      "suggested_actions": {
+        "rating": 4,
+        "weighted": 20.0,
+        "weight": 20,
+        "reason": "실사, 수량 확정 기준, 자동화 항목, 시스템 연계, 구매·승인 절차 등 영업 담당자가 미팅에서 확인할 구체적 행동을 제시했다."
+      },
+      "scannability": {
+        "rating": 4,
+        "weighted": 10.0,
+        "weight": 10,
+        "reason": "각 하이라이트 제목만으로 대상과 쟁점을 파악할 수 있고, 본문 첫 문장도 현재 상태를 제시하며 시간순 나열을 피했다."
+      },
+      "missing_information": {
+        "rating": 4,
+        "weighted": 10.0,
+        "weight": 10,
+        "reason": "수량 확정, 자동화 범위, 의사결정·예산·계약·일정 등 미팅에서 확인할 핵심 미확인 사항을 충분히 지목했다."
+      }
+    }
+  },
+  "judgement": {
+    "required_topics": [
+      {
+        "topic_id": "test-scope-unknown",
+        "verdict": "covered",
+        "highlight_index": 2,
+        "reason": "자동화 대상 검사 항목과 우선순위, 시스템 연계 범위가 미확정이라는 핵심 상태를 명확히 다뤘다."
+      },
+      {
+        "topic_id": "device-count",
+        "verdict": "partial",
+        "highlight_index": 1,
+        "reason": "장비 20대를 1차 산정 수량으로 제시했지만 최종 도입 수량이 아니라는 점을 강조해, 골든의 20대 도입 수량과 현재 상태가 일부 어긋난다."
+      }
+    ],
+    "must_not_appear": [],
+    "changed_values": [],
+    "off_topic_highlight_count": 0,
+    "forbidden_claims": [
+      {
+        "item": "장비 20대를 도입한다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "장비 15대를 도입한다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "9월에 오픈한다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "박승우 대리가 담당이다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "교육 일정이 확정됐다",
+        "violated": false,
+        "evidence": null
+      }
+    ],
+    "criteria": [
+      {
+        "criterion": "factual_accuracy",
+        "rating": 3,
+        "reason": "20대 수량을 최종 도입이 아닌 1차 산정으로 표현해 과도한 확정은 피했다. 다만 자동화 범위를 접수부터 결과 등록까지로 논의했다는 내용은 제시된 근거보다 구체적이다."
+      },
+      {
+        "criterion": "suggested_actions",
+        "rating": 4,
+        "reason": "실사, 수량 확정 기준, 자동화 항목, 시스템 연계, 구매·승인 절차 등 영업 담당자가 미팅에서 확인할 구체적 행동을 제시했다."
+      },
+      {
+        "criterion": "scannability",
+        "rating": 4,
+        "reason": "각 하이라이트 제목만으로 대상과 쟁점을 파악할 수 있고, 본문 첫 문장도 현재 상태를 제시하며 시간순 나열을 피했다."
+      },
+      {
+        "criterion": "missing_information",
+        "rating": 4,
+        "reason": "수량 확정, 자동화 범위, 의사결정·예산·계약·일정 등 미팅에서 확인할 핵심 미확인 사항을 충분히 지목했다."
+      }
+    ],
+    "critical_errors": [],
+    "summary": "핵심 두 사안을 모두 다뤘고 미팅용 확인 행동도 구체적이다. 다만 장비 20대를 최종 도입 수량이 아닌 1차 산정으로 표현해 수량 토픽은 partial이며, 일부 자동화 범위 표현은 근거보다 구체적이다."
+  }
+}

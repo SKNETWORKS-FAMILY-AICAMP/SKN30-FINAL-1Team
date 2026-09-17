@@ -1,0 +1,112 @@
+{
+  "case": "cheongsan-d03",
+  "t": 2,
+  "prompt_version": "contract_management.generate_briefing.v13",
+  "gates": {
+    "highlight_count_ok": true,
+    "actions_within_prompt_limit": true,
+    "recent_read_called": true,
+    "invalid_source_refs": [],
+    "dropped_highlight_count": 0,
+    "report_refs_missing_excerpt": [],
+    "rag_call_count": 0,
+    "rag_min_ok": true,
+    "rag_max_ok": true
+  },
+  "score": {
+    "total": 85.0,
+    "max_score": 85,
+    "percent": 100.0,
+    "by_criterion": {
+      "highlight_selection": {
+        "ratio": 1.0,
+        "weighted": 25.0,
+        "weight": 25,
+        "derived_from": {
+          "coverage": 1.0,
+          "stale_shown": 0,
+          "off_topic": 0,
+          "penalty": 0.0
+        }
+      },
+      "factual_accuracy": {
+        "rating": 4,
+        "weighted": 20.0,
+        "weight": 20,
+        "reason": "근태관리 도입이 검토·초기 확인 단계라는 상태와 규정 미확정 내용을 근거에 맞게 표현했으며, 상업 조건이 합의되지 않았다고 명시했다."
+      },
+      "suggested_actions": {
+        "rating": 4,
+        "weighted": 20.0,
+        "weight": 20,
+        "reason": "교대근무 유형, 연장근로 기준, 규정 확인 주체와 시점 등 영업 담당자가 미팅에서 실행할 확인 과제가 구체적이고 중복이 적다."
+      },
+      "scannability": {
+        "rating": 4,
+        "weighted": 10.0,
+        "weight": 10,
+        "reason": "각 제목만으로 근태관리 도입 상태, 핵심 쟁점, 상업 조건 상태를 파악할 수 있고 본문도 현재 상태부터 제시한다."
+      },
+      "missing_information": {
+        "rating": 4,
+        "weighted": 10.0,
+        "weight": 10,
+        "reason": "운영 방식, 적용 범위, 규정 세부 기준, 연계 여부, 예산·일정, 의사결정자와 후속 일정 등 미팅에서 확인할 정보를 폭넓게 지목했다."
+      }
+    }
+  },
+  "judgement": {
+    "required_topics": [
+      {
+        "topic_id": "attendance-rule-unknown",
+        "verdict": "covered",
+        "highlight_index": 2,
+        "reason": "교대근무와 연장근로 규정의 세부 기준 및 시스템 반영 방식이 미정이며, 운영 형태와 확인 주체·시점을 확인해야 한다고 명확히 다뤘다."
+      }
+    ],
+    "must_not_appear": [],
+    "changed_values": [],
+    "off_topic_highlight_count": 0,
+    "forbidden_claims": [
+      {
+        "item": "전자결재 확장을 진행 중이다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "근태관리에 미해결 장애가 있다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "신규 계약이 논의 중이다",
+        "violated": false,
+        "evidence": null
+      }
+    ],
+    "criteria": [
+      {
+        "criterion": "factual_accuracy",
+        "rating": 4,
+        "reason": "근태관리 도입이 검토·초기 확인 단계라는 상태와 규정 미확정 내용을 근거에 맞게 표현했으며, 상업 조건이 합의되지 않았다고 명시했다."
+      },
+      {
+        "criterion": "suggested_actions",
+        "rating": 4,
+        "reason": "교대근무 유형, 연장근로 기준, 규정 확인 주체와 시점 등 영업 담당자가 미팅에서 실행할 확인 과제가 구체적이고 중복이 적다."
+      },
+      {
+        "criterion": "scannability",
+        "rating": 4,
+        "reason": "각 제목만으로 근태관리 도입 상태, 핵심 쟁점, 상업 조건 상태를 파악할 수 있고 본문도 현재 상태부터 제시한다."
+      },
+      {
+        "criterion": "missing_information",
+        "rating": 4,
+        "reason": "운영 방식, 적용 범위, 규정 세부 기준, 연계 여부, 예산·일정, 의사결정자와 후속 일정 등 미팅에서 확인할 정보를 폭넓게 지목했다."
+      }
+    ],
+    "critical_errors": [],
+    "summary": "핵심 필수 사안인 교대근무·연장근로 규정 미확정 상태를 정확히 다뤘고, 확인 행동과 추가 질문도 충분하다. 상업 조건을 합의된 것으로 왜곡하지 않았으며 중대한 오류는 없다."
+  }
+}

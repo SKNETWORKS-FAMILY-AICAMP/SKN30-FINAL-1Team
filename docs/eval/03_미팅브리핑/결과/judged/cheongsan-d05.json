@@ -1,0 +1,112 @@
+{
+  "case": "cheongsan-d05",
+  "t": 4,
+  "prompt_version": "contract_management.generate_briefing.v13",
+  "gates": {
+    "highlight_count_ok": true,
+    "actions_within_prompt_limit": true,
+    "recent_read_called": true,
+    "invalid_source_refs": [],
+    "dropped_highlight_count": 0,
+    "report_refs_missing_excerpt": [],
+    "rag_call_count": 1,
+    "rag_min_ok": true,
+    "rag_max_ok": true
+  },
+  "score": {
+    "total": 85.0,
+    "max_score": 85,
+    "percent": 100.0,
+    "by_criterion": {
+      "highlight_selection": {
+        "ratio": 1.0,
+        "weighted": 25.0,
+        "weight": 25,
+        "derived_from": {
+          "coverage": 1.0,
+          "stale_shown": 0,
+          "off_topic": 0,
+          "penalty": 0.0
+        }
+      },
+      "factual_accuracy": {
+        "rating": 4,
+        "weighted": 20.0,
+        "weight": 20,
+        "reason": "근태관리 도입 진행 상태, 수기 집계 개선 요구, 규정 미확정 상태 및 최근 미팅의 추가 결정 부재를 제공된 근거와 일치하게 표현했다."
+      },
+      "suggested_actions": {
+        "rating": 4,
+        "weighted": 20.0,
+        "weight": 20,
+        "reason": "교대·연장근로 기준, 담당자와 확인 일정, 범위·예산·승인 절차·다음 산출물 등 영업 담당자가 실행할 구체적인 확인 행동을 제시했다."
+      },
+      "scannability": {
+        "rating": 4,
+        "weighted": 10.0,
+        "weight": 10,
+        "reason": "각 제목에서 대상과 쟁점이 바로 드러나며, 본문도 시간순 나열보다 현재 상태와 미팅 목적 중심으로 구성되어 빠르게 훑기 쉽다."
+      },
+      "missing_information": {
+        "rating": 4,
+        "weighted": 10.0,
+        "weight": 10,
+        "reason": "규정 세부 기준과 확인 주체뿐 아니라 적용 범위, 기존 시스템 연계, 예산·일정·승인 절차, 다음 산출물 등 미팅에서 확인할 핵심 공백을 충분히 지목했다."
+      }
+    }
+  },
+  "judgement": {
+    "required_topics": [
+      {
+        "topic_id": "attendance-rule-unknown",
+        "verdict": "covered",
+        "highlight_index": 2,
+        "reason": "교대근무와 연장근로 규정의 세부 기준 및 반영 방식이 미정이며, 이를 확인해야 기능 범위와 운영 가능성을 판단할 수 있다고 명확히 다뤘다."
+      }
+    ],
+    "must_not_appear": [],
+    "changed_values": [],
+    "off_topic_highlight_count": 0,
+    "forbidden_claims": [
+      {
+        "item": "전자결재 확장을 진행 중이다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "근태관리에 미해결 장애가 있다",
+        "violated": false,
+        "evidence": null
+      },
+      {
+        "item": "신규 계약이 논의 중이다",
+        "violated": false,
+        "evidence": null
+      }
+    ],
+    "criteria": [
+      {
+        "criterion": "factual_accuracy",
+        "rating": 4,
+        "reason": "근태관리 도입 진행 상태, 수기 집계 개선 요구, 규정 미확정 상태 및 최근 미팅의 추가 결정 부재를 제공된 근거와 일치하게 표현했다."
+      },
+      {
+        "criterion": "suggested_actions",
+        "rating": 4,
+        "reason": "교대·연장근로 기준, 담당자와 확인 일정, 범위·예산·승인 절차·다음 산출물 등 영업 담당자가 실행할 구체적인 확인 행동을 제시했다."
+      },
+      {
+        "criterion": "scannability",
+        "rating": 4,
+        "reason": "각 제목에서 대상과 쟁점이 바로 드러나며, 본문도 시간순 나열보다 현재 상태와 미팅 목적 중심으로 구성되어 빠르게 훑기 쉽다."
+      },
+      {
+        "criterion": "missing_information",
+        "rating": 4,
+        "reason": "규정 세부 기준과 확인 주체뿐 아니라 적용 범위, 기존 시스템 연계, 예산·일정·승인 절차, 다음 산출물 등 미팅에서 확인할 핵심 공백을 충분히 지목했다."
+      }
+    ],
+    "critical_errors": [],
+    "summary": "근태 규정 확인 필요라는 핵심 미확인 사안을 정확히 짚었고, 관련 없는 금지 주장이나 완료로의 과장은 없다. 4개의 하이라이트 모두 이번 미팅과 관련되며, 확인 질문과 다음 행동도 구체적이다."
+  }
+}

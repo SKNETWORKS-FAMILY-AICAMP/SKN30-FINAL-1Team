@@ -1,0 +1,37 @@
+{
+  "timeline_id": "sejong",
+  "t": 2,
+  "briefing_mode": "relationship",
+  "required_topics": [
+    {
+      "topic_id": "branch-inventory-unknown",
+      "label": "산하 3개 병원 시스템 현황 미파악",
+      "intent": "산하 병원 세 곳이 각각 무슨 시스템을 쓰는지 정리된 자료가 없어 통합 범위를 잡을 수 없다",
+      "deal_id": null,
+      "importance": "high",
+      "evidence": [
+        "report-sejong-01"
+      ],
+      "last_mentioned_at": 1,
+      "in_recent_window": true,
+      "requires_rag": false,
+      "expectation": "must_appear"
+    }
+  ],
+  "allowed_topics": [],
+  "must_not_appear": [],
+  "changed_values": [],
+  "stalled_deals": [],
+  "expected_rag_calls_min": 0,
+  "expected_rag_calls_max": 0,
+  "forbidden_claims": [
+    "영업 건이 등록되어 있다",
+    "고객이 도입을 확정했다",
+    "예산이 배정됐다"
+  ],
+  "forbidden_missing_information": [],
+  "scoring": {
+    "state_tracking_applies": false,
+    "max_score": 85
+  }
+}
