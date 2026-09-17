@@ -6,6 +6,7 @@ import Button from '@/components/Button'
 import CompanyAutocomplete, { type CompanySelection } from '@/components/CompanyAutocomplete'
 import ContactPicker, { toContactOption, type ContactOption } from '@/components/ContactPicker'
 import Modal from '@/components/Modal'
+import ProductPreviewSplit from '@/components/ProductPreview'
 import RecordPicker, { type RecordOption } from '@/components/RecordPicker'
 import Select from '@/components/Select'
 import CustomerFormModal from '@/pages/Customers/components/CustomerFormModal'
@@ -108,6 +109,8 @@ export default function SalesDealForm({
   const [errors, setErrors] = useState<Errors>({})
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  // 제품을 고르면 제품 정보를 펼친 채로 보여 주고, 폼을 넓게 쓰고 싶으면 접습니다.
+  const [previewOpen, setPreviewOpen] = useState(true)
   const submittingRef = useRef(false)
 
   useEffect(() => {
@@ -245,10 +248,15 @@ export default function SalesDealForm({
     [columns],
   )
 
+  // 고른 제품 한 건. 견적·발주와 같은 패널을 씁니다.
+  const products = form.product ? [{ id: form.product.id, name: form.product.label }] : []
+
   return (
     <Modal
       title={editing ? '영업 딜 수정' : '영업 딜 추가'}
       description={editing ? `${deal.no} · 단계는 보드에서 카드를 옮겨 바꿉니다.` : undefined}
+      size={products.length > 0 && previewOpen ? 'xl' : 'md'}
+      flushBody
       onClose={close}
       onSubmit={() => void submit()}
       footer={
@@ -262,82 +270,84 @@ export default function SalesDealForm({
         </>
       }
     >
-      <div className={styles.grid}>
-        <Field label="제목" error={errors.title} wide>
-          <input
-            value={form.title}
-            disabled={submitting}
-            maxLength={254}
-            placeholder="비우면 '회사명 제품' 으로 채웁니다"
-            onChange={(event) => set('title', event.target.value)}
-          />
-        </Field>
+      <ProductPreviewSplit products={products} open={previewOpen} onOpenChange={setPreviewOpen}>
+        <div className={styles.grid}>
+          <Field label="제목" error={errors.title} wide>
+            <input
+              value={form.title}
+              disabled={submitting}
+              maxLength={254}
+              placeholder="비우면 '회사명 제품' 으로 채웁니다"
+              onChange={(event) => set('title', event.target.value)}
+            />
+          </Field>
 
-        <Field label="회사명" required error={errors.company}>
-          <CompanyAutocomplete
-            allowCreate
-            label="회사명"
-            placeholder="회사 이름으로 검색"
-            invalid={errors.company !== undefined}
-            disabled={submitting || companyLocked}
-            value={form.company}
-            onChange={pickCompany}
-          />
-        </Field>
+          <Field label="회사명" required error={errors.company}>
+            <CompanyAutocomplete
+              allowCreate
+              label="회사명"
+              placeholder="회사 이름으로 검색"
+              invalid={errors.company !== undefined}
+              disabled={submitting || companyLocked}
+              value={form.company}
+              onChange={pickCompany}
+            />
+          </Field>
 
-        <Field label="고객명" required error={errors.contact}>
-          <ContactPicker
-            allowCreate
-            label="고객명"
-            placeholder={
-              companyId(form.company) === null ? '회사명을 먼저 선택하세요' : '이름으로 검색'
-            }
-            companyId={companyId(form.company)}
-            disabled={submitting || contactLocked}
-            invalid={errors.contact !== undefined}
-            value={form.contact}
-            onChange={(next) => set('contact', next)}
-            onCreate={(name) => setCreating({ company: form.company, name })}
-          />
-        </Field>
+          <Field label="고객명" required error={errors.contact}>
+            <ContactPicker
+              allowCreate
+              label="고객명"
+              placeholder={
+                companyId(form.company) === null ? '회사명을 먼저 선택하세요' : '이름으로 검색'
+              }
+              companyId={companyId(form.company)}
+              disabled={submitting || contactLocked}
+              invalid={errors.contact !== undefined}
+              value={form.contact}
+              onChange={(next) => set('contact', next)}
+              onCreate={(name) => setCreating({ company: form.company, name })}
+            />
+          </Field>
 
-        <Field label="제품" required error={errors.product}>
-          <RecordPicker<ProductResponse>
-            path="/products"
-            label="제품"
-            placeholder="제품 이름으로 검색"
-            emptyText="일치하는 제품이 없습니다."
-            loadingText="제품을 불러오는 중입니다."
-            fallback="제품을 불러오지 못했습니다."
-            value={form.product}
-            disabled={submitting}
-            invalid={errors.product !== undefined}
-            toOption={(row) => ({ id: row.id, label: row.name })}
-            onChange={(next) => set('product', next)}
-          />
-        </Field>
+          <Field label="제품" required error={errors.product}>
+            <RecordPicker<ProductResponse>
+              path="/products"
+              label="제품"
+              placeholder="제품 이름으로 검색"
+              emptyText="일치하는 제품이 없습니다."
+              loadingText="제품을 불러오는 중입니다."
+              fallback="제품을 불러오지 못했습니다."
+              value={form.product}
+              disabled={submitting}
+              invalid={errors.product !== undefined}
+              toOption={(row) => ({ id: row.id, label: row.name })}
+              onChange={(next) => set('product', next)}
+            />
+          </Field>
 
-        <Field label="파이프라인" required error={errors.stageId}>
-          <Select
-            label="파이프라인"
-            value={form.stageId}
-            options={selectOptions}
-            disabled={submitting || editing || optionsLoading}
-            onChange={(stageId) => set('stageId', stageId)}
-          />
-        </Field>
-      </div>
+          <Field label="파이프라인" required error={errors.stageId}>
+            <Select
+              label="파이프라인"
+              value={form.stageId}
+              options={selectOptions}
+              disabled={submitting || editing || optionsLoading}
+              onChange={(stageId) => set('stageId', stageId)}
+            />
+          </Field>
+        </div>
 
-      {noDealTypes && (
-        <p className={styles.notice} role="status">
-          {`영업 딜을 ${editing ? '수정' : '추가'}하려면 영업 유형이 하나 이상 필요합니다.`}
-        </p>
-      )}
-      {submitError && (
-        <p className={styles.submitError} role="alert">
-          {submitError}
-        </p>
-      )}
+        {noDealTypes && (
+          <p className={styles.notice} role="status">
+            {`영업 딜을 ${editing ? '수정' : '추가'}하려면 영업 유형이 하나 이상 필요합니다.`}
+          </p>
+        )}
+        {submitError && (
+          <p className={styles.submitError} role="alert">
+            {submitError}
+          </p>
+        )}
+      </ProductPreviewSplit>
 
       {/* 이 모달 본문은 <form> 이라 등록 폼을 그 안에 두면 폼이 겹칩니다. 바깥 스크림의
           backdrop-filter 도 fixed 자식의 기준 상자를 바꿔 위치가 어긋납니다. body 로 꺼냅니다. */}

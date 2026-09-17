@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import Button from '@/components/Button'
 import Modal from '@/components/Modal'
+import ProductPreviewSplit, { pickedProducts } from '@/components/ProductPreview'
 import type { SalesDeal } from '@/pages/Deals/useSalesDeals'
 import { showToast } from '@/shared/toast'
 import type { ApiPurchaseOrder, PurchaseOrderStatusResponse } from '@/types'
@@ -61,6 +62,8 @@ export default function OrderForm({
   const [errors, setErrors] = useState<FormErrors>({})
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  // 제품을 고르면 제품 정보를 펼친 채로 보여 주고, 폼을 넓게 쓰고 싶으면 접습니다.
+  const [previewOpen, setPreviewOpen] = useState(true)
   const submittingRef = useRef(false)
 
   // 상태 목록은 늦게 옵니다. 새 발주는 오는 대로 첫 상태를 채웁니다.
@@ -106,6 +109,8 @@ export default function OrderForm({
     }
   }
 
+  const products = pickedProducts(form.items)
+
   return (
     <Modal
       title={order ? '발주 수정' : '발주 추가'}
@@ -114,6 +119,8 @@ export default function OrderForm({
           ? `${order.no} · 발주번호와 상태는 여기서 바꾸지 않습니다.`
           : `${deal?.no ?? ''} · 발주번호는 저장할 때 자동으로 매깁니다.`
       }
+      size={products.length > 0 && previewOpen ? 'xl' : 'md'}
+      flushBody
       onClose={close}
       onSubmit={() => void submit()}
       footer={
@@ -127,21 +134,23 @@ export default function OrderForm({
         </>
       }
     >
-      <OrderFields
-        form={form}
-        errors={errors}
-        statuses={statuses}
-        suppliers={suppliers}
-        optionsLoading={optionsLoading}
-        disabled={submitting}
-        // 발주번호와 상태는 수정에서 바꾸지 않습니다. 새 발주는 상태를 골라야 합니다.
-        showStatus={order === undefined}
-        lockSalesDeal
-        createdBy={order?.createdBy ?? createdBy ?? ''}
-        onChange={set}
-        onItemsChange={setItems}
-      />
-      {submitError && <p role="alert">{submitError}</p>}
+      <ProductPreviewSplit products={products} open={previewOpen} onOpenChange={setPreviewOpen}>
+        <OrderFields
+          form={form}
+          errors={errors}
+          statuses={statuses}
+          suppliers={suppliers}
+          optionsLoading={optionsLoading}
+          disabled={submitting}
+          // 발주번호와 상태는 수정에서 바꾸지 않습니다. 새 발주는 상태를 골라야 합니다.
+          showStatus={order === undefined}
+          lockSalesDeal
+          createdBy={order?.createdBy ?? createdBy ?? ''}
+          onChange={set}
+          onItemsChange={setItems}
+        />
+        {submitError && <p role="alert">{submitError}</p>}
+      </ProductPreviewSplit>
     </Modal>
   )
 }

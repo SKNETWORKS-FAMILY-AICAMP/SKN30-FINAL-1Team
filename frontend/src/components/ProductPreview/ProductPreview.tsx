@@ -1,39 +1,24 @@
-// 견적에 고른 제품을 폼 옆에서 확인하는 패널입니다.
+// 폼 옆에서 고른 제품을 확인하는 패널입니다.
 //
-// 품목 칸에는 이름만 남아 규격·사진을 보려면 상품 화면을 따로 열어야 했습니다.
-// 한 견적에 제품이 여러 개라 제품마다 탭으로 나눕니다.
+// 제품 칸에는 이름만 남아 규격·사진을 보려면 상품 화면을 따로 열어야 했습니다.
+// 한 번에 여러 제품을 고르는 견적·발주가 있어 제품마다 탭으로 나눕니다.
 import { useState, type ReactNode } from 'react'
 
-import type { ItemState } from '@/components/ItemRows'
 import Tabs from '@/components/Tabs'
 import ProductSummary from '@/pages/Products/components/ProductSummary'
 
+import type { Picked } from './picked'
+
 import styles from './ProductPreview.module.scss'
 
-interface Picked {
-  id: string
-  name: string
-}
-
-/** 품목 중 제품을 고른 줄만, 같은 제품은 한 번만. */
-function pickedProducts(items: ItemState[]): Picked[] {
-  const seen = new Map<string, Picked>()
-  for (const item of items) {
-    if (item.productId !== '' && !seen.has(item.productId))
-      seen.set(item.productId, { id: item.productId, name: item.productName })
-  }
-  return [...seen.values()]
-}
-
 export default function ProductPreview({
-  items,
+  products,
   action,
 }: {
-  items: ItemState[]
-  /** 탭 줄 오른쪽 끝에 두는 버튼. 견적 폼의 접기 버튼이 들어옵니다. */
+  products: Picked[]
+  /** 탭 줄 오른쪽 끝에 두는 버튼. 폼의 접기 버튼이 들어옵니다. */
   action?: ReactNode
 }) {
-  const products = pickedProducts(items)
   const ids = products.map((p) => p.id).join(',')
   const [active, setActive] = useState<string | null>(null)
   const [knownIds, setKnownIds] = useState(ids)
