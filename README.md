@@ -16,7 +16,7 @@
 
 ## Live Demo
 
-[Visit the Live Demo](https://d3m90og33enu6v.cloudfront.net/login)
+[서비스 바로가기](https://d3m90og33enu6v.cloudfront.net/login)
 
 
 ---
