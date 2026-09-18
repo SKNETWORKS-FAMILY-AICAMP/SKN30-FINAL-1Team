@@ -13,6 +13,12 @@
   </p>
 </div>
 
+
+## Live Demo
+
+[Visit the Live Demo](https://d3m90og33enu6v.cloudfront.net/login)
+
+
 ---
 
 ## Team CassTerra
